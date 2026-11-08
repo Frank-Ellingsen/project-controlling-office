@@ -29,12 +29,13 @@ def check_env():
         print("  -> .env file verified.")
 
 def init_duckdb():
-    from src.engine_compute.duckdb_store import DuckDBStore
+    from src.engine_compute.duckdb_store import DuckDBStore, DuckDBStoreManager
     os.makedirs("data", exist_ok=True)
     db_path = "data/elkem_analytics.duckdb"
     store = DuckDBStore(db_path=db_path)
     store.seed_sample_data()
-    print(f"  -> DuckDB database initialized at {db_path} with WBS, Time Entries, Procurement and S-Curve tables.")
+    mgr = DuckDBStoreManager(db_path=db_path)
+    print(f"  -> DuckDB database initialized at {db_path} with WBS, Time Entries, Procurement, S-Curve, and Control Account tables.")
 
 def main():
     print("=====================================================")
