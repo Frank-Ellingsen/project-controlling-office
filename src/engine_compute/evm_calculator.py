@@ -11,7 +11,7 @@ Rules:
 """
 
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 from enum import Enum
 import math
 

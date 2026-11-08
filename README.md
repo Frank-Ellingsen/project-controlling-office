@@ -102,24 +102,34 @@ project-controlling-office/
 ## ⚡ Hurtigstart & Installasjon
 
 ### 1. Forutsetninger
-* **Python 3.12+**
-* **Docker Desktop** (med Docker Compose)
-* **Ollama** (installert lokalt med `ollama pull llama3.1` og `ollama pull nomic-embed-text`)
+* **Python 3.12+** and Conda for the local app
+* Docker Desktop and Ollama are optional for the standalone dashboard
 
-### 2. Klon og Konfigurer
-```bash
-git clone project-controlling-office
-cd project-controlling-office
-cp .env.example .env
+### 2. Klon og installer (Windows PowerShell)
+```powershell
+git clone https://github.com/Frank-Ellingsen/project-controlling-office.git
+Set-Location project-controlling-office
+conda create -n wf1 python=3.12 -y
+conda activate wf1
+python -m pip install -r requirements.txt
 ```
 
-### 3. Bygg Lokal Database
-```bash
-python scripts/bootstrap_dev.py
+### 3. Start Streamlit
+```powershell
+python -m streamlit run app.py
+```
+Hold terminalen åpen mens appen kjører, og åpne `http://localhost:8501`.
+Hvis nettleseren viser `ERR_CONNECTION_REFUSED`, startkommandoen er ikke aktiv
+eller Streamlit har avsluttet med en feil i terminalen.
+
+`app.py` starter porteføljedashbordet. For Streamlit-grensesnittet som bruker
+beregningsmotorene og DuckDB, kjør i stedet:
+```powershell
+python -m streamlit run src/ui_frontend/app.py
 ```
 
-### 4. Start Containerne
-```bash
+### Valgfritt: Start containerne
+```powershell
 docker compose up --build
 ```
 Backend-containeren starter `src.api.main:app`. Docker-builden stopper nå ved
