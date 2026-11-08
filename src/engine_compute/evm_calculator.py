@@ -53,23 +53,23 @@ class EVMResult:
     sv: float       # Schedule Variance (BCWP - BCWS)
     
     # Performance Indices
-    cpi: float      # Cost Performance Index (BCWP / ACWP)
-    spi: float      # Schedule Performance Index (BCWP / BCWS)
+    cpi: Optional[float]      # Undefined when no actual cost has been recorded
+    spi: Optional[float]      # Undefined when no planned value has been recorded
     
     # Forecasts
-    eac_cpi: float            # EAC based on CPI
-    eac_composite: float      # EAC based on CPI * SPI
+    eac_cpi: Optional[float]            # Undefined when CPI cannot support a forecast
+    eac_composite: Optional[float]      # Undefined when CPI or SPI cannot support a forecast
     eac_budgeted: float       # EAC based on original plan rate
-    etc: float                # Estimate to Complete (EAC - ACWP)
-    vac: float                # Variance at Completion (BAC - EAC)
-    tcpi_bac: float           # To-Complete Performance Index vs BAC
+    etc: Optional[float]                # Estimate to Complete (EAC - ACWP)
+    vac: Optional[float]                # Variance at Completion (BAC - EAC)
+    tcpi_bac: Optional[float]           # To-Complete Performance Index vs BAC
     
     # Status Flags
     cost_status: str          # "UNDER_BUDGET", "ON_BUDGET", "OVER_BUDGET"
     schedule_status: str      # "AHEAD_OF_SCHEDULE", "ON_SCHEDULE", "BEHIND_SCHEDULE"
     
     # IFRS 15 Financial Accounting Integration
-    poc_percentage: float                   # Percentage of Completion (ACWP / EAC)
+    poc_percentage: Optional[float]       # Unavailable when the selected EAC is undefined
     recognized_revenue: Optional[float]     # Poc % * Contract Value
     contract_asset: Optional[float]         # Unbilled revenue (Recognized > Invoiced)
     contract_liability: Optional[float]     # Advance payment (Invoiced > Recognized)
@@ -119,30 +119,43 @@ class EVMCalculator:
     @staticmethod
     def calculate(inp: EVMInput, default_eac_method: EACType = EACType.CPI_BASED) -> EVMResult:
         # 1. Input Validation
+        numeric_inputs = {
+            "BAC": inp.bac,
+            "BCWS": inp.bcws,
+            "BCWP": inp.bcwp,
+            "ACWP": inp.acwp,
+        }
+        if inp.contract_value is not None:
+            numeric_inputs["contract_value"] = inp.contract_value
+        if inp.invoiced_to_date is not None:
+            numeric_inputs["invoiced_to_date"] = inp.invoiced_to_date
+        if any(not math.isfinite(value) for value in numeric_inputs.values()):
+            raise ValueError("All EVM numeric inputs must be finite.")
         if inp.bac <= 0:
             raise ValueError(f"BAC must be greater than 0. Got {inp.bac} for CA {inp.control_account_id}")
-        if inp.acwp < 0 or inp.bcwp < 0 or inp.bcws < 0:
-            raise ValueError("BCWS, BCWP, and ACWP must be non-negative.")
+        if any(value < 0 for value in numeric_inputs.values()):
+            raise ValueError("All EVM numeric inputs must be non-negative.")
 
         # 2. Variances
         cv = inp.bcwp - inp.acwp
         sv = inp.bcwp - inp.bcws
 
         # 3. Performance Indices (Zero-Division Safe)
-        cpi = inp.bcwp / inp.acwp if inp.acwp > 0 else (1.0 if inp.bcwp == 0 else 999.0)
-        spi = inp.bcwp / inp.bcws if inp.bcws > 0 else (1.0 if inp.bcwp == 0 else 999.0)
+        cpi = inp.bcwp / inp.acwp if inp.acwp > 0 else None
+        spi = inp.bcwp / inp.bcws if inp.bcws > 0 else None
 
         # 4. EAC Calculations
-        # A. CPI Method: BAC / CPI
-        eac_cpi = inp.bac / cpi if cpi > 0 else inp.bac * 2.0
+        # A. CPI Method: BAC / CPI. It is not meaningful when CPI is undefined
+        # or zero, so emit null rather than a synthetic forecast.
+        eac_cpi = inp.bac / cpi if cpi is not None and cpi > 0 else None
         
         # B. Composite (CPI * SPI)
-        cpi_spi_product = cpi * spi
+        cpi_spi_product = cpi * spi if cpi is not None and spi is not None else None
         remaining_work = max(0.0, inp.bac - inp.bcwp)
-        if cpi_spi_product > 0:
+        if cpi_spi_product is not None and cpi_spi_product > 0:
             eac_composite = inp.acwp + (remaining_work / cpi_spi_product)
         else:
-            eac_composite = inp.acwp + remaining_work
+            eac_composite = None
             
         # C. Budgeted Rate
         eac_budgeted = inp.acwp + remaining_work
@@ -156,25 +169,29 @@ class EVMCalculator:
             primary_eac = eac_budgeted
 
         # 5. ETC & VAC
-        etc = max(0.0, primary_eac - inp.acwp)
-        vac = inp.bac - primary_eac
+        etc = max(0.0, primary_eac - inp.acwp) if primary_eac is not None else None
+        vac = inp.bac - primary_eac if primary_eac is not None else None
 
         # 6. TCPI (To-Complete Performance Index vs BAC)
         remaining_budget = inp.bac - inp.acwp
         if remaining_budget > 0:
             tcpi_bac = remaining_work / remaining_budget
         else:
-            tcpi_bac = 999.0  # Target impossible if ACWP >= BAC before work completion
+            tcpi_bac = None
 
         # 7. Status Evaluation (2% threshold default)
-        if cpi >= 1.02:
+        if cpi is None:
+            cost_status = "UNAVAILABLE_NO_ACTUAL_COST"
+        elif cpi >= 1.02:
             cost_status = "UNDER_BUDGET"
         elif cpi >= 0.98:
             cost_status = "ON_BUDGET"
         else:
             cost_status = "OVER_BUDGET"
 
-        if spi >= 1.02:
+        if spi is None:
+            schedule_status = "UNAVAILABLE_NO_PLANNED_VALUE"
+        elif spi >= 1.02:
             schedule_status = "AHEAD_OF_SCHEDULE"
         elif spi >= 0.98:
             schedule_status = "ON_SCHEDULE"
@@ -182,13 +199,16 @@ class EVMCalculator:
             schedule_status = "BEHIND_SCHEDULE"
 
         # 8. IFRS 15 Cost-to-Cost Revenue Recognition
-        poc_percentage = min(1.0, inp.acwp / primary_eac) if primary_eac > 0 else 0.0
+        poc_percentage = (
+            min(1.0, inp.acwp / primary_eac)
+            if primary_eac is not None and primary_eac > 0 else None
+        )
         
         recognized_revenue = None
         contract_asset = None
         contract_liability = None
 
-        if inp.contract_value is not None:
+        if inp.contract_value is not None and poc_percentage is not None:
             recognized_revenue = round(inp.contract_value * poc_percentage, 2)
             if inp.invoiced_to_date is not None:
                 diff = recognized_revenue - inp.invoiced_to_date
@@ -211,17 +231,17 @@ class EVMCalculator:
             acwp=round(inp.acwp, 2),
             cv=round(cv, 2),
             sv=round(sv, 2),
-            cpi=round(cpi, 4),
-            spi=round(spi, 4),
-            eac_cpi=round(eac_cpi, 2),
-            eac_composite=round(eac_composite, 2),
+            cpi=round(cpi, 4) if cpi is not None else None,
+            spi=round(spi, 4) if spi is not None else None,
+            eac_cpi=round(eac_cpi, 2) if eac_cpi is not None else None,
+            eac_composite=round(eac_composite, 2) if eac_composite is not None else None,
             eac_budgeted=round(eac_budgeted, 2),
-            etc=round(etc, 2),
-            vac=round(vac, 2),
-            tcpi_bac=round(tcpi_bac, 4),
+            etc=round(etc, 2) if etc is not None else None,
+            vac=round(vac, 2) if vac is not None else None,
+            tcpi_bac=round(tcpi_bac, 4) if tcpi_bac is not None else None,
             cost_status=cost_status,
             schedule_status=schedule_status,
-            poc_percentage=round(poc_percentage * 100, 2),
+            poc_percentage=round(poc_percentage * 100, 2) if poc_percentage is not None else None,
             recognized_revenue=recognized_revenue,
             contract_asset=contract_asset,
             contract_liability=contract_liability
@@ -292,4 +312,3 @@ if __name__ == "__main__":
     )
     res = EVMCalculator.calculate(sample_input)
     print(res.to_dict())
-

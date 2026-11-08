@@ -219,6 +219,14 @@ PROJECT_DATA = {
 active_input = PROJECT_DATA.get(project_id, PROJECT_DATA["CA-1042"])
 evm_res = EVMCalculator.calculate(active_input, default_eac_method=active_eac_type)
 
+def display_number(value, decimals=2):
+    return f"{value:,.{decimals}f}" if value is not None else "Ikke tilgjengelig"
+
+cpi_is_low = evm_res.cpi is not None and evm_res.cpi < 0.95
+eac_display = display_number(evm_res.eac_cpi)
+vac_display = display_number(evm_res.vac)
+poc_display = display_number(evm_res.poc_percentage, 1)
+
 # -----------------------------------------------------------------------------
 # 5. Executive KPI Stripe
 # -----------------------------------------------------------------------------
@@ -234,31 +242,41 @@ with col1:
     """, unsafe_allow_html=True)
 
 with col2:
-    badge_cpi = "badge-green" if evm_res.cpi >= 1.0 else ("badge-yellow" if evm_res.cpi >= 0.95 else "badge-red")
+    badge_cpi = (
+        "badge-yellow" if evm_res.cpi is None else
+        ("badge-green" if evm_res.cpi >= 1.0 else ("badge-yellow" if evm_res.cpi >= 0.95 else "badge-red"))
+    )
     st.markdown(f"""
     <div class="kpi-card">
         <div class="kpi-title">Kostnadsindeks (CPI)</div>
-        <div class="kpi-value">{evm_res.cpi:.4f}</div>
+        <div class="kpi-value">{display_number(evm_res.cpi, 4)}</div>
         <span class="{badge_cpi}">Avvik: {evm_res.cv:,.0f} NOK ({evm_res.cost_status})</span>
     </div>
     """, unsafe_allow_html=True)
 
 with col3:
-    badge_spi = "badge-green" if evm_res.spi >= 1.0 else ("badge-yellow" if evm_res.spi >= 0.95 else "badge-red")
+    badge_spi = (
+        "badge-yellow" if evm_res.spi is None else
+        ("badge-green" if evm_res.spi >= 1.0 else ("badge-yellow" if evm_res.spi >= 0.95 else "badge-red"))
+    )
     st.markdown(f"""
     <div class="kpi-card">
         <div class="kpi-title">Fremdriftsindeks (SPI)</div>
-        <div class="kpi-value">{evm_res.spi:.4f}</div>
+        <div class="kpi-value">{display_number(evm_res.spi, 4)}</div>
         <span class="{badge_spi}">Avvik: {evm_res.sv:,.0f} NOK ({evm_res.schedule_status})</span>
     </div>
     """, unsafe_allow_html=True)
 
 with col4:
-    asset_text = f"Contract Asset: {evm_res.contract_asset:,.0f} NOK" if evm_res.contract_asset else "Contract Liability: 0 NOK"
+    asset_text = (
+        "Kontraktsverdier ikke tilgjengelige" if evm_res.contract_asset is None
+        else (f"Contract Asset: {evm_res.contract_asset:,.0f} NOK" if evm_res.contract_asset
+              else "Contract Liability: 0 NOK")
+    )
     st.markdown(f"""
     <div class="kpi-card">
         <div class="kpi-title">IFRS 15 Fullføring (PoC %)</div>
-        <div class="kpi-value">{evm_res.poc_percentage:.1f} %</div>
+        <div class="kpi-value">{poc_display} %</div>
         <span class="badge-green">{asset_text}</span>
     </div>
     """, unsafe_allow_html=True)
@@ -303,7 +321,7 @@ with tab_exec:
             line=dict(color='#005B94', width=3)
         ))
         
-        ac_color = '#DC2626' if evm_res.cpi < 0.95 else '#D96B27'
+        ac_color = '#DC2626' if cpi_is_low else '#D96B27'
         fig.add_trace(go.Scatter(
             x=df_scurve["period_name"],
             y=df_scurve["acwp_ac_nok"],
@@ -339,9 +357,9 @@ with tab_exec:
             {"Metrikk": "BAC (Totalbudsjett)", "Verdi (NOK)": f"{evm_res.bac:,.2f}", "Standard": "EIA-748 Baseline Budget"},
             {"Metrikk": "Cost Variance (CV)", "Verdi (NOK)": f"{evm_res.cv:,.2f}", "Standard": "BCWP - ACWP"},
             {"Metrikk": "Schedule Variance (SV)", "Verdi (NOK)": f"{evm_res.sv:,.2f}", "Standard": "BCWP - BCWS"},
-            {"Metrikk": "Estimate at Completion (EAC)", "Verdi (NOK)": f"{evm_res.eac_cpi:,.2f}", "Standard": "BAC / CPI (Historisk ytelse)"},
-            {"Metrikk": "Variance at Completion (VAC)", "Verdi (NOK)": f"{evm_res.vac:,.2f}", "Standard": "BAC - EAC"},
-            {"Metrikk": "IFRS 15 Inntektsført", "Verdi (NOK)": f"{evm_res.recognized_revenue:,.2f}" if evm_res.recognized_revenue else "0.00", "Standard": "PoC % * Kontraktspris"}
+            {"Metrikk": "Estimate at Completion (EAC)", "Verdi (NOK)": eac_display, "Standard": "BAC / CPI (Historisk ytelse)"},
+            {"Metrikk": "Variance at Completion (VAC)", "Verdi (NOK)": vac_display, "Standard": "BAC - EAC"},
+            {"Metrikk": "IFRS 15 Inntektsført", "Verdi (NOK)": display_number(evm_res.recognized_revenue), "Standard": "PoC % * Kontraktspris"}
         ])
         st.dataframe(detail_df, hide_index=True, use_container_width=True)
 
@@ -354,7 +372,11 @@ with tab_exec:
         q_cols = st.columns(2)
         with q_cols[0]:
             if st.button("Hvorfor er CPI under 0.95?"):
-                st.session_state["pending_prompt"] = f"Hvorfor er CPI {evm_res.cpi:.2f} på {project_id}?"
+                cpi_prompt = (
+                    "Hvorfor kan CPI ikke beregnes uten faktiske kostnader"
+                    if evm_res.cpi is None else f"Hvorfor er CPI {evm_res.cpi:.2f}"
+                )
+                st.session_state["pending_prompt"] = f"{cpi_prompt} på {project_id}?"
         with q_cols[1]:
             if st.button("SkatteFUNN 2025 regler"):
                 st.session_state["pending_prompt"] = "Hva er maksimal timesats for SkatteFUNN i 2025?"
@@ -382,9 +404,9 @@ with tab_exec:
             if "cpi" in user_input.lower() or project_id.lower() in user_input.lower():
                 bot_reply = (
                     f"**Analyse for {project_id} ({evm_res.control_account_name}):**\n\n"
-                    f"- **CPI er {evm_res.cpi:.4f}** (Faktisk kost {evm_res.acwp:,.0f} NOK vs Opptjent {evm_res.bcwp:,.0f} NOK).\n"
+                    f"- **CPI er {display_number(evm_res.cpi, 4)}** (Faktisk kost {evm_res.acwp:,.0f} NOK vs Opptjent {evm_res.bcwp:,.0f} NOK).\n"
                     f"- **Kostnadsavvik (CV):** {evm_res.cv:,.0f} NOK ({evm_res.cost_status}).\n"
-                    f"- **IFRS 15 Fullføring (PoC):** {evm_res.poc_percentage:.1f} % med kontraktsfordring på **{evm_res.contract_asset:,.0f} NOK**.\n"
+                    f"- **IFRS 15 Fullføring (PoC):** {poc_display} % med kontraktsfordring på **{display_number(evm_res.contract_asset)} NOK**.\n"
                     f"- *Ruting:* Intent identifisert som `{route_res['intent']}` -> rutes til `{route_res['routing_target']}`."
                 )
             elif "skattefunn" in user_input.lower() or "timesats" in user_input.lower():
@@ -401,15 +423,15 @@ with tab_exec:
             st.rerun()
 
     # HITL Tollbooth Gate
-    if evm_res.cpi < 0.95:
+    if cpi_is_low:
         st.markdown(f"""
         <div class="tollbooth-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h4 style="margin: 0; color: #92400E;">⚠️ HITL Endringskort: Proaktiv EAC-Justering krever din godkjenning</h4>
                     <p style="margin: 4px 0 0 0; font-size: 13px; color: #78350F;">
-                        Agenten har oppdaget et signifikant kostnadsavvik på {project_id} (CPI: {evm_res.cpi:.2f}). 
-                        EAC foreslås justert fra {evm_res.bac:,.0f} NOK til {evm_res.eac_cpi:,.0f} NOK (Avvik: {evm_res.vac:,.0f} NOK).
+                        Agenten har oppdaget et signifikant kostnadsavvik på {project_id} (CPI: {display_number(evm_res.cpi)}).
+                        EAC foreslås justert fra {evm_res.bac:,.0f} NOK til {eac_display} NOK (Avvik: {vac_display} NOK).
                     </p>
                 </div>
                 <div>

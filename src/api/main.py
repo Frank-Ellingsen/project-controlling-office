@@ -12,7 +12,10 @@ Provides microservice endpoints for:
 - COSO 2013 / EU AI Act Art. 12 audit logs
 """
 
+import math
 from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 
@@ -31,6 +34,22 @@ app = FastAPI(
     version="1.1.0"
 )
 
+
+@app.exception_handler(RequestValidationError)
+async def request_validation_error_handler(request, exc):
+    """Keep invalid non-finite inputs in the normal JSON 422 response shape."""
+    def sanitize(value):
+        if isinstance(value, float) and not math.isfinite(value):
+            return str(value)
+        if isinstance(value, dict):
+            return {key: sanitize(item) for key, item in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [sanitize(item) for item in value]
+        return value
+
+    return JSONResponse(status_code=422, content={"detail": sanitize(exc.errors())})
+
+
 # Global store & audit logger instances
 duckdb_store = DuckDBStore()
 audit_logger = AuditLogger()
@@ -41,12 +60,12 @@ audit_logger = AuditLogger()
 class EVMRequest(BaseModel):
     control_account_id: str = Field(..., example="CA-1042")
     control_account_name: str = Field(..., example="Subsea Pilot Module Development")
-    bac: float = Field(..., gt=0, example=10000000.0)
-    bcws: float = Field(..., ge=0, example=4000000.0)
-    bcwp: float = Field(..., ge=0, example=3500000.0)
-    acwp: float = Field(..., ge=0, example=3800000.0)
-    contract_value: Optional[float] = Field(None, example=12500000.0)
-    invoiced_to_date: Optional[float] = Field(None, example=3000000.0)
+    bac: float = Field(..., gt=0, allow_inf_nan=False, example=10000000.0)
+    bcws: float = Field(..., ge=0, allow_inf_nan=False, example=4000000.0)
+    bcwp: float = Field(..., ge=0, allow_inf_nan=False, example=3500000.0)
+    acwp: float = Field(..., ge=0, allow_inf_nan=False, example=3800000.0)
+    contract_value: Optional[float] = Field(None, ge=0, allow_inf_nan=False, example=12500000.0)
+    invoiced_to_date: Optional[float] = Field(None, ge=0, allow_inf_nan=False, example=3000000.0)
     eac_method: str = Field("cpi", example="cpi")
 
 
@@ -106,7 +125,7 @@ def calculate_evm(req: EVMRequest):
     result = EVMCalculator.calculate(inp, default_eac_method=eac_type)
     
     # Audit log if CPI variance threshold exceeded
-    if result.cpi < 0.95:
+    if result.cpi is not None and result.cpi < 0.95:
         audit_logger.log_event(
             event_type="EVM_VARIANCE_TRIGGER",
             control_account_id=req.control_account_id,
@@ -149,7 +168,10 @@ def push_powerbi_scurve(req: PowerBIPushRequest):
 def trigger_rag_ingest():
     """Scans and indexes Kunnskapsbase documents into Qdrant."""
     pipeline = QdrantIngestPipeline()
-    return pipeline.ingest_folder()
+    result = pipeline.ingest_folder()
+    if result["status"] != "SUCCESS":
+        raise HTTPException(status_code=503, detail=result)
+    return result
 
 
 @app.post("/api/v1/orchestrator/route")

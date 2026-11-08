@@ -122,6 +122,21 @@ python scripts/bootstrap_dev.py
 ```bash
 docker compose up --build
 ```
+Backend-containeren starter `src.api.main:app`. Docker-builden stopper nå ved
+feil under installasjon av `requirements.txt`; den kopierer hele `src/`-pakken
+og installerer også DuckDB- og dokumentparser-avhengighetene.
+
+### Dokumentinnlasting til Qdrant
+`POST /api/v1/rag/ingest` trekker ut tekst fra PDF, DOCX, Markdown og TXT,
+ber Ollama om ekte `nomic-embed-text`-vektorer og laster punktene opp til
+Qdrant. Tjenesten rapporterer `SUCCESS` bare når dokumentene er indeksert;
+utilgjengelig Ollama/Qdrant eller dokumentfeil gir detaljerte feil og HTTP 503
+i stedet for en falsk suksess.
+
+Innlastingen er avgrenset til 100 dokumenter, 5 000 skannede filer, 10 MiB per
+fil, 50 MiB utpakket DOCX-innhold, 200 sider per PDF, 1 million tegn per
+dokument og 1 000 tekstbiter per kjøring. Feil for enkeltfiler rapporteres som
+`PARTIAL_FAILURE` dersom andre dokumenter ble indeksert.
 
 ---
 
@@ -131,7 +146,7 @@ Kjør hele testpakken for å verifisere beregninger og integrasjoner:
 ```bash
 python -m unittest discover -s tests -p "test_*.py"
 ```
-*Status*: `OK (43 av 43 bestått)`
+*Status for denne endringen*: `OK (64 av 64 bestått)`
 
 ---
 

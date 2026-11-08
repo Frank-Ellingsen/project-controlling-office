@@ -6,6 +6,7 @@ and boundary conditions (zero-division, negative values).
 """
 
 import unittest
+import math
 from src.engine_compute.evm_calculator import EVMCalculator, EVMInput, EVMResult, EACType
 
 
@@ -84,7 +85,7 @@ class TestEVMCalculator(unittest.TestCase):
         self.assertAlmostEqual(res.contract_liability, 300000.0, delta=1.0)
 
     def test_zero_actual_cost_edge_case(self):
-        # Work scheduled but no costs incurred yet
+        # Without actual costs, cost efficiency and cost-based forecasts are unknown.
         zero_cost_input = EVMInput(
             control_account_id="CA-0001",
             control_account_name="Unstarted Project",
@@ -94,9 +95,61 @@ class TestEVMCalculator(unittest.TestCase):
             acwp=0.0
         )
         res = EVMCalculator.calculate(zero_cost_input)
-        self.assertEqual(res.cpi, 1.0)
+        self.assertIsNone(res.cpi)
+        self.assertEqual(res.cost_status, "UNAVAILABLE_NO_ACTUAL_COST")
         self.assertEqual(res.cv, 0.0)
-        self.assertEqual(res.poc_percentage, 0.0)
+        self.assertIsNone(res.eac_cpi)
+        self.assertIsNone(res.eac_composite)
+        self.assertEqual(res.eac_budgeted, 5000000.0)
+        self.assertIsNone(res.etc)
+        self.assertIsNone(res.vac)
+        self.assertIsNone(res.poc_percentage)
+        budgeted = EVMCalculator.calculate(zero_cost_input, EACType.BUDGETED_RATE)
+        self.assertEqual(budgeted.etc, 5000000.0)
+        self.assertEqual(budgeted.vac, 0.0)
+        self.assertEqual(budgeted.poc_percentage, 0.0)
+
+    def test_zero_earned_value_does_not_create_zero_division_forecast(self):
+        no_earned_value = EVMInput(
+            control_account_id="CA-0002",
+            control_account_name="No Earned Value",
+            bac=1000.0,
+            bcws=100.0,
+            bcwp=0.0,
+            acwp=25.0,
+        )
+        result = EVMCalculator.calculate(no_earned_value)
+        self.assertEqual(result.cpi, 0.0)
+        self.assertIsNone(result.eac_cpi)
+        self.assertIsNone(result.etc)
+        self.assertIsNone(result.vac)
+
+    def test_no_planned_value_makes_spi_and_composite_unavailable(self):
+        no_plan = EVMInput(
+            control_account_id="CA-0003",
+            control_account_name="No Planned Value",
+            bac=1000.0,
+            bcws=0.0,
+            bcwp=100.0,
+            acwp=100.0,
+        )
+        result = EVMCalculator.calculate(no_plan, default_eac_method=EACType.COMPOSITE)
+        self.assertIsNone(result.spi)
+        self.assertEqual(result.schedule_status, "UNAVAILABLE_NO_PLANNED_VALUE")
+        self.assertIsNone(result.eac_composite)
+        self.assertIsNone(result.etc)
+
+    def test_non_finite_numeric_inputs_are_rejected(self):
+        for value in (math.nan, math.inf, -math.inf):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "finite"):
+                EVMCalculator.calculate(EVMInput(
+                    "CA-ERR", "Non-finite input", 100.0, value, 0.0, 0.0
+                ))
+        with self.assertRaisesRegex(ValueError, "finite"):
+            EVMCalculator.calculate(EVMInput(
+                "CA-ERR", "Non-finite contract", 100.0, 0.0, 0.0, 0.0,
+                contract_value=math.inf
+            ))
 
     def test_input_validation_errors(self):
         with self.assertRaises(ValueError):
@@ -116,4 +169,3 @@ class TestEVMCalculator(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

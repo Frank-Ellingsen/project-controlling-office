@@ -14,6 +14,7 @@ Tests:
 """
 
 import unittest
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from src.api.main import app, duckdb_store
 
@@ -51,6 +52,37 @@ class TestFastAPIBackend(unittest.TestCase):
         self.assertEqual(data["sv"], -500000.0)
         self.assertAlmostEqual(data["cpi"], 3500000.0 / 3800000.0, places=4)
         self.assertEqual(data["cost_status"], "OVER_BUDGET")
+
+    def test_evm_endpoint_returns_unavailable_forecasts_for_zero_actual_cost(self):
+        payload = {
+            "control_account_id": "CA-0001",
+            "control_account_name": "No actual costs recorded",
+            "bac": 1000.0,
+            "bcws": 100.0,
+            "bcwp": 0.0,
+            "acwp": 0.0,
+        }
+        response = self.client.post("/api/v1/evm/calculate", json=payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIsNone(data["cpi"])
+        self.assertIsNone(data["eac_cpi"])
+        self.assertIsNone(data["etc"])
+        self.assertIsNone(data["vac"])
+        self.assertEqual(data["eac_budgeted"], 1000.0)
+        self.assertEqual(data["cost_status"], "UNAVAILABLE_NO_ACTUAL_COST")
+
+    def test_evm_endpoint_rejects_non_finite_inputs(self):
+        payload = (
+            '{"control_account_id":"CA-ERR","control_account_name":"Invalid numbers",'
+            '"bac":1000.0,"bcws":Infinity,"bcwp":0.0,"acwp":0.0}'
+        )
+        response = self.client.post(
+            "/api/v1/evm/calculate",
+            content=payload,
+            headers={"content-type": "application/json"},
+        )
+        self.assertEqual(response.status_code, 422)
 
     def test_skattefunn_endpoint(self):
         payload = {
@@ -104,11 +136,30 @@ class TestFastAPIBackend(unittest.TestCase):
         self.assertEqual(data["rows_pushed"], 6)
 
     def test_rag_ingest_endpoint(self):
-        response = self.client.post("/api/v1/rag/ingest")
+        result = {
+            "status": "SUCCESS",
+            "indexed_documents": 1,
+            "indexed_chunks": 2,
+            "failures": [],
+        }
+        with patch("src.api.main.QdrantIngestPipeline") as pipeline:
+            pipeline.return_value.ingest_folder.return_value = result
+            response = self.client.post("/api/v1/rag/ingest")
         self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertEqual(data["status"], "SUCCESS")
-        self.assertGreater(data["indexed_documents"], 0)
+        self.assertEqual(response.json(), result)
+
+    def test_rag_ingest_endpoint_returns_service_unavailable_on_failure(self):
+        result = {
+            "status": "FAILED",
+            "indexed_documents": 0,
+            "indexed_chunks": 0,
+            "failures": [{"file": "policy.pdf", "error": "Qdrant unavailable"}],
+        }
+        with patch("src.api.main.QdrantIngestPipeline") as pipeline:
+            pipeline.return_value.ingest_folder.return_value = result
+            response = self.client.post("/api/v1/rag/ingest")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json()["detail"], result)
 
     def test_audit_logs_endpoint(self):
         response = self.client.get("/api/v1/audit/logs")
