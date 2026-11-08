@@ -3,860 +3,698 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elkem ASA Technology — Project Controlling Office & Portfolio Dashboard</title>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Elkem ASA Technology — Project Controlling Office</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <style>
         :root {
-            --primary: #002B49;
-            --primary-light: #004B7A;
-            --accent: #00A3E0;
-            --success: #28A745;
-            --warning: #FFC107;
-            --danger: #DC3545;
-            --purple: #6F42C1;
-            --bg-light: #F8F9FA;
-            --card-bg: #FFFFFF;
-            --border-color: #E9ECEF;
-            --text-dark: #212529;
-            --text-muted: #6C757D;
+            --elkem-navy: #002B49;
+            --elkem-blue: #005A9C;
+            --elkem-accent: #00A3E0;
+            --elkem-light: #F4F6F9;
+            --elkem-dark: #1A2530;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
         body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.5;
-            padding-bottom: 50px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--elkem-light);
+            color: var(--elkem-dark);
         }
-
-        header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 30px 40px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .navbar-custom {
+            background-color: var(--elkem-navy);
+            border-bottom: 4px solid var(--elkem-accent);
         }
-
-        .header-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .header-title h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .header-title p {
-            font-size: 0.95rem;
-            opacity: 0.85;
-            margin-top: 5px;
-        }
-
-        .header-badges {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(5px);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        /* KPI Cards Grid */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .kpi-card {
-            background: var(--card-bg);
+        .card-project {
+            border: 1px solid #E2E8F0;
             border-radius: 12px;
-            padding: 22px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            background: #ffffff;
+            overflow: hidden;
         }
-
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-        }
-
-        .kpi-title {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
+        .card-header-ca2045 { background: linear-gradient(135deg, #002B49 0%, #004070 100%); color: white; }
+        .card-header-ca1042 { background: linear-gradient(135deg, #2B3A42 0%, #4A5D6E 100%); color: white; }
+        .card-header-ca3080 { background: linear-gradient(135deg, #004D40 0%, #00796B 100%); color: white; }
+        
+        .nav-tabs .nav-link {
             font-weight: 600;
-            letter-spacing: 0.5px;
+            color: #4A5568;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 0.75rem 1.25rem;
         }
-
-        .kpi-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 8px 0 4px 0;
+        .nav-tabs .nav-link.active {
+            color: var(--elkem-navy);
+            border-bottom-color: var(--elkem-accent);
+            background: transparent;
         }
-
-        .kpi-sub {
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .kpi-sub.positive { color: var(--success); }
-        .kpi-sub.negative { color: var(--danger); }
-        .kpi-sub.warning { color: var(--warning); }
-
-        /* Dashboard Section Layout */
-        .section-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 28px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            margin-bottom: 30px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .section-header h2 {
-            font-size: 1.3rem;
-            color: var(--primary);
-            font-weight: 700;
-        }
-
-        /* Project Cards Tabs / Grid */
-        .project-selector {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        .tab-btn {
-            background: var(--bg-light);
-            border: 1px solid var(--border-color);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--text-dark);
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 2px 6px rgba(0,43,73,0.25);
-        }
-
-        .project-detail-panel {
-            display: none;
-        }
-
-        .project-detail-panel.active {
-            display: block;
-        }
-
-        /* 9-Dimension Grid for Project Cards */
-        .dim-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
+        .badge-evm { font-size: 0.85rem; padding: 0.4em 0.75em; border-radius: 6px; }
         .dim-box {
-            background: var(--bg-light);
-            padding: 18px;
-            border-radius: 10px;
-            border-left: 4px solid var(--primary);
+            background: #F8FAFC;
+            border-left: 4px solid var(--elkem-blue);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            height: 100%;
         }
-
-        .dim-box.finance { border-left-color: var(--accent); }
-        .dim-box.funding { border-left-color: var(--success); }
-        .dim-box.quality { border-left-color: var(--warning); }
-        .dim-box.sources { border-left-color: var(--purple); }
-
-        .dim-box h4 {
-            font-size: 0.95rem;
-            color: var(--primary);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .dim-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--elkem-navy);
+            margin-bottom: 0.5rem;
         }
-
-        .dim-box p, .dim-box ul {
-            font-size: 0.88rem;
-            color: #495057;
+        .gantt-container {
+            background: #ffffff;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
         }
-
-        .dim-box ul {
-            padding-left: 18px;
-            margin-top: 4px;
-        }
-
-        .dim-box li {
-            margin-bottom: 4px;
-        }
-
-        /* WBS Data Table */
-        .wbs-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.88rem;
-        }
-
-        .wbs-table th {
-            background-color: var(--primary);
-            color: white;
-            text-align: left;
-            padding: 12px 14px;
-            font-weight: 600;
-        }
-
-        .wbs-table td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .wbs-table tr:hover {
-            background-color: rgba(0,163,224,0.04);
-        }
-
-        .status-pill {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
-
-        .pill-green { background: #D4EDDA; color: #155724; }
-        .pill-yellow { background: #FFF3CD; color: #856404; }
-        .pill-red { background: #F8D7DA; color: #721C24; }
-        .pill-purple { background: #E2D9F3; color: #4A235A; }
-
-        footer {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-muted);
+        .table-wbs th {
+            background-color: #EDF2F7;
+            color: var(--elkem-navy);
             font-size: 0.85rem;
-            border-top: 1px solid var(--border-color);
-            margin-top: 40px;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="header-container">
-            <div class="header-title">
-                <h1>🏛️ Elkem ASA Technology — Project Controlling Office</h1>
-                <p>Fiskå R&D & Pilot Plant Portfolio Control | EIA-748 EVM | IFRS 15 | Master Gantt of Gantts</p>
+<!-- Navbar -->
+<nav class="navbar navbar-dark navbar-custom px-4 py-3">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <i class="fa-solid fa-industry fa-xl me-3 text-info"></i>
+            <div>
+                <span class="fs-4 fw-bold d-block">Elkem ASA Technology — Project Controlling Office</span>
+                <span class="fs-6 opacity-75">Fiskå R&D & Pilot Plant Portfolio | EIA-748 EVMS & IFRS 15 Framework</span>
             </div>
-            <div class="header-badges">
-                <span class="badge">📍 Kristiansand, Norway</span>
-                <span class="badge">⚡ EIA-748 EVMS</span>
-                <span class="badge">📊 IFRS 15 PoC</span>
-                <span class="badge">🛡️ COSO 2013 Compliance</span>
+        </a>
+        <div class="d-flex align-items-center text-white">
+            <span class="badge bg-success me-3"><i class="fa-solid fa-circle-check me-1"></i> System Active</span>
+            <span class="small opacity-75">Kristiansand, Norway</span>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4 py-4">
+
+    <!-- KPI Summary Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-center bg-white">
+                <span class="text-muted small fw-bold">TOTAL PORTFOLIO BAC</span>
+                <h3 class="fw-bold text-dark mb-0 mt-1">70.0 MNOK</h3>
+                <span class="small text-muted">Baseline Budget</span>
             </div>
         </div>
-    </header>
-
-    <div class="container">
-        
-        <!-- Portefølje KPI Kort -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-title">Total Budsjett (BAC)</div>
-                <div class="kpi-value">70.00 MNOK</div>
-                <div class="kpi-sub">3 Aktive FoU-prosjekter</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">Påløpt Kostnad (ACWP)</div>
-                <div class="kpi-value">35.10 MNOK</div>
-                <div class="kpi-sub">Faktisk YTD per Q4</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">Prognose Sluttkost (EAC)</div>
-                <div class="kpi-value">75.45 MNOK</div>
-                <div class="kpi-sub negative">⚠️ -5.45 MNOK Samlet Avvik</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">Portefølje CPI (Kost)</div>
-                <div class="kpi-value">0.952</div>
-                <div class="kpi-sub negative">🔴 Cost Overrun (CA-2045)</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">Portefølje SPI (Tid)</div>
-                <div class="kpi-value">0.944</div>
-                <div class="kpi-sub warning">🟡 Behind Schedule (CA-1042)</div>
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-center bg-white">
+                <span class="text-muted small fw-bold">ACTUAL COST (ACWP)</span>
+                <h3 class="fw-bold text-primary mb-0 mt-1">35.1 MNOK</h3>
+                <span class="small text-muted">YTD Spend</span>
             </div>
         </div>
-
-        <!-- Seksjon 1: Master Gantt of Gantts -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2>🗓️ Master Portfolio Gantt (Gantt of Gantts & Stage-Gates)</h2>
-                <span class="status-pill pill-purple">Dual-Level Roll-Up & Resource Intersect</span>
-            </div>
-            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
-                Viser overordnet master-tidslinje for porteføljen (Nivå 1) sammenstilt med underliggende WBS-elementer og offentlige Stage-Gate milepæler (Enova/NFR).
-            </p>
-            <div id="gantt-chart" style="width:100%; height:480px;"></div>
-        </div>
-
-        <!-- Seksjon 2: Detaljerte Prosjektkort (9-Dimensjoner) & WBS -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2>📇 Detaljerte Prosjektkort & WBS-Struktur</h2>
-                <span class="status-pill pill-green">ERP & Regulatory Grounded</span>
-            </div>
-
-            <!-- Tab Velger -->
-            <div class="project-selector">
-                <button class="tab-btn active" onclick="openProject('ca2045', this)">CA-2045: Fiskå Carbon-Neutral Smelting Pilot</button>
-                <button class="tab-btn" onclick="openProject('ca1042', this)">CA-1042: Furnace Automation Digital Twin</button>
-                <button class="tab-btn" onclick="openProject('ca3080', this)">CA-3080: NextGen Battery Anode Material R&D</button>
-            </div>
-
-            <!-- PROSJEKT 1: CA-2045 -->
-            <div id="ca2045" class="project-detail-panel active">
-                <div class="dim-grid">
-                    <div class="dim-box">
-                        <h4>📌 1. Beskrivelse & 2. Formål</h4>
-                        <p><b>Beskrivelse:</b> Industrielt pilotanlegg på Fiskå for karbonnøytral smelting og testkjøring av elektrofysiske reaktorer.</p>
-                        <p style="margin-top:6px;"><b>Formål:</b> Demonstrere utslippsfri smelteprosess for silisium og biokarbon for å nå Elkems 2030-klimamål.</p>
-                    </div>
-
-                    <div class="dim-box">
-                        <h4>🎯 3. Scope (WBS Oversikt)</h4>
-                        <ul>
-                            <li><b>WBS 1.1:</b> Pilot Design, Process Modelling & HAZOP</li>
-                            <li><b>WBS 1.2:</b> Procurement Reactor Vessel & Induction Modules</li>
-                            <li><b>WBS 1.3:</b> Installation, Commissioning & Trial Runs</li>
-                        </ul>
-                    </div>
-
-                    <div class="dim-box">
-                        <h4>⏱️ 4. Time (Tidslinje & Gates)</h4>
-                        <p><b>Periode:</b> 01.01.2024 – 30.06.2025</p>
-                        <p><b>Milepæl:</b> 🚩 Enova Stage-Gate 3 Approval (15. nov 2024)</p>
-                        <p><b>Earned Schedule (SPI):</b> 0.9333 (Bak skjema pga. reaktor-isolasjon)</p>
-                    </div>
-
-                    <div class="dim-box finance">
-                        <h4>💰 5. Cost (EVM) & 7. Finance (IFRS 15)</h4>
-                        <p><b>BAC:</b> 45.00 MNOK | <b>ACWP:</b> 23.40 MNOK | <b>EV:</b> 21.00 MNOK</p>
-                        <p><b>CPI:</b> 0.8974 (Over budget) | <b>EAC:</b> 50.14 MNOK (VAC -5.14M)</p>
-                        <p><b>IFRS 15 PoC:</b> 46.67 % | <b>Contract Asset:</b> 5.33 MNOK</p>
-                    </div>
-
-                    <div class="dim-box funding">
-                        <h4>🏛️ 8. Funding (Offentlig Tilskudd)</h4>
-                        <p><b>Finansiør:</b> Enova (Klima- og energifondet demonstrasjonsteknologi)</p>
-                        <p><b>Vilkår:</b> Investeringsstøtte med krav om dokumentert reduksjon i CO2-intensitet per tonn silisium.</p>
-                    </div>
-
-                    <div class="dim-box quality">
-                        <h4>🛡️ 6. Quality & Governance</h4>
-                        <p><b>EIA-748 EVMS:</b> Terskelavvik ±5 % krever skriftlig VAR (Variance Analysis Report).</p>
-                        <p><b>Revisjon:</b> ISA 805 / ISAE 3000 godkjenning av påløpte pilotkostnader.</p>
-                    </div>
-
-                    <div class="dim-box sources" style="grid-column: 1 / -1;">
-                        <h4>🔄 9. Data Sources (Download & Upload Integrasjon)</h4>
-                        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
-                            <div style="flex: 1;">
-                                <p><b>📥 Download (ERP & Inndata):</b></p>
-                                <ul>
-                                    <li>SAP Core Financials: Hovedbokskonto 4300 (Pilotutstyr) og 5000 (FoU-lønn).</li>
-                                    <li>Timelister fra Fiskå pilotlab og P6 Primavera baseline schedule.</li>
-                                </ul>
-                            </div>
-                            <div style="flex: 1;">
-                                <p><b>📤 Upload (Portaler & Utdata):</b></p>
-                                <ul>
-                                    <li>Enova Søknadsportal: Utbetalingsanmodning og rapport for Gate 3.</li>
-                                    <li>Power BI Direct Lake S-kurver og MS Teams HITL godkjenningskort.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- WBS Tabell for CA-2045 -->
-                <h4 style="margin-bottom: 10px; color: var(--primary);">🌳 WBS Nedbrytning & Arbeidspakker (CA-2045)</h4>
-                <table class="wbs-table">
-                    <thead>
-                        <tr>
-                            <th>WBS Kode</th>
-                            <th>Arbeidspakke / Element</th>
-                            <th>Ansvarlig (CAM)</th>
-                            <th>Budsjett (BAC)</th>
-                            <th>Status & SPI</th>
-                            <th>Kritisk Avvik / Merknad</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><b>WBS 1.1</b></td>
-                            <td>Pilot Design, Process Modelling & HAZOP</td>
-                            <td>Dr. Håkon Olsen</td>
-                            <td>8,500,000 NOK</td>
-                            <td><span class="status-pill pill-green">Fullført (SPI 1.00)</span></td>
-                            <td>Godkjent av Enova Gate 1</td>
-                        </tr>
-                        <tr>
-                            <td><b>WBS 1.2</b></td>
-                            <td>Procurement Reactor Vessel (Long-Lead)</td>
-                            <td>Knut Arnesen</td>
-                            <td>22,000,000 NOK</td>
-                            <td><span class="status-pill pill-red">Kritisk Sti (SPI 0.85)</span></td>
-                            <td>Leverandørforsinkelse på termisk isolasjon</td>
-                        </tr>
-                        <tr>
-                            <td>└─ <b>WBS 1.2.1</b></td>
-                            <td>Thermal Insulation & Refractory Lining</td>
-                            <td>Knut Arnesen</td>
-                            <td>7,500,000 NOK</td>
-                            <td><span class="status-pill pill-red">Avvik (SPI 0.80)</span></td>
-                            <td>Spesialstein fra leverandør 3 uker forsinket</td>
-                        </tr>
-                        <tr>
-                            <td>└─ <b>WBS 1.2.2</b></td>
-                            <td>Slag Sensors & Optical Pyrometers</td>
-                            <td>Svein Viken</td>
-                            <td>4,500,000 NOK</td>
-                            <td><span class="status-pill pill-green">On Schedule (SPI 1.02)</span></td>
-                            <td>Levert og testet ved Fiskå lab</td>
-                        </tr>
-                        <tr>
-                            <td><b>WBS 1.3</b></td>
-                            <td>Installation, Hot Testing & Operation</td>
-                            <td>Janne Bergan</td>
-                            <td>14,500,000 NOK</td>
-                            <td><span class="status-pill pill-yellow">Planlagt (SPI 0.93)</span></td>
-                            <td>Oppstart avhenger av WBS 1.2 ferdigstillelse</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- PROSJEKT 2: CA-1042 -->
-            <div id="ca1042" class="project-detail-panel">
-                <div class="dim-grid">
-                    <div class="dim-box">
-                        <h4>📌 1. Beskrivelse & 2. Formål</h4>
-                        <p><b>Beskrivelse:</b> Digital tvilling og automasjonssystem for sanntidsovervåking av reduksjonsovner.</p>
-                        <p style="margin-top:6px;"><b>Formål:</b> Stabilisere ovnsdrift, redusere energiforbruk og forhindre gassutbrudd via maskinlæring.</p>
-                    </div>
-
-                    <div class="dim-box">
-                        <h4>🎯 3. Scope (WBS Oversikt)</h4>
-                        <ul>
-                            <li><b>WBS 2.1:</b> Sensor Calibration & PLC Integration</li>
-                            <li><b>WBS 2.2:</b> Neural Network Digital Twin Model Training</li>
-                            <li><b>WBS 2.3:</b> Control Room Integration & Smelter Roll-out</li>
-                        </ul>
-                    </div>
-
-                    <div class="dim-box">
-                        <h4>⏱️ 4. Time (Tidslinje & Gates)</h4>
-                        <p><b>Periode:</b> 15.02.2024 – 31.12.2024</p>
-                        <p><b>Milepæl:</b> 🚩 Gate 4 System Go-Live (31. des 2024)</p>
-                        <p><b>Earned Schedule (SPI):</b> 0.8750 (Kritisk beregningsetterslep)</p>
-                    </div>
-
-                    <div class="dim-box finance">
-                        <h4>💰 5. Cost (EVM) & 7. Finance (IFRS 15)</h4>
-                        <p><b>BAC:</b> 10.00 MNOK | <b>ACWP:</b> 3.80 MNOK | <b>EV:</b> 3.50 MNOK</p>
-                        <p><b>CPI:</b> 0.9211 | <b>EAC:</b> 10.86 MNOK (VAC -0.86M)</p>
-                        <p><b>IFRS 15 PoC:</b> 35.00 % | <b>Contract Asset:</b> 1.38 MNOK</p>
-                    </div>
-
-                    <div class="dim-box funding">
-                        <h4>🏛️ 8. Funding (Offentlig Tilskudd)</h4>
-                        <p><b>Finansiør:</b> Norges Forskningsråd (NFR)</p>
-                        <p><b>Vilkår:</b> Innovasjonsprosjekt i næringslivet (IPN) med krav om publisering av metodikk.</p>
-                    </div>
-
-                    <div class="dim-box quality">
-                        <h4>🛡️ 6. Quality & Governance</h4>
-                        <p><b>NFR Timesatsregler:</b> Trepartsmodell for kalkulasjon av indirekte kostnader og timelønnsatser.</p>
-                    </div>
-
-                    <div class="dim-box sources" style="grid-column: 1 / -1;">
-                        <h4>🔄 9. Data Sources (Download & Upload Integrasjon)</h4>
-                        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
-                            <div style="flex: 1;">
-                                <p><b>📥 Download (ERP & Inndata):</b></p>
-                                <ul>
-                                    <li>Ovns-telemetri via MQTT/OPC-UA fra smelteverket.</li>
-                                    <li>Timeføring for AI-forskere i Agresso / ERP.</li>
-                                </ul>
-                            </div>
-                            <div style="flex: 1;">
-                                <p><b>📤 Upload (Portaler & Utdata):</b></p>
-                                <ul>
-                                    <li>NFR Prosjektportal: Årlig fremdriftsrapport.</li>
-                                    <li>OpenAPI REST Endepunkter & FastAPIs DuckDB OLAP-lager.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- WBS Tabell for CA-1042 -->
-                <h4 style="margin-bottom: 10px; color: var(--primary);">🌳 WBS Nedbrytning & Arbeidspakker (CA-1042)</h4>
-                <table class="wbs-table">
-                    <thead>
-                        <tr>
-                            <th>WBS Kode</th>
-                            <th>Arbeidspakke / Element</th>
-                            <th>Ansvarlig (CAM)</th>
-                            <th>Budsjett (BAC)</th>
-                            <th>Status & SPI</th>
-                            <th>Kritisk Avvik / Merknad</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><b>WBS 2.1</b></td>
-                            <td>Sensor Calibration & PLC Integration</td>
-                            <td>Marianne Lie</td>
-                            <td>2,500,000 NOK</td>
-                            <td><span class="status-pill pill-green">Fullført (SPI 0.92)</span></td>
-                            <td>Gass-sensorer montert i hette</td>
-                        </tr>
-                        <tr>
-                            <td><b>WBS 2.2</b></td>
-                            <td>Neural Twin Model Training & GPU Cloud</td>
-                            <td>Dr. Arild Holm</td>
-                            <td>5,000,000 NOK</td>
-                            <td><span class="status-pill pill-red">Kritisk (SPI 0.82)</span></td>
-                            <td>GPU-beregninger mer krevende enn antatt</td>
-                        </tr>
-                        <tr>
-                            <td><b>WBS 2.3</b></td>
-                            <td>Control Room Integration & Deployment</td>
-                            <td>Marianne Lie</td>
-                            <td>2,500,000 NOK</td>
-                            <td><span class="status-pill pill-yellow">Planlagt (SPI 0.87)</span></td>
-                            <td>Klar for utrulling etter WBS 2.2 tuning</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- PROSJEKT 3: CA-3080 -->
-            <div id="ca3080" class="project-detail-panel">
-                <div class="dim-grid">
-                    <div class="dim-box">
-                        <h4>📌 1. Beskrivelse & 2. Formål</h4>
-                        <p><b>Beskrivelse:</b> FoU på silisium-karbon anodematerialer for neste generasjon battericeller.</p>
-                        <p style="margin-top:6px;"><b>Formål:</b> Utvikle ultra-rene anodematerialer med høy energitetthet for elbilmarkedet.</p>
-                    </div>
-
-                    <div class="dim-box">
-                        <h4>🎯 3. Scope (WBS Oversikt)</h4>
-                        <ul>
-                            <li><b>WBS 3.1:</b> Silicon-Graphite Formulation & Pyrolysis</li>
-                            <li><b>WBS 3.2:</b> Battery Cell Cycle Testing (1000 Cycles)</li>
-                            <li><b>WBS 3.3:</b> Audit Dossier & SkatteFUNN Compliance</li>
-                        </ul>
-                    </div>
-
-                    <div class="dim-box">
-                        <h4>⏱️ 4. Time (Tidslinje & Gates)</h4>
-                        <p><b>Periode:</b> 15.01.2024 – 31.03.2025</p>
-                        <p><b>Milepæl:</b> 🚩 SkatteFUNN Årsrapportering (30. april 2025)</p>
-                        <p><b>Earned Schedule (SPI):</b> 1.0250 (Foran skjema)</p>
-                    </div>
-
-                    <div class="dim-box finance">
-                        <h4>💰 5. Cost (EVM) & 7. Finance (IFRS 15)</h4>
-                        <p><b>BAC:</b> 15.00 MNOK | <b>ACWP:</b> 7.90 MNOK | <b>EV:</b> 8.20 MNOK</p>
-                        <p><b>CPI:</b> 1.0380 (Under budget) | <b>EAC:</b> 14.45 MNOK (VAC +0.55M)</p>
-                        <p><b>Skattefradrag (19%):</b> 1.50 MNOK skatterreduksjon</p>
-                    </div>
-
-                    <div class="dim-box funding">
-                        <h4>🏛️ 8. Funding (Offentlig Tilskudd)</h4>
-                        <p><b>Finansiør:</b> SkatteFUNN (Skatteetaten / NFR, Prosjekt #298412)</p>
-                        <p><b>Vilkår:</b> Forskrift § 16-40 med maks timesats 530 kr/t og 1 850 t/år.</p>
-                    </div>
-
-                    <div class="dim-box quality">
-                        <h4>🛡️ 6. Quality & Governance</h4>
-                        <p><b>Statutory Form:</b> Skjemasettskjema RF-1053B for innmelding til Skatteetaten.</p>
-                        <p><b>Revisorattest:</b> ISA 805 / ISAE 3000 uavhengig revisorutsett.</p>
-                    </div>
-
-                    <div class="dim-box sources" style="grid-column: 1 / -1;">
-                        <h4>🔄 9. Data Sources (Download & Upload Integrasjon)</h4>
-                        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
-                            <div style="flex: 1;">
-                                <p><b>📥 Download (ERP & Inndata):</b></p>
-                                <ul>
-                                    <li>Lønnsdata for FoU-personell, nominell årslønn og timelister.</li>
-                                    <li>Underleverandørfakturaer for batteri-celletesting.</li>
-                                </ul>
-                            </div>
-                            <div style="flex: 1;">
-                                <p><b>📤 Upload (Portaler & Utdata):</b></p>
-                                <ul>
-                                    <li>Altinn / Skatteetaten: Vedleggskjema RF-1053B til skattemeldingen.</li>
-                                    <li>CPA ISA 805 Attestasjonsnotat og DuckDB OLAP-lager.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- WBS Tabell for CA-3080 -->
-                <h4 style="margin-bottom: 10px; color: var(--primary);">🌳 WBS Nedbrytning & Arbeidspakker (CA-3080)</h4>
-                <table class="wbs-table">
-                    <thead>
-                        <tr>
-                            <th>WBS Kode</th>
-                            <th>Arbeidspakke / Element</th>
-                            <th>Ansvarlig (CAM)</th>
-                            <th>Budsjett (BAC)</th>
-                            <th>Status & SPI</th>
-                            <th>Kritisk Avvik / Merknad</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><b>WBS 3.1</b></td>
-                            <td>Silicon-Graphite Anode Formulation</td>
-                            <td>Kjell Arne Bakke</td>
-                            <td>6,000,000 NOK</td>
-                            <td><span class="status-pill pill-green">Fullført (SPI 1.05)</span></td>
-                            <td>SkatteFUNN timesats godkjent 530 kr/t</td>
-                        </tr>
-                        <tr>
-                            <td><b>WBS 3.2</b></td>
-                            <td>Battery Cell Cycle Testing (1000 Cycles)</td>
-                            <td>Dr. Lene Berg</td>
-                            <td>7,500,000 NOK</td>
-                            <td><span class="status-pill pill-green">On Schedule (SPI 1.02)</span></td>
-                            <td>Lab-sykling i rute ved Fiskå batterilab</td>
-                        </tr>
-                        <tr>
-                            <td><b>WBS 3.3</b></td>
-                            <td>Audit Dossier & SkatteFUNN RF-1053B</td>
-                            <td>Kjell Arne Bakke</td>
-                            <td>1,500,000 NOK</td>
-                            <td><span class="status-pill pill-green">On Schedule (SPI 1.00)</span></td>
-                            <td>Klar for revisorattestasjon ISA 805</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-center bg-white">
+                <span class="text-muted small fw-bold">EAC PROJECTION</span>
+                <h3 class="fw-bold text-danger mb-0 mt-1">75.4 MNOK</h3>
+                <span class="small text-danger"><i class="fa-solid fa-arrow-trend-up me-1"></i>+5.4 MNOK Var</span>
             </div>
         </div>
-
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-center bg-white">
+                <span class="text-muted small fw-bold">PORTFOLIO CPI</span>
+                <h3 class="fw-bold text-warning mb-0 mt-1">0.952</h3>
+                <span class="small text-warning"><i class="fa-solid fa-triangle-exclamation me-1"></i>Cost Overrun</span>
+            </div>
+        </div>
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-center bg-white">
+                <span class="text-muted small fw-bold">PORTFOLIO SPI</span>
+                <h3 class="fw-bold text-warning mb-0 mt-1">0.944</h3>
+                <span class="small text-warning"><i class="fa-solid fa-clock me-1"></i>Schedule Delay</span>
+            </div>
+        </div>
     </div>
 
-    <footer>
-        Elkem ASA Technology Controlling Office | Fiskå Industripark, Kristiansand | Powered by DuckDB OLAP & EIA-748 EVMS Engine
-    </footer>
+    <!-- Section Intro -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold mb-1" style="color: var(--elkem-navy);"><i class="fa-solid fa-folder-tree me-2"></i>Prosjektkort & Dedikerte Dynamiske Gantt-kart</h4>
+            <p class="text-muted small mb-0">Full oversikt per prosjekt med 9-dimensjonal prosjektbeskrivelse, WBS og interaktiv dynamisk Gantt-tidslinje.</p>
+        </div>
+    </div>
 
-    <script>
-        // Tab switching logic
-        function openProject(projectId, btnElement) {
-            const panels = document.querySelectorAll('.project-detail-panel');
-            panels.forEach(p => p.classList.remove('active'));
+    <!-- PROJECT 1: CA-2045 -->
+    <div class="card card-project">
+        <div class="card-header card-header-ca2045 p-3 d-flex justify-content-between align-items-center">
+            <div>
+                <span class="badge bg-info text-dark mb-1">PROSJEKT 1</span>
+                <h4 class="mb-0 fw-bold">CA-2045: Fiskå Carbon-Neutral Smelting Pilot Plant</h4>
+                <span class="small opacity-75">CAM: Dr. Håkon Olsen | Lokasjon: Fiskå Industripark, Kristiansand</span>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-danger badge-evm me-1">CPI: 0.897</span>
+                <span class="badge bg-warning text-dark badge-evm me-1">SPI: 0.933</span>
+                <span class="badge bg-light text-dark badge-evm">Tilskudd: Enova</span>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            
+            <!-- 9 Dimensions Grid -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-file-lines me-1"></i> 1. Beskrivelse</div>
+                        <p class="small mb-0">Industrielt pilotanlegg på Fiskå for karbonnøytral smelting, reduksjonsteknologi og testkjøring av elektrofysiske reaktorer.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-bullseye me-1"></i> 2. Formål</div>
+                        <p class="small mb-0">Utvikle og demonstrere en utslippsfri smelteprosess for silisium og karbonløsninger for å bidra til omstillingen til lavutslippssamfunnet.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-diagram-project me-1"></i> 3. Scope (WBS)</div>
+                        <p class="small mb-0">WBS 1.1 HAZOP & Design | WBS 1.2 Reaktorinnkjøp & Sensorer | WBS 1.3 Installasjon & Prøvedrift på Fiskå.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-calendar-days me-1"></i> 4. Time & Stage-Gate</div>
+                        <p class="small mb-0">Periode: 01.01.2024 – 30.06.2025. Kritiske Enova Stage-Gate milepæler (Gate 1–5), inkl. Gate 3 Approval 15. nov 2024.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-coins me-1"></i> 5. Cost & EVM (EIA-748)</div>
+                        <p class="small mb-0">BAC: 45.0 MNOK | ACWP: 23.4 MNOK | EV: 21.0 MNOK | EAC: 50.1 MNOK (+5.1M avvik). Avviksrapportering ved >±5%.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-shield-halved me-1"></i> 6. Quality & Compliance</div>
+                        <p class="small mb-0">EIA-748 Retningslinje 22 avviksoppfølging, COSO 2013 internkontroll, Enova retningslinjer og revisorskrav (ISA 805 / ISAE 3000).</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-scale-balanced me-1"></i> 7. Finance & IFRS 15</div>
+                        <p class="small mb-0">PoC: 46.67%. Påløpt unotert inntekt (Contract Asset): 5.33 MNOK. Aktivering av utvikling etter IAS 38 / NRS 8.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-hand-holding-dollar me-1"></i> 8. Funding</div>
+                        <p class="small mb-0">Finansiert av <b>Enova (Klima- og energifondet)</b> via demonstrasjonstilskudd og betinget lån.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-database me-1"></i> 9. Data Sources</div>
+                        <p class="small mb-0"><b>Download:</b> SAP ERP bilag & timelister.<br><b>Upload:</b> Enova portal, Power BI Direct Lake & Teams HITL audit logg.</p>
+                    </div>
+                </div>
+            </div>
 
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(b => b.classList.remove('active'));
+            <!-- Dynamic Gantt Chart per project -->
+            <div class="gantt-container">
+                <h5 class="fw-bold mb-2 text-dark"><i class="fa-solid fa-chart-gantt me-2 text-primary"></i>Dynamisk Gantt-kart: CA-2045</h5>
+                <div id="gantt-ca2045" style="height: 320px;"></div>
+            </div>
 
-            document.getElementById(projectId).classList.add('active');
-            btnElement.classList.add('active');
-        }
+            <!-- WBS Table -->
+            <div class="mt-3">
+                <h6 class="fw-bold mb-2">WBS Arbeidspakkedetaljer (CA-2045)</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-wbs border">
+                        <thead>
+                            <tr>
+                                <th>WBS Kode</th>
+                                <th>Arbeidspakke / Milepæl</th>
+                                <th>Ansvarlig</th>
+                                <th>Start</th>
+                                <th>Slutt</th>
+                                <th>Budsjett (BAC)</th>
+                                <th>SPI</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>WBS 1.1</code></td>
+                                <td>Pilot Design & HAZOP Study</td>
+                                <td>Dr. Håkon Olsen</td>
+                                <td>01.01.2024</td>
+                                <td>30.04.2024</td>
+                                <td>8.5 MNOK</td>
+                                <td><span class="badge bg-success">1.00</span></td>
+                                <td><span class="badge bg-success">Fullført 🟢</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>WBS 1.2</code></td>
+                                <td>Procurement Reactor Vessel & Sensors</td>
+                                <td>Knut Arnesen</td>
+                                <td>01.04.2024</td>
+                                <td>15.11.2024</td>
+                                <td>22.0 MNOK</td>
+                                <td><span class="badge bg-danger">0.85</span></td>
+                                <td><span class="badge bg-danger">Kritisk Sti Forsinket 🔴</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>WBS 1.2.1</code></td>
+                                <td>&nbsp;&nbsp;└─ Refractory Lining & Isolasjon</td>
+                                <td>Knut Arnesen</td>
+                                <td>01.05.2024</td>
+                                <td>01.10.2024</td>
+                                <td>7.5 MNOK</td>
+                                <td><span class="badge bg-danger">0.80</span></td>
+                                <td><span class="badge bg-danger">Leverandørforsinkelse 🔴</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>WBS 1.2.2</code></td>
+                                <td>&nbsp;&nbsp;└─ Optical Pyrometers & Sensors</td>
+                                <td>Svein Viken</td>
+                                <td>15.06.2024</td>
+                                <td>15.11.2024</td>
+                                <td>4.5 MNOK</td>
+                                <td><span class="badge bg-success">1.02</span></td>
+                                <td><span class="badge bg-success">On Schedule 🟢</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>🚩 Gate 3</code></td>
+                                <td><b>Enova Stage-Gate 3 Approval</b></td>
+                                <td>Styringsgruppe</td>
+                                <td>15.11.2024</td>
+                                <td>20.11.2024</td>
+                                <td>—</td>
+                                <td><span class="badge bg-warning text-dark">0.90</span></td>
+                                <td><span class="badge bg-primary">Stage-Gate Milepæl ◆</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>WBS 1.3</code></td>
+                                <td>Hot Testing & Pilot Operations</td>
+                                <td>Janne Bergan</td>
+                                <td>20.11.2024</td>
+                                <td>30.06.2025</td>
+                                <td>14.5 MNOK</td>
+                                <td><span class="badge bg-secondary">0.93</span></td>
+                                <td><span class="badge bg-secondary">Planlagt</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-        // Render Plotly Gantt Chart
-        const ganttData = [
-            // Master Level 1
-            {
-                task: "<b>[CA-2045] Fiskå Carbon-Neutral Smelting</b>",
-                start: "2024-01-01",
-                end: "2025-06-30",
-                level: "Master",
-                status: "Master Project",
-                details: "BAC: 45M | SPI: 0.933 | Enova"
-            },
-            {
-                task: "<b>[CA-1042] Furnace Automation Digital Twin</b>",
-                start: "2024-02-15",
-                end: "2024-12-31",
-                level: "Master",
-                status: "Master Project",
-                details: "BAC: 10M | SPI: 0.875 | NFR"
-            },
-            {
-                task: "<b>[CA-3080] NextGen Battery Anode R&D</b>",
-                start: "2024-01-15",
-                end: "2025-03-31",
-                level: "Master",
-                status: "Master Project",
-                details: "BAC: 15M | SPI: 1.025 | SkatteFUNN"
-            },
+        </div>
+    </div>
 
-            // Level 2 WBS Sub-tasks
-            {
-                task: "  └─ WBS 1.1 Pilot Design & HAZOP Study",
-                start: "2024-01-01",
-                end: "2024-04-30",
-                level: "WBS",
-                status: "Completed (🟢)",
-                details: "Fullført u/avvik"
-            },
-            {
-                task: "  └─ WBS 1.2 Procurement Reactor Vessel",
-                start: "2024-04-01",
-                end: "2024-11-15",
-                level: "WBS",
-                status: "Critical Path (🔴)",
-                details: "Leverandørforsinkelse reaktor isolasjon"
-            },
-            {
-                task: "  └─ 🚩 Gate 3 Approval (Enova Milestone)",
-                start: "2024-11-15",
-                end: "2024-11-20",
-                level: "WBS",
-                status: "Stage-Gate (◆)",
-                details: "Kritisk for 2. tilskuddsutbetaling"
-            },
-            {
-                task: "  └─ WBS 1.3 Hot Testing & Operation",
-                start: "2024-11-20",
-                end: "2025-06-30",
-                level: "WBS",
-                status: "Planned",
-                details: "Fiskå pilotanlegg oppstart"
-            },
-            {
-                task: "  └─ WBS 2.1 Sensor & PLC Integration",
-                start: "2024-02-15",
-                end: "2024-06-30",
-                level: "WBS",
-                status: "Completed (🟢)",
-                details: "Ovnstester Kristiansand"
-            },
-            {
-                task: "  └─ WBS 2.2 Neural Twin GPU Training",
-                start: "2024-06-01",
-                end: "2024-10-31",
-                level: "WBS",
-                status: "Critical Path (🔴)",
-                details: "GPU-beregninger krevende"
-            },
-            {
-                task: "  └─ 🚩 Gate 4 System Go-Live",
-                start: "2024-12-01",
-                end: "2024-12-31",
-                level: "WBS",
-                status: "Stage-Gate (◆)",
-                details: "Driftstest i smelteverk"
-            },
-            {
-                task: "  └─ WBS 3.1 Anode Formulation",
-                start: "2024-01-15",
-                end: "2024-07-31",
-                level: "WBS",
-                status: "Completed (🟢)",
-                details: "SkatteFUNN timesats godkjent"
-            },
-            {
-                task: "  └─ WBS 3.2 Cell Cycle Testing",
-                start: "2024-07-01",
-                end: "2025-03-31",
-                level: "WBS",
-                status: "On Schedule (🟢)",
-                details: "Lab-testing pågår"
-            }
-        ];
+    <!-- PROJECT 2: CA-1042 -->
+    <div class="card card-project">
+        <div class="card-header card-header-ca1042 p-3 d-flex justify-content-between align-items-center">
+            <div>
+                <span class="badge bg-warning text-dark mb-1">PROSJEKT 2</span>
+                <h4 class="mb-0 fw-bold">CA-1042: Furnace Automation & Digital Twin System</h4>
+                <span class="small opacity-75">CAM: Marianne Lie | Lokasjon: Smelteverk Automasjonslab</span>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-danger badge-evm me-1">CPI: 0.921</span>
+                <span class="badge bg-danger badge-evm me-1">SPI: 0.875</span>
+                <span class="badge bg-light text-dark badge-evm">Tilskudd: NFR</span>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            
+            <!-- 9 Dimensions Grid -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-file-lines me-1"></i> 1. Beskrivelse</div>
+                        <p class="small mb-0">Digital tvilling og automasjonssystem for sanntidsovervåking og optimalisering av reduksjonsovner.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-bullseye me-1"></i> 2. Formål</div>
+                        <p class="small mb-0">Stabilisere ovnsdrift, minimere energiforbruk og forhindre gasslekkasjer ved hjelp av datadrevet modellstyring.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-diagram-project me-1"></i> 3. Scope (WBS)</div>
+                        <p class="small mb-0">WBS 2.1 Sensor Montering | WBS 2.2 Neural Network Trening | WBS 2.3 Kontrollrom Integrasjon.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-calendar-days me-1"></i> 4. Time & Stage-Gate</div>
+                        <p class="small mb-0">Periode: 15.02.2024 – 31.12.2024. Integrert nettverksplan (IMS) med ukentlig avviksoppfølging.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-coins me-1"></i> 5. Cost & EVM (EIA-748)</div>
+                        <p class="small mb-0">BAC: 10.0 MNOK | ACWP: 3.8 MNOK | EV: 3.5 MNOK | EAC: 10.86 MNOK (+0.86M avvik).</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-shield-halved me-1"></i> 6. Quality & Compliance</div>
+                        <p class="small mb-0">NFR retningslinjer for FoU-institusjoner, >60% timelistenivå og full sporing fra timeregister til hovedbok.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-scale-balanced me-1"></i> 7. Finance & IFRS 15</div>
+                        <p class="small mb-0">PoC: 35.00%. Contract Asset: 1.38 MNOK. Forskningskostnader føres direkte over resultat.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-hand-holding-dollar me-1"></i> 8. Funding</div>
+                        <p class="small mb-0">Finansiert av <b>Norges Forskningsråd (NFR)</b> via IPN-prosjektstøtte.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-database me-1"></i> 9. Data Sources</div>
+                        <p class="small mb-0"><b>Download:</b> Sensor-telemetri & elektroniske timelister.<br><b>Upload:</b> NFR portal & Teams Adaptive Cards.</p>
+                    </div>
+                </div>
+            </div>
 
-        const colorMap = {
-            "Master Project": "#002B49",
-            "Completed (🟢)": "#28A745",
-            "On Schedule (🟢)": "#20C997",
-            "Critical Path (🔴)": "#DC3545",
-            "Stage-Gate (◆)": "#6F42C1",
-            "Planned": "#6C757D"
-        };
+            <!-- Dynamic Gantt Chart per project -->
+            <div class="gantt-container">
+                <h5 class="fw-bold mb-2 text-dark"><i class="fa-solid fa-chart-gantt me-2 text-primary"></i>Dynamisk Gantt-kart: CA-1042</h5>
+                <div id="gantt-ca1042" style="height: 280px;"></div>
+            </div>
 
-        const traces = [];
-        const categories = [...new Set(ganttData.map(d => d.status))];
+            <!-- WBS Table -->
+            <div class="mt-3">
+                <h6 class="fw-bold mb-2">WBS Arbeidspakkedetaljer (CA-1042)</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-wbs border">
+                        <thead>
+                            <tr>
+                                <th>WBS Kode</th>
+                                <th>Arbeidspakke / Milepæl</th>
+                                <th>Ansvarlig</th>
+                                <th>Start</th>
+                                <th>Slutt</th>
+                                <th>Budsjett (BAC)</th>
+                                <th>SPI</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>WBS 2.1</code></td>
+                                <td>Sensor Calibration & PLC Integration</td>
+                                <td>Marianne Lie</td>
+                                <td>15.02.2024</td>
+                                <td>30.06.2024</td>
+                                <td>3.0 MNOK</td>
+                                <td><span class="badge bg-success">0.92</span></td>
+                                <td><span class="badge bg-success">Fullført 🟢</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>WBS 2.2</code></td>
+                                <td>Neural Network Digital Twin Training</td>
+                                <td>Lars Holm</td>
+                                <td>01.06.2024</td>
+                                <td>31.10.2024</td>
+                                <td>5.0 MNOK</td>
+                                <td><span class="badge bg-danger">0.82</span></td>
+                                <td><span class="badge bg-danger">Beregningskrevende Avvik 🔴</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>🚩 Gate 4</code></td>
+                                <td><b>Control Room Go-Live Milestone</b></td>
+                                <td>Driftssjef</td>
+                                <td>01.12.2024</td>
+                                <td>31.12.2024</td>
+                                <td>2.0 MNOK</td>
+                                <td><span class="badge bg-warning text-dark">0.87</span></td>
+                                <td><span class="badge bg-primary">Stage-Gate Milepæl ◆</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-        categories.forEach(cat => {
-            const items = ganttData.filter(d => d.status === cat);
-            traces.push({
-                name: cat,
-                x: items.map(d => d.end),
-                y: items.map(d => d.task),
-                base: items.map(d => d.start),
-                type: 'bar',
-                orientation: 'h',
-                marker: { color: colorMap[cat] || '#002B49' },
-                hovertext: items.map(d => d.details)
-            });
-        });
+        </div>
+    </div>
 
-        const layout = {
-            title: {
-                text: 'Elkem Technology — Master Schedule & Multi-Level Gantt Chart',
-                font: { size: 16, color: '#002B49' }
-            },
-            barmode: 'stack',
-            xaxis: { type: 'date', title: 'Tidslinje (2024 - 2025)' },
-            yaxis: { autorange: 'reversed' },
-            margin: { l: 280, r: 20, t: 40, b: 40 },
-            showlegend: true
-        };
+    <!-- PROJECT 3: CA-3080 -->
+    <div class="card card-project">
+        <div class="card-header card-header-ca3080 p-3 d-flex justify-content-between align-items-center">
+            <div>
+                <span class="badge bg-success text-white mb-1">PROSJEKT 3</span>
+                <h4 class="mb-0 fw-bold">CA-3080: NextGen Battery Anode Material R&D</h4>
+                <span class="small opacity-75">CAM: Kjell Arne Bakke | Lokasjon: Batterilaboratoriet Fiskå</span>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success badge-evm me-1">CPI: 1.038</span>
+                <span class="badge bg-success badge-evm me-1">SPI: 1.025</span>
+                <span class="badge bg-light text-dark badge-evm">Tilskudd: SkatteFUNN</span>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            
+            <!-- 9 Dimensions Grid -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-file-lines me-1"></i> 1. Beskrivelse</div>
+                        <p class="small mb-0">FoU innen syntetisk graffitt, biokarbon og silisium-karbon anodematerialer for battericeller.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-bullseye me-1"></i> 2. Formål</div>
+                        <p class="small mb-0">Utvikle ultra-rene anodematerialer med høy energitetthet og lavt klimaavtrykk for elbil-markedet.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-diagram-project me-1"></i> 3. Scope (WBS)</div>
+                        <p class="small mb-0">WBS 3.1 Karbonformulering | WBS 3.2 Cellesykling (1000 sykluser) | WBS 3.3 SkatteFUNN Dossier.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-calendar-days me-1"></i> 4. Time & Stage-Gate</div>
+                        <p class="small mb-0">Periode: 15.01.2024 – 31.03.2025. Godkjent SkatteFUNN prosjektperiode (#298412).</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-coins me-1"></i> 5. Cost & EVM (EIA-748)</div>
+                        <p class="small mb-0">BAC: 15.0 MNOK | ACWP: 7.9 MNOK | EV: 8.2 MNOK | EAC: 14.45 MNOK (Under budsjett 🟢).</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-shield-halved me-1"></i> 6. Quality & Compliance</div>
+                        <p class="small mb-0">Daglig timeliste med WBS-spesifisering, maks 530 kr/t, max 1 850 t/år per ansatt og ISA 805 / ISAE 3000 revisjonsattest.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-scale-balanced me-1"></i> 7. Finance & IFRS 15</div>
+                        <p class="small mb-0">PoC: 54.67%. Skattefradrag (19%) regnskapsføres etter NRS 4 / IAS 20 som offentlig tilskudd.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-hand-holding-dollar me-1"></i> 8. Funding</div>
+                        <p class="small mb-0">Finansiert av <b>SkatteFUNN (Skatteetaten / NFR, Prosjekt #298412)</b>.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dim-box">
+                        <div class="dim-title"><i class="fa-solid fa-database me-1"></i> 9. Data Sources</div>
+                        <p class="small mb-0"><b>Download:</b> Lønnsdata, timelister, underleverandørfakturaer.<br><b>Upload:</b> Skatteetaten RF-1053B & DuckDB OLAP.</p>
+                    </div>
+                </div>
+            </div>
 
-        Plotly.newPlot('gantt-chart', traces, layout);
-    </script>
+            <!-- Dynamic Gantt Chart per project -->
+            <div class="gantt-container">
+                <h5 class="fw-bold mb-2 text-dark"><i class="fa-solid fa-chart-gantt me-2 text-primary"></i>Dynamisk Gantt-kart: CA-3080</h5>
+                <div id="gantt-ca3080" style="height: 280px;"></div>
+            </div>
+
+            <!-- WBS Table -->
+            <div class="mt-3">
+                <h6 class="fw-bold mb-2">WBS Arbeidspakkedetaljer (CA-3080)</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-wbs border">
+                        <thead>
+                            <tr>
+                                <th>WBS Kode</th>
+                                <th>Arbeidspakke / Milepæl</th>
+                                <th>Ansvarlig</th>
+                                <th>Start</th>
+                                <th>Slutt</th>
+                                <th>Budsjett (BAC)</th>
+                                <th>SPI</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>WBS 3.1</code></td>
+                                <td>Silicon-Graphite Anode Formulation</td>
+                                <td>Kjell Arne Bakke</td>
+                                <td>15.01.2024</td>
+                                <td>31.07.2024</td>
+                                <td>5.5 MNOK</td>
+                                <td><span class="badge bg-success">1.05</span></td>
+                                <td><span class="badge bg-success">Fullført 🟢</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>WBS 3.2</code></td>
+                                <td>Battery Cell Cycle Testing (1000 Cycles)</td>
+                                <td>Dr. Anne Tangen</td>
+                                <td>01.07.2024</td>
+                                <td>31.03.2025</td>
+                                <td>7.5 MNOK</td>
+                                <td><span class="badge bg-success">1.02</span></td>
+                                <td><span class="badge bg-success">On Schedule 🟢</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>WBS 3.3</code></td>
+                                <td>SkatteFUNN RF-1053B Audit Dossier</td>
+                                <td>Controller Hub</td>
+                                <td>01.01.2025</td>
+                                <td>31.03.2025</td>
+                                <td>2.0 MNOK</td>
+                                <td><span class="badge bg-success">1.00</span></td>
+                                <td><span class="badge bg-secondary">Planlagt</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container text-center">
+        <p class="mb-1">🏛️ <b>Elkem ASA Technology Controlling Office</b> | Kristiansand, Norway</p>
+        <p class="small text-muted mb-0">EIA-748 EVMS | IFRS 15 Revenue Recognition | COSO 2013 Governance | DuckDB OLAP Engine</p>
+    </div>
+</footer>
+
+<!-- Plotly Scripts for Individual Project Gantt Charts -->
+<script>
+    // CA-2045 Gantt Chart
+    const tasks_ca2045 = [
+        { Task: "WBS 1.1 Pilot Design & HAZOP", Start: "2024-01-01", Finish: "2024-04-30", Resource: "Fullført 🟢" },
+        { Task: "WBS 1.2 Procurement Reactor Vessel", Start: "2024-04-01", Finish: "2024-11-15", Resource: "Kritisk Sti 🔴" },
+        { Task: "  └─ Refractory Lining Isolasjon", Start: "2024-05-01", Finish: "2024-10-01", Resource: "Kritisk Sti 🔴" },
+        { Task: "  └─ Optical Pyrometers & Sensors", Start: "2024-06-15", Finish: "2024-11-15", Resource: "Fullført 🟢" },
+        { Task: "🚩 Gate 3 Enova Approval", Start: "2024-11-15", Finish: "2024-11-20", Resource: "Stage-Gate ◆" },
+        { Task: "WBS 1.3 Hot Testing & Operations", Start: "2024-11-20", Finish: "2025-06-30", Resource: "Planlagt" }
+    ];
+
+    const data_ca2045 = tasks_ca2045.map(t => ({
+        x: [t.Start, t.Finish],
+        y: [t.Task, t.Task],
+        type: 'scatter',
+        mode: 'lines',
+        line: {
+            width: 18,
+            color: t.Resource.includes('🔴') ? '#DC3545' :
+                   t.Resource.includes('🟢') ? '#28A745' :
+                   t.Resource.includes('◆') ? '#6F42C1' : '#002B49'
+        },
+        name: t.Resource,
+        hoverinfo: 'text',
+        text: `${t.Task}<br>Start: ${t.Start} | Slutt: ${t.Finish}`
+    }));
+
+    const layout_ca2045 = {
+        margin: { l: 220, r: 20, t: 10, b: 30 },
+        yaxis: { autorange: 'reversed' },
+        xaxis: { type: 'date' },
+        showlegend: false
+    };
+
+    Plotly.newPlot('gantt-ca2045', data_ca2045, layout_ca2045, {responsive: true});
+
+    // CA-1042 Gantt Chart
+    const tasks_ca1042 = [
+        { Task: "WBS 2.1 Sensor & PLC Calibration", Start: "2024-02-15", Finish: "2024-06-30", Resource: "Fullført 🟢" },
+        { Task: "WBS 2.2 Neural Twin Training", Start: "2024-06-01", Finish: "2024-10-31", Resource: "Kritisk Sti 🔴" },
+        { Task: "🚩 Gate 4 Control Room Go-Live", Start: "2024-12-01", Finish: "2024-12-31", Resource: "Stage-Gate ◆" }
+    ];
+
+    const data_ca1042 = tasks_ca1042.map(t => ({
+        x: [t.Start, t.Finish],
+        y: [t.Task, t.Task],
+        type: 'scatter',
+        mode: 'lines',
+        line: {
+            width: 18,
+            color: t.Resource.includes('🔴') ? '#DC3545' :
+                   t.Resource.includes('🟢') ? '#28A745' : '#6F42C1'
+        },
+        name: t.Resource,
+        hoverinfo: 'text',
+        text: `${t.Task}<br>Start: ${t.Start} | Slutt: ${t.Finish}`
+    }));
+
+    const layout_ca1042 = {
+        margin: { l: 220, r: 20, t: 10, b: 30 },
+        yaxis: { autorange: 'reversed' },
+        xaxis: { type: 'date' },
+        showlegend: false
+    };
+
+    Plotly.newPlot('gantt-ca1042', data_ca1042, layout_ca1042, {responsive: true});
+
+    // CA-3080 Gantt Chart
+    const tasks_ca3080 = [
+        { Task: "WBS 3.1 Anode Formulation", Start: "2024-01-15", Finish: "2024-07-31", Resource: "Fullført 🟢" },
+        { Task: "WBS 3.2 Cell Cycle Testing", Start: "2024-07-01", Finish: "2025-03-31", Resource: "On Schedule 🟢" },
+        { Task: "WBS 3.3 SkatteFUNN Audit", Start: "2025-01-01", Finish: "2025-03-31", Resource: "Planlagt" }
+    ];
+
+    const data_ca3080 = tasks_ca3080.map(t => ({
+        x: [t.Start, t.Finish],
+        y: [t.Task, t.Task],
+        type: 'scatter',
+        mode: 'lines',
+        line: {
+            width: 18,
+            color: t.Resource.includes('🟢') ? '#28A745' : '#002B49'
+        },
+        name: t.Resource,
+        hoverinfo: 'text',
+        text: `${t.Task}<br>Start: ${t.Start} | Slutt: ${t.Finish}`
+    }));
+
+    const layout_ca3080 = {
+        margin: { l: 220, r: 20, t: 10, b: 30 },
+        yaxis: { autorange: 'reversed' },
+        xaxis: { type: 'date' },
+        showlegend: false
+    };
+
+    Plotly.newPlot('gantt-ca3080', data_ca3080, layout_ca3080, {responsive: true});
+</script>
+
 </body>
 </html>
