@@ -1,152 +1,153 @@
-# ⚡ Elkem Technology Controller Hub (`project-controlling-office`)
+# Elkem Controller Hub — Dual-Engine Financial Control & Project Reporting Framework
 
-> **Agentic Governance, Earned Value Management (EIA-748), IFRS 15 Revenue Control & Grant Management Workstation for Elkem ASA Technology (Fiskaa).**
-
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.32+-FF4B4B.svg)](https://streamlit.io)
-[![DuckDB](https://img.shields.io/badge/DuckDB-OLAP-FFF000.svg)](https://duckdb.org)
-[![Governance](https://img.shields.io/badge/COSO%202013-EU%20AI%20Act%20Art.%2012-emerald.svg)]()
-[![Tests](https://img.shields.io/badge/tests-43%20passed-brightgreen.svg)]()
+> **Agentic Financial Control, Earned Value Management (EVM), and IFRS 15 Compliance Framework for Elkem ASA Technology (Fiskå, Kristiansand).**
 
 ---
 
-## 🏛️ Core Architectural Axiom
+## 📌 Executive Overview
+
+**Elkem Controller Hub** er et dual-engine prosjektstyringssystem utviklet for å forene **strenge regnskaps- og tilskuddsregler** (EIA-748 EVM, IFRS 15, SkatteFUNN RF-1053B, Enova) med **agentisk AI-automatisering**.
+
+Systemet er skreddersydd for rammebetingelsene til **Elkem ASA Technology** på Fiskå i Kristiansand, og automatiserer månedsoppgjør, avviksanalyser, tilskuddsrapportering og ledelsesprognoser (EAC/S-kurver) uten risiko for regnefeil eller datalekkasje.
+
+---
+
+## 🏗️ Dual-Engine Arkitektur
 
 ```
-   Models Reason. Software Computes. Agents Orchestrate. Systems Verify.
+                     +-------------------------------------------------+
+                     |            ELKEM CONTROLLER HUB UI              |
+                     |  (Streamlit Dashboard  /  FastAPI Swagger UI)   |
+                     +-------------------------------------------------+
+                                              |
+                     +------------------------+------------------------+
+                     |                                                 |
+                     v                                                 v
+   +------------------------------------+   +------------------------------------+
+   |     ENGINE 1: DETERMINISTIC        |   |      ENGINE 2: AGENTIC RAG         |
+   |        COMPUTE ENGINE              |   |       ORCHESTRATION ENGINE         |
+   +------------------------------------+   +------------------------------------+
+   | * EIA-748 EVM Beregninger (FAST)   |   | * Hybrid Intent Router             |
+   | * IFRS 15 PoC & Inntektsføring     |   | * Lokal Ollama (llama3.1)          |
+   | * SkatteFUNN Sjablong (530 kr/t)   |   | * Qdrant Vector DB (nomic-embed)   |
+   | * DuckDB OLAP Transaksjonslager    |   | * Gemini 3.8 Flash Multimodal OCR  |
+   +------------------------------------+   +------------------------------------+
+                     |                                                 |
+                     +------------------------+------------------------+
+                                              |
+                                              v
+                     +-------------------------------------------------+
+                     |         GOVERNANCE & INTEGRATION LAYER          |
+                     |  * HITL Tollbooth (COSO 2013 / EU AI Act)       |
+                     |  * Power BI REST API S-Curve Streaming          |
+                     |  * MS Teams Adaptive Cards & Brreg Registry     |
+                     +-------------------------------------------------+
 ```
 
-Financial calculations must **never** be subject to LLM math hallucinations. In this hub:
-* **Deterministic Compute Engine (Python / SQL)** handles 100% of the mathematical, financial, and tax credit formulas.
-* **LLM / Multi-Agent Layer (Ollama / Gemini)** is strictly restricted to semantic classification, unstructured regulatory lookup (RAG), and prescriptive commentary.
-* **Local-First Analytical Storage (DuckDB)** provides sub-second OLAP rollups over WBS nodes, timecards, and procurement actuals without cloud egress costs.
-* **Cryptographic Audit Trail (COSO 2013 & EU AI Act Art. 12)** enforces SHA-256 hash chaining on all model outputs and Human-in-the-Loop (HITL) approvals.
+### 🧮 Engine 1: Deterministisk Beregningsmotor
+* **EIA-748 EVM Måltall**: Ren Python-matematikk for Planlagt verdi (BCWS / PV), Opptjent verdi (BCWP / EV), Faktisk kostnad (ACWP / AC), Cost Variance (CV), Schedule Variance (SV), CPI, SPI og Estimate at Completion (EAC).
+* **IFRS 15 Inntektsføring**: PoC % (Percentage of Completion) over-tid inntektsføring, beregning av Contract Assets (Påløpt, ikke-fakturert inntekt) og avsetninger.
+* **DuckDB Transaksjons-OLAP**: Lokal SQL-database (`data/elkem_analytics.duckdb`) som lagrer ERP-transaksjoner på laveste bilagsnivå (timeføringer, innkjøp, underleverandører og WBS-struktur).
+* **Tilskuddskontroll**: Automatisk validering mot SkatteFUNN-sjablong (RF-1053B timesatsgrense på maks 530 kr/t og 1 850 t/år per person) og Enova-retningslinjer.
+
+### 🤖 Engine 2: Agentisk RAG- & Orkestreringsmotor
+* **Hybrid Router**: Klassifiserer brukerhenvendelser automatisk til enten SQL/EVM-beregninger, Qdrant Vector RAG-oppslag eller hybride samsvarsanalyser.
+* **100% Lokal LLM & Vektorer**: Kjører **Ollama (llama3.1)** for privat resonnering og **nomic-embed-text** via Qdrant for dokumentoppslag.
+* **Multimodal OCR**: Bruker Gemini 3.8 Flash for rask analyse av sammensatte PDF-fakturaer, tekniske bilag og tilskuddsbrev.
 
 ---
 
-## 🌟 Key Capabilities
+## 🔒 Governance, Sikkerhet & Human-in-the-Loop (HITL)
 
-### 1. Earned Value Management (EIA-748) & FAST Standard
-* Calculates Planned Value ($BCWS$), Earned Value ($BCWP$), Actual Cost ($ACWP$), Cost Variance ($CV$), Schedule Variance ($SV$), $CPI$, and $SPI$.
-* Forecasts Estimate at Completion ($EAC$) across multiple methods (CPI-based, Composite $CPI \times SPI$, Budgeted Rate).
-* Evaluates Variance at Completion ($VAC$) and To-Complete Performance Index ($TCPI$).
-
-### 2. IFRS 15 (Revenue from Contracts with Customers)
-* Implements the **Cost-to-Cost Percentage of Completion (PoC %)** input method: $\text{PoC} = \frac{ACWP}{EAC}$.
-* Calculates cumulative recognized revenue against milestone billing.
-* Automatically balances **Contract Assets** (unbilled revenue) vs **Contract Liabilities** (advance payments).
-
-### 3. Grant Compliance (SkatteFUNN RF-1053B & Enova)
-* Statutory capping of internal R&D hourly rates to **530 NOK/hour** (2025 standard).
-* Maximum cap of **1,850 hours/year** per employee.
-* Annual cost ceiling of **25,000,000 NOK** per company with 19% tax credit computation.
-* Pre-submission audit check flagging non-compliant time registrations for ISA 805 / ISAE 3000 audit readiness.
-
-### 4. Local-First DuckDB OLAP Engine
-* High-performance SQL engine joining WBS nodes, employee timecards, and purchase orders.
-* Eliminates Cartesian fan-out using CTE-based multi-fact aggregation to compute mathematically exact actuals ($ACWP$).
-
-### 5. Power BI REST API Push Pipeline
-* Real-time streaming of cumulative S-Curve time series ($PV$, $EV$, $AC$) directly into Power BI Push Datasets for corporate dashboards.
-
-### 6. Edward Tufte Data-Ink Executive UI
-* Minimalist Streamlit workstation UI.
-* Zero vertical gridlines, muted base colors, direct S-Curve line labeling (no separate legends), and alert highlights only when $CPI < 0.95$.
-* Interactive Human-in-the-Loop (HITL) tollbooth gate requiring controller sign-off before committing EAC changes to ERP (SAP / Agresso).
+* **Air-Gapped Datasikkerhet**: Konfidensielle FoU-dokumenter og regnskapstall behandles utelukkende lokalt på localhost.
+* **COSO 2013 & EU AI Act Compliance**: Innebygget **Human-in-the-Loop (HITL) Tollbooth**. AI-agenter kan ikke endre tall i ERP/SAP uten eksplisitt godkjenning fra controller via et knappetrykk.
+* **Uforanderlig Audit-Logg**: Alle godkjenninger og EAC-prognoseendringer tildeles en kryptografisk UUID i `data/audit_logs/` for revisorgodkjenning (ISA 805 / ISAE 3000).
 
 ---
 
-## 📂 Repository Structure
+## 📁 Prosjektstruktur
 
 ```
 project-controlling-office/
-├── src/
-│   ├── engine_compute/             # Deterministic financial math (FAST standard, 0 LLM)
-│   │   ├── evm_calculator.py       # EIA-748 EVM & IFRS 15 PoC formulas
-│   │   ├── grant_calculator.py     # SkatteFUNN RF-1053B & Enova statutory rules
-│   │   └── duckdb_store.py         # Local DuckDB OLAP schema & CTE aggregations
-│   ├── engine_agents/              # Agentic orchestration & governance
-│   │   ├── orchestrator.py         # Dual-mode intent router (Structured vs RAG vs Hybrid)
-│   │   ├── llm_provider.py         # Model manager (Ollama llama3.1, Gemini 3.8 Flash)
-│   │   ├── ingest_kunnskapsbase.py # Qdrant vector ingestion for regulatory PDFs
-│   │   └── audit_logger.py         # COSO 2013 / EU AI Act Art. 12 SHA-256 audit logger
-│   ├── integrations/               # Ecosystem connectors
-│   │   ├── ms_graph_teams.py       # Teams Adaptive Cards & PowerPoint decks
-│   │   ├── powerbi_push.py         # Power BI REST API S-Curve streaming
-│   │   └── norwegian_public_apis.py# Brønnøysundregistrene (Brreg) & Grant APIs
-│   ├── ui_frontend/                # Streamlit Executive Workstation
-│   │   └── app.py                  # Tufte-style Split-View UI & HITL Tollbooth
-│   ├── api/                        # FastAPI microservice
-│   │   └── main.py                 # REST endpoints for EVM, grants, actuals & logs
-│   └── main.py                     # Uvicorn entrypoint for Docker
-├── tests/                          # 43 unit and integration tests (100% pass rate)
-├── data/
-│   ├── sample_data/                # Control accounts sample datasets (JSON)
-│   └── audit_logs/                 # Cryptographically chained audit trail (JSONL)
+├── docker-compose.yml              # Multi-container oppsett (Backend, Frontend, Qdrant)
+├── Dockerfile.backend              # Python 3.12 FastAPI microservice container
+├── Dockerfile.frontend             # Streamlit UI dashboard container
+├── .env.example                    # Mal for miljøvariabler og API-nøkler
+├── .gitignore                      # Sikkerhetsskjold for nøkler og DuckDB-filer
 ├── scripts/
-│   └── bootstrap_dev.py            # Development environment initialization script
-├── .streamlit/
-│   └── config.toml                 # Elkem corporate theme configuration
-├── Dockerfile.backend              # FastAPI Docker container
-├── Dockerfile.frontend             # Streamlit Docker container
-├── docker-compose.yml              # Container orchestration (Backend + Frontend + Qdrant)
-└── requirements.txt                # Python dependencies
+│   └── bootstrap_dev.py            # Automatisk oppstartsskript for dev-miljø
+├── src/
+│   ├── engine_compute/
+│   │   ├── evm_calculator.py       # Deterministisk EVM & IFRS 15 beregningsmotor
+│   │   └── duckdb_store.py         # DuckDB OLAP transaksjonsdatabase
+│   ├── rag_pipeline/
+│   │   ├── llm_provider.py         # Modellstyring (Ollama / Gemini / Serper)
+│   │   ├── orchestrator.py         # Multi-agent router og eksekveringsplanlegger
+│   │   └── ingest_kunnskapsbase.py # Qdrant vektoringesting for Elkem Kunnskapsbase
+│   ├── integrations/
+│   │   ├── openapi_server.py       # FastAPI REST-server med Swagger UI & ReDoc
+│   │   ├── ms_graph_teams.py       # MS Teams Adaptive Cards kobling
+│   │   ├── norwegian_public_apis.py# Brreg & SkatteFUNN API-integrasjoner
+│   │   ├── powerbi_push.py         # Power BI REST API S-kurve strømmingsmotor
+│   │   └── generate_deck.py        # PowerPoint ledelsespresentasjon (.pptx)
+│   └── ui_frontend/
+│       ├── app.py                  # Streamlit dashboard (v1)
+│       └── app-v2.py               # Elkem Navy branded Streamlit dashboard (v2)
+└── tests/
+    └── test_llm_provider.py        # Enhetstester (43/43 bestått)
 ```
 
 ---
 
-## 🚀 Quickstart
+## ⚡ Hurtigstart & Installasjon
 
-### 1. Prerequisites
-* Python 3.12+ (or 3.14)
-* (Optional) Docker Desktop
-* (Optional) Local [Ollama](https://ollama.com) running `llama3.1` and `nomic-embed-text`
+### 1. Forutsetninger
+* **Python 3.12+**
+* **Docker Desktop** (med Docker Compose)
+* **Ollama** (installert lokalt med `ollama pull llama3.1` og `ollama pull nomic-embed-text`)
 
-### 2. Bootstrap Environment
-```powershell
-# Clone the repository
-git clone https://github.com/Frank-Ellingsen/project-controlling-office.git
+### 2. Klon og Konfigurer
+```bash
+git clone project-controlling-office
 cd project-controlling-office
+cp .env.example .env
+```
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Run bootstrap initializer (creates .env and seeds DuckDB)
+### 3. Bygg Lokal Database
+```bash
 python scripts/bootstrap_dev.py
 ```
 
-### 3. Run Automated Test Suite
-```powershell
-python -m unittest discover -s tests -p "test_*.py" -v
-```
-*43 tests covering EVM math, IFRS 15, statutory grants, DuckDB CTE joins, and API endpoints.*
-
-### 4. Launch Executive Workstation
-```powershell
-streamlit run app.py
-```
-*Open [http://localhost:8501](http://localhost:8501) in your browser.*
-
-### 5. Launch via Docker Compose
-```powershell
+### 4. Start Containerne
+```bash
 docker compose up --build
 ```
-* Access Workstation UI: [http://localhost:8501](http://localhost:8501)
-* Access FastAPI Interactive Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
-## 🔒 Governance & Regulatory Compliance
+## 🧪 Kjøring av Enhetstester
 
-* **COSO 2013 Internal Controls**: Segregation of duties enforced through mandatory Human-in-the-Loop (HITL) approval cards before committing adjustments.
-* **EU AI Act (Article 12 - High-Risk AI)**: Every prompt route, heuristic rule, and financial metric modification is logged with timestamp, user, previous value, proposed value, and a cryptographic SHA-256 hash pointer linking to the preceding entry.
-* **Audit Verification**: Run `audit_logger.verify_chain_integrity()` or call `GET /api/v1/audit/logs` to cryptographically prove that no historical records have been altered.
+Kjør hele testpakken for å verifisere beregninger og integrasjoner:
+```bash
+python -m unittest discover -s tests -p "test_*.py"
+```
+*Status*: `OK (43 av 43 bestått)`
 
 ---
 
-## 👤 Author
-**Frank Ellingsen**  
-*Financial Controller / BI Specialist & Project Controller*  
-*Specializing in Project Controlling, EIA-748 EVM, and Agentic AI Architecture for Engineering and Maritime Sectors.*
+## 📊 Realistiske Elkem ASA Technology Prosjektdata
 
+Systemet leveres pre-konfigurert med tre representative pilot- og FoU-prosjekter fra Elkem sin virksomhet på Fiskå:
+
+| Control Account | Domene | Tilskuddspartner | BAC (NOK) | CPI | SPI | IFRS 15 Status |
+| :--- | :--- | :--- | :---: | :---: | :---: | :--- |
+| **CA-2045** | Fiskå Carbon-Neutral Smelting Pilot | Enova | 45 000 000 | 0.8974 | 0.9333 | PoC 46.7% (Contract Asset: 5.33 MNOK) |
+| **CA-1042** | Furnace Automation & Digital Twin | NFR | 10 000 000 | 0.9211 | 0.8750 | PoC 35.0% (Contract Asset: 1.38 MNOK) |
+| **CA-3080** | NextGen Battery Anode Material | SkatteFUNN (#298412) | 15 000 000 | 1.0380 | 1.0250 | PoC 54.7% (Skattefradrag: 1.50 MNOK) |
+
+---
+
+## 📄 Lisens & Opphavsrett
+
+Utviklet av **Frank Ellingsen** for **Elkem ASA Technology Controller Hub**.
+Beskyttet under Elkem sine standard retningslinjer for virksomhetsstyring.
