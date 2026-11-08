@@ -1,0 +1,48 @@
+[
+  {
+    "control_account_id": "CA-1042",
+    "control_account_name": "Subsea Pilot Module Development",
+    "wbs_element": "WBS-1.2.4",
+    "lead_controller": "Frank Ellingsen",
+    "cost_center": "CC-4410 (Fiskaa R&D)",
+    "bac": 10000000.0,
+    "bcws": 4000000.0,
+    "bcwp": 3500000.0,
+    "acwp": 3800000.0,
+    "contract_value": 12500000.0,
+    "invoiced_to_date": 3000000.0,
+    "grant_program": "Enova Pilot 2024",
+    "grant_id": "ENOVA-2024-991"
+  },
+  {
+    "control_account_id": "CA-2088",
+    "control_account_name": "Silicon Battery Anode R&D",
+    "wbs_element": "WBS-2.1.0",
+    "lead_controller": "Frank Ellingsen",
+    "cost_center": "CC-4420 (Advanced Materials)",
+    "bac": 25000000.0,
+    "bcws": 12000000.0,
+    "bcwp": 12500000.0,
+    "acwp": 11800000.0,
+    "contract_value": 30000000.0,
+    "invoiced_to_date": 10000000.0,
+    "grant_program": "SkatteFUNN 2025",
+    "grant_id": "SKATTEFUNN-2025-104"
+  },
+  {
+    "control_account_id": "CA-3015",
+    "control_account_name": "Fiskaa Furnace Digital Twin",
+    "wbs_element": "WBS-3.3.1",
+    "lead_controller": "Frank Ellingsen",
+    "cost_center": "CC-4430 (Process Optimization)",
+    "bac": 8000000.0,
+    "bcws": 5000000.0,
+    "bcwp": 4200000.0,
+    "acwp": 4600000.0,
+    "contract_value": 9500000.0,
+    "invoiced_to_date": 4000000.0,
+    "grant_program": "Horizon Europe",
+    "grant_id": "HORIZON-CL4-2024"
+  }
+]
+

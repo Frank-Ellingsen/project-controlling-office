@@ -149,3 +149,4 @@ docker compose up --build
 **Frank Ellingsen**  
 *Financial Controller / BI Specialist & Project Controller*  
 *Specializing in Project Controlling, EIA-748 EVM, and Agentic AI Architecture for Engineering and Maritime Sectors.*
+
