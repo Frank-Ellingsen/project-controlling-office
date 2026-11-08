@@ -183,6 +183,118 @@ class DuckDBStore:
 FinanceDataStore = DuckDBStore
 
 
+class DuckDBStoreManager:
+    """
+    Styrer den lokale OLAP DuckDB-databasen for Elkem Technology Controller Hub.
+    Inkluderer WBS Control Accounts og transaksjonsledgere for FoU-tilskudd.
+    """
+    
+    def __init__(self, db_path: str = "data/elkem_analytics.duckdb"):
+        self.db_path = db_path
+        db_dir = os.path.dirname(self.db_path)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
+        self.init_tables()
+
+    def get_connection(self):
+        return duckdb.connect(self.db_path)
+
+    def init_tables(self):
+        conn = self.get_connection()
+        try:
+            # 1. WBS Control Accounts Table
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS wbs_control_accounts (
+                    control_account_id VARCHAR PRIMARY KEY,
+                    control_account_name VARCHAR,
+                    project_domain VARCHAR,
+                    cam_person VARCHAR,
+                    grant_funding_body VARCHAR,
+                    bac_nok DOUBLE,
+                    contract_value_nok DOUBLE,
+                    invoiced_to_date_nok DOUBLE,
+                    status VARCHAR
+                )
+            """)
+
+            # 2. Timecard & Actual Costs Ledger
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS actual_costs (
+                    transaction_id VARCHAR PRIMARY KEY,
+                    control_account_id VARCHAR,
+                    period_date VARCHAR,
+                    labor_cost_nok DOUBLE,
+                    procurement_cost_nok DOUBLE,
+                    subcontractor_cost_nok DOUBLE,
+                    eligible_grant_cost_nok DOUBLE,
+                    FOREIGN KEY (control_account_id) REFERENCES wbs_control_accounts(control_account_id)
+                )
+            """)
+
+            # Insert sample Elkem R&D data if empty
+            count = conn.execute("SELECT COUNT(*) FROM wbs_control_accounts").fetchone()[0]
+            if count == 0:
+                self._seed_sample_data(conn)
+        finally:
+            conn.close()
+
+    def _seed_sample_data(self, conn):
+        # Seed WBS Control Accounts
+        conn.execute("""
+            INSERT INTO wbs_control_accounts VALUES
+            ('CA-2045', 'Fiskå Carbon-Neutral Smelting Pilot Plant', 'Process Development & Pilot Plant', 'Dr. Håkon Olsen', 'Enova', 45000000.0, 50000000.0, 18000000.0, 'ACTIVE'),
+            ('CA-1042', 'Furnace Automation & Digital Twin System', 'Furnace Technology & Automation', 'Ingeniør Marianne Lie', 'NFR', 10000000.0, 12500000.0, 3000000.0, 'ACTIVE'),
+            ('CA-3080', 'NextGen Battery Anode Material R&D', 'Silicon & Carbon Solutions', 'Kjell Arne Bakke', 'SkatteFUNN', 15000000.0, 16500000.0, 8500000.0, 'ACTIVE')
+        """)
+
+        # Seed Actual Costs Transactions
+        conn.execute("""
+            INSERT INTO actual_costs VALUES
+            ('TX-1001', 'CA-2045', '2026-08-31', 12400000.0, 8000000.0, 3000000.0, 21400000.0),
+            ('TX-1002', 'CA-1042', '2026-08-31', 2100000.0, 1200000.0, 500000.0, 3500000.0),
+            ('TX-1003', 'CA-3080', '2026-08-31', 4500000.0, 2400000.0, 1000000.0, 7500000.0)
+        """)
+
+    def get_project_actuals(self, control_account_id: str) -> Dict[str, Any]:
+        conn = self.get_connection()
+        try:
+            res = conn.execute("""
+                SELECT 
+                    w.control_account_id,
+                    w.control_account_name,
+                    w.project_domain,
+                    w.cam_person,
+                    w.grant_funding_body,
+                    w.bac_nok,
+                    COALESCE(SUM(a.labor_cost_nok), 0) as labor_cost_nok,
+                    COALESCE(SUM(a.procurement_cost_nok), 0) as procurement_cost_nok,
+                    COALESCE(SUM(a.subcontractor_cost_nok), 0) as subcontractor_cost_nok,
+                    COALESCE(SUM(a.labor_cost_nok + a.procurement_cost_nok + a.subcontractor_cost_nok), 0) as total_acwp_nok
+                FROM wbs_control_accounts w
+                LEFT JOIN actual_costs a ON w.control_account_id = a.control_account_id
+                WHERE w.control_account_id = ?
+                GROUP BY w.control_account_id, w.control_account_name, w.project_domain, w.cam_person, w.grant_funding_body, w.bac_nok
+            """, [control_account_id]).fetchone()
+
+            if not res:
+                return {}
+
+            return {
+                "control_account_id": res[0],
+                "control_account_name": res[1],
+                "project_domain": res[2],
+                "cam_person": res[3],
+                "grant_funding_body": res[4],
+                "bac_nok": res[5],
+                "labor_cost_nok": res[6],
+                "procurement_cost_nok": res[7],
+                "subcontractor_cost_nok": res[8],
+                "total_acwp_nok": res[9]
+            }
+        finally:
+            conn.close()
+
+
 if __name__ == "__main__":
     store = DuckDBStore()
     store.seed_sample_data()

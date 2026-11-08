@@ -50,11 +50,20 @@ app.add_middleware(
 duckdb_store = DuckDBStore()
 audit_logger = AuditLogger()
 
-# Path to the interactive dashboard HTML
-HTML_DASHBOARD_PATH = os.path.join(
-    os.path.dirname(__file__),
-    "Project_Controlling_Office_-_Interactive_Dashboard___Inter.html"
-)
+# Path to the interactive dashboard HTML (searches docs/ first, then fallback paths)
+def _find_dashboard_path() -> str:
+    search_paths = [
+        os.path.join(os.path.dirname(__file__), "docs", "Project_Controlling_Office_-_Interactive_Dashboard___Inter.html"),
+        os.path.join(os.path.dirname(__file__), "docs", "dashboard.html"),
+        os.path.join(os.path.dirname(__file__), "src", "ui_frontend", "static", "dashboard.html"),
+        os.path.join(os.path.dirname(__file__), "Project_Controlling_Office_-_Interactive_Dashboard___Inter.html"),
+    ]
+    for p in search_paths:
+        if os.path.exists(p):
+            return p
+    return search_paths[0]
+
+HTML_DASHBOARD_PATH = _find_dashboard_path()
 
 
 # --- Pydantic Models ---

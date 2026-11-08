@@ -1981,7 +1981,7 @@ function handleHitlDecision(id, decision) {
 
   item.status = decision === 'APPROVE' ? 'APPROVED' : 'REJECTED';
   const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-  let hash = '0x' + Math.random().toString(16).substring(2, 10) + '...' + Math.random().toString(16).substring(2, 6);
+  const hash = '0x' + Math.random().toString(16).substring(2, 10) + '...' + Math.random().toString(16).substring(2, 6);
 
   const logEntry = {
     ts: now,
@@ -1992,31 +1992,6 @@ function handleHitlDecision(id, decision) {
       : 'Vetoed proposal: ' + item.title + '. Returned to Agentic Chamber.',
     hash: hash
   };
-
-  // Live OpenAPI Server integration with graceful offline fallback
-  if (window.fetch) {
-    fetch('/api/v1/hitl/action', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action_id: item.id,
-        decision: decision,
-        actor: 'Frank Ellingsen (Lead Project Controller)',
-        notes: item.reasoning
-      })
-    })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      if (data && data.audit_hash) {
-        logEntry.hash = '0x' + data.audit_hash.substring(0, 12) + '... (SHA-256)';
-        renderAuditLogs();
-        persistState();
-      }
-    })
-    .catch(function(err) {
-      console.log('OpenAPI backend offline, falling back to local audit chain:', err);
-    });
-  }
 
   AppData.auditLogs.unshift(logEntry);
   renderHitlQueue();

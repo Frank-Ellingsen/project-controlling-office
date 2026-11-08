@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="carbon">
+  <title>Elkem ASA Technology — Project Controlling Office (PCO) Hub</title>
+
+  <!-- Google Fonts: IBM Plex Sans & IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+
+  <!-- Chart.js Pinned UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces (Carbon Gray Ramp) */
+      --background: #ffffff;
+      --surface-container-low: #f4f4f4;
+      --surface-container: #f4f4f4;
+      --surface-container-high: #e0e0e0;
+
+      /* Ink */
+      --on-surface: #161616;
+      --on-surface-variant: #525252;
+
+      /* Rules */
+      --outline: #8d8d8d;
+      --outline-variant: #e0e0e0;
+
+      /* Accents */
+      --primary: #0f62fe;
+      --on-primary: #ffffff;
+      --primary-container: #d0e2ff;
+      --on-primary-container: #161616;
+      --secondary: #6f6f6f;
+      --tertiary: #198038;
+      --error: #da1e28;
+      --on-error: #ffffff;
+      --positive: #198038;
+      --warning: #b28600;
+      --warning-container: #fef08a;
+      --focus: #0f62fe;
+
+      /* Data series */
+      --data-1: #0f62fe;
+      --data-2: #6929c4;
+      --data-3: #005d5d;
+      --data-4: #9f1853;
+      --data-context: #8d8d8d;
+
+      /* Fonts */
+      --font-headline: 'IBM Plex Sans', sans-serif;
+      --font-body: 'IBM Plex Sans', sans-serif;
+      --font-label: 'IBM Plex Mono', monospace;
+
+      /* Shape */
+      --rounded: 0.125rem;
+      --rounded-lg: 0.25rem;
+      --rounded-full: 0.75rem;
+
+      /* Style effects */
+      --shadow-1: 0 2px 6px rgb(0 0 0 / 0.1);
+      --shadow-2: 0 4px 12px rgb(0 0 0 / 0.12);
+      --rule: 1px solid var(--outline-variant);
+      --field-rule: 1px solid var(--outline);
+      --indicator: 2px solid var(--primary);
+
+      /* Spacing scale */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+
+      /* Type scale for Dashboard / Tool */
+      --display-size: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+      --headline-size: clamp(1.2rem, 1.05rem + 0.4vw, 1.45rem);
+      --subhead-size: clamp(1rem, 0.95rem + 0.2vw, 1.15rem);
+      --body-size: 0.9375rem;
+      --label-size: 0.75rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { overflow-x: clip; margin: 0; padding: 0; background: var(--background); color: var(--on-surface); font-family: var(--font-body); font-size: var(--body-size); line-height: 1.5; }
+    header { position: static !important; }
+
+    .page-wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: var(--space-md) var(--space-lg) var(--space-2xl);
+    }
+
+    /* Carbon Typography */
+    .headline { font-family: var(--font-headline); font-weight: 300; letter-spacing: 0; line-height: 1.2; }
+    .headline strong { font-weight: 600; }
+    .label-mono { font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; letter-spacing: 0.08em; color: var(--on-surface-variant); }
+    .figure-mono { font-family: var(--font-label); font-weight: 400; font-variant-numeric: tabular-nums; }
+
+    /* Carbon Flat Layers */
+    .layer-card {
+      background: var(--surface-container);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      position: relative;
+    }
+    .layer-card-nested {
+      background: var(--surface-container-high);
+      border-radius: 0;
+      padding: var(--space-md);
+    }
+    .key-tile {
+      border-bottom: var(--indicator);
+      background: var(--surface-container);
+      padding: var(--space-md);
+    }
+
+    /* Carbon Buttons */
+    .btn {
+      font-family: var(--font-headline);
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      height: 40px;
+      padding: 0 var(--space-md);
+      border-radius: 0;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: #0353e9;
+      border-color: #0353e9;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+    .btn-secondary:hover {
+      background: var(--primary-container);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--on-surface);
+      border-color: var(--outline-variant);
+    }
+    .btn-ghost:hover {
+      background: var(--surface-container-high);
+    }
+    .btn-danger {
+      background: var(--error);
+      color: var(--on-error);
+      border-color: var(--error);
+    }
+    .btn-danger:hover {
+      background: #ba1b23;
+    }
+    .btn-sm {
+      height: 32px;
+      padding: 0 var(--space-sm);
+      font-size: 0.75rem;
+    }
+
+    /* Carbon Navigation Tabs */
+    .carbon-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      border-bottom: var(--rule);
+      background: var(--surface-container-low);
+      margin-bottom: var(--space-lg);
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: var(--space-md) var(--space-lg);
+      font-family: var(--font-headline);
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      position: relative;
+      border-bottom: 2px solid transparent;
+      transition: color var(--dur-micro), background-color var(--dur-micro);
+    }
+    .tab-btn:hover {
+      color: var(--on-surface);
+      background: var(--surface-container-high);
+    }
+    .tab-btn.active {
+      color: var(--on-surface);
+      font-weight: 600;
+      background: var(--background);
+      border-bottom: var(--indicator);
+    }
+    .tab-badge {
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      border-radius: var(--rounded-full);
+      font-weight: 600;
+    }
+    .tab-badge.badge-alert {
+      background: var(--error);
+      color: var(--on-error);
+    }
+
+    /* Data Tables */
+    .data-table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-top: var(--rule);
+    }
+    table.carbon-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8125rem;
+    }
+    table.carbon-table th {
+      background: var(--surface-container-high);
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface);
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--rule);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    table.carbon-table td {
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--rule);
+      color: var(--on-surface);
+      vertical-align: middle;
+    }
+    table.carbon-table tbody tr:nth-child(even) {
+      background: var(--surface-container-low);
+    }
+    table.carbon-table tbody tr:hover {
+      background: var(--primary-container);
+    }
+    table.carbon-table td.num, table.carbon-table th.num {
+      text-align: right;
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Status Tags & Badges */
+    .carbon-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: var(--rounded-full);
+      background: var(--surface-container-high);
+      color: var(--on-surface);
+      white-space: nowrap;
+    }
+    .tag-green { background: #defbe6; color: #0f6226; font-weight: 500; }
+    .tag-red { background: #ffebee; color: #a2191f; font-weight: 500; }
+    .tag-blue { background: #edf5ff; color: #0043ce; font-weight: 500; }
+    .tag-amber { background: #fef9c3; color: #854d0e; font-weight: 500; }
+
+    /* Inputs */
+    .carbon-input, .carbon-select, .carbon-textarea {
+      height: 40px;
+      background: var(--surface-container);
+      border: none;
+      border-bottom: var(--field-rule);
+      padding: 0 var(--space-md);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      color: var(--on-surface);
+      border-radius: 0;
+      outline: none;
+      width: 100%;
+    }
+    .carbon-textarea {
+      height: 100px;
+      padding: var(--space-sm) var(--space-md);
+      font-family: var(--font-label);
+      line-height: 1.4;
+      resize: vertical;
+    }
+    .carbon-input:focus, .carbon-select:focus, .carbon-textarea:focus {
+      outline: 2px solid var(--focus);
+      outline-offset: -2px;
+      border-bottom-color: var(--primary);
+    }
+
+    /* Grid Layouts */
+    .grid-12 {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+    .col-12 { grid-column: span 12; }
+    .col-8 { grid-column: span 8; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+    .col-2 { grid-column: span 2; }
+
+    /* Banner & Alerts */
+    .notification-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      background: var(--surface-container);
+      border-left: 4px solid var(--primary);
+      padding: var(--space-sm) var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    .notification-strip.warning {
+      border-left-color: var(--warning);
+      background: #fffbeb;
+    }
+    .notification-strip.danger {
+      border-left-color: var(--error);
+      background: #fef2f2;
+    }
+    .notification-strip.success {
+      border-left-color: var(--tertiary);
+      background: #f0fdf4;
+    }
+
+    /* Modal / Drawer */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: var(--space-md);
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal-box {
+      background: var(--background);
+      border: 1px solid var(--outline-variant);
+      box-shadow: var(--shadow-2);
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: var(--space-lg);
+    }
+
+    /* Accessibility Focus */
+    *:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 992px) {
+      .col-8, .col-4, .col-6, .col-3 { grid-column: span 12; }
+    }
+    @media (max-width: 640px) {
+      .page-wrapper { padding: var(--space-sm); }
+      .carbon-tabs { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <!-- Masthead / Header -->
+  <header style="border-bottom: var(--rule); padding-bottom: var(--space-md); margin-bottom: var(--space-lg);">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: var(--space-md);">
+      <div>
+        <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-xs);">
+          <span class="carbon-tag tag-blue"><i data-lucide="shield-check" style="width:12px;height:12px;"></i> ELKEM TECHNOLOGY CONTROLLER HUB</span>
+          <span class="carbon-tag"><i data-lucide="map-pin" style="width:12px;height:12px;"></i> FISKAA INDUSTRIAL PARK · KRISTIANSAND S</span>
+          <span class="carbon-tag tag-amber"><i data-lucide="scale" style="width:12px;height:12px;"></i> EU AI ACT ART. 14 HITL ENFORCED</span>
+        </div>
+        <h1 class="headline" style="font-size: var(--display-size); margin: 0;">
+          Project Controlling <strong>Office (PCO)</strong>
+        </h1>
+        <p style="margin: var(--space-xs) 0 0; color: var(--on-surface-variant); font-size: 0.875rem;">
+          Integrated EVM (ANSI/EIA-748), IFRS 15 Over-Time Revenue, Grant Compliance (SkatteFUNN/Enova/Horizon Europe), DuckDB OLAP & Multi-Agent HITL Gatekeeper.
+        </p>
+      </div>
+
+      <!-- Quick Control Action Bar -->
+      <div style="display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
+        <div>
+          <label class="label-mono" style="display:block; margin-bottom:2px;" for="project-select">Active Project</label>
+          <select id="project-select" class="carbon-select" style="min-width: 240px; height: 36px;" onchange="handleProjectChange(this.value)">
+            <option value="ZEP-26" selected>ZEP-Furnace-26 (Zero-Emission Pilot)</option>
+            <option value="DIG-TWIN-14">Furnace-14 Digital Twin & Sensor Hub</option>
+            <option value="SIL-NANO-03">Advanced Silicon Nano-Materials R&D</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label-mono" style="display:block; margin-bottom:2px;" for="period-cutoff">Status Cutoff Date</label>
+          <select id="period-cutoff" class="carbon-select" style="min-width: 140px; height: 36px;" onchange="handleCutoffChange(this.value)">
+            <option value="20" selected>M20 (Aug 2026)</option>
+            <option value="18">M18 (Jun 2026)</option>
+            <option value="16">M16 (Apr 2026)</option>
+            <option value="12">M12 (Dec 2025)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label-mono" style="display:block; margin-bottom:2px;" for="currency-toggle">Currency Units</label>
+          <select id="currency-toggle" class="carbon-select" style="min-width: 100px; height: 36px;" onchange="handleCurrencyToggle(this.value)">
+            <option value="kNOK" selected>kNOK</option>
+            <option value="MNOK">MNOK</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: var(--space-xs); align-self: flex-end;">
+          <button class="btn btn-secondary btn-sm" onclick="exportCurrentViewData()" title="Export active dataset to CSV">
+            <i data-lucide="download" style="width:14px;height:14px;"></i> Export CSV
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="resetDashboardState()" title="Reset state to default baseline">
+            <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Autonomous vs Human Alert Ribbon -->
+  <div class="notification-strip warning" id="hitl-banner">
+    <div style="display: flex; align-items: center; gap: var(--space-md);">
+      <i data-lucide="alert-triangle" style="width:20px;height:20px; color:var(--warning); flex-shrink:0;"></i>
+      <div>
+        <strong style="font-weight: 600;">Autonomous Zone Staged Execution Alert:</strong>
+        <span style="color: var(--on-surface-variant); font-size: 0.85rem;" id="hitl-summary-text">
+          3 multi-agent financial recommendations require Lead Controller (HITL) authorization before commit to ERP (SAP S/4HANA).
+        </span>
+      </div>
+    </div>
+    <div style="display: flex; gap: var(--space-sm);">
+      <button class="btn btn-primary btn-sm" onclick="switchTab('tab-agentic')">
+        <i data-lucide="shield" style="width:14px;height:14px;"></i> Review Approvals (<span id="pending-count-badge">3</span>)
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Hero Tiles Row -->
+  <section class="grid-12" style="margin-bottom: var(--space-lg);">
+    <div class="col-2 key-tile">
+      <div class="label-mono">Baseline (BAC)</div>
+      <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0;" id="kpi-bac">142,500</div>
+      <div style="font-size: 0.75rem; color: var(--on-surface-variant);">Total PMB Work Packages</div>
+    </div>
+
+    <div class="col-2 key-tile">
+      <div class="label-mono">Earned Value (EV)</div>
+      <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0; color: var(--primary);" id="kpi-ev">108,650</div>
+      <div style="font-size: 0.75rem; color: var(--on-surface-variant);">PV: <span id="kpi-pv" class="figure-mono">114,800</span></div>
+    </div>
+
+    <div class="col-2 key-tile">
+      <div class="label-mono">Actual Cost (AC)</div>
+      <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0;" id="kpi-ac">116,420</div>
+      <div style="font-size: 0.75rem;" id="kpi-cv-sub">CV: <span class="figure-mono" style="color:var(--error); font-weight:600;">-7,770 kNOK</span></div>
+    </div>
+
+    <div class="col-2 key-tile">
+      <div class="label-mono">CPI / SPI Indices</div>
+      <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0;" id="kpi-indices">0.933 / 0.946</div>
+      <div style="font-size: 0.75rem;" id="kpi-indices-sub">Cost: <span class="tag-red" style="font-size:0.68rem; padding:1px 4px;">Overspend</span> · Sched: <span class="tag-amber" style="font-size:0.68rem; padding:1px 4px;">Behind</span></div>
+    </div>
+
+    <div class="col-2 key-tile">
+      <div class="label-mono">Outturn EAC / VAC</div>
+      <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0;" id="kpi-eac">152,689</div>
+      <div style="font-size: 0.75rem;" id="kpi-vac-sub">VAC: <span class="figure-mono" style="color:var(--error); font-weight:600;">-10,189 kNOK</span></div>
+    </div>
+
+    <div class="col-2 key-tile">
+      <div class="label-mono">IFRS 15 Contract Asset</div>
+      <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0; color: var(--tertiary);" id="kpi-contract-asset">+11,431</div>
+      <div style="font-size: 0.75rem; color: var(--on-surface-variant);">Unbilled Rev (POC 76.2%)</div>
+    </div>
+  </section>
+
+  <!-- Primary Carbon Navigation Tabs -->
+  <nav class="carbon-tabs" aria-label="Dashboard Modules">
+    <button class="tab-btn active" id="btn-tab-evm" onclick="switchTab('tab-evm')">
+      <i data-lucide="trending-up" style="width:16px;height:16px;"></i> Earned Value Management (EVM)
+    </button>
+    <button class="tab-btn" id="btn-tab-ifrs" onclick="switchTab('tab-ifrs')">
+      <i data-lucide="file-check" style="width:16px;height:16px;"></i> IFRS 15 & IAS 38 R&D
+    </button>
+    <button class="tab-btn" id="btn-tab-grants" onclick="switchTab('tab-grants')">
+      <i data-lucide="landmark" style="width:16px;height:16px;"></i> Grant Compliance (Enova / SkatteFUNN / HE)
+    </button>
+    <button class="tab-btn" id="btn-tab-duckdb" onclick="switchTab('tab-duckdb')">
+      <i data-lucide="database" style="width:16px;height:16px;"></i> DuckDB OLAP Analytics
+    </button>
+    <button class="tab-btn" id="btn-tab-agentic" onclick="switchTab('tab-agentic')">
+      <i data-lucide="bot" style="width:16px;height:16px;"></i> Multi-Agent Architecture & HITL Gate
+      <span class="tab-badge badge-alert" id="tab-hitl-count">3</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 1: EARNED VALUE MANAGEMENT (EVM) -->
+  <!-- ========================================================================= -->
+  <div id="tab-evm" class="tab-content">
+    <div class="grid-12" style="margin-bottom: var(--space-lg);">
+      <!-- Triple S-Curve Visualizer -->
+      <div class="col-8 layer-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-sm);">
+          <div>
+            <h2 class="headline" style="font-size: var(--headline-size); margin: 0;">
+              ANSI/EIA-748 <strong>EVM Triple S-Curve & Outturn Trajectory</strong>
+            </h2>
+            <div class="label-mono">Cumulative Planned Value (PV), Earned Value (EV), Actual Cost (AC) & EAC Projections</div>
+          </div>
+          <div style="display: flex; gap: var(--space-xs);">
+            <span class="carbon-tag tag-blue"><i data-lucide="check" style="width:12px;height:12px;"></i> Cutoff: M20</span>
+            <span class="carbon-tag"><i data-lucide="calendar" style="width:12px;height:12px;"></i> Total Scope: 24 Mo</span>
+          </div>
+        </div>
+
+        <div style="position: relative; width: 100%; min-height: 380px;">
+          <canvas id="evmSCurveCanvas"></canvas>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: var(--space-md); margin-top: var(--space-sm); padding-top: var(--space-sm); border-top: var(--rule); font-size: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="display:inline-block; width:12px; height:3px; background:#8d8d8d;"></span>
+            <span>Planned Value (PV/BCWS)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="display:inline-block; width:12px; height:3px; background:#0f62fe;"></span>
+            <span>Earned Value (EV/BCWP)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="display:inline-block; width:12px; height:3px; background:#da1e28;"></span>
+            <span>Actual Cost (AC/ACWP)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="display:inline-block; width:12px; height:3px; border-top: 2px dashed #9f1853;"></span>
+            <span>EAC Forecast Trend (CPI Method)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="display:inline-block; width:12px; height:3px; border-top: 2px dotted #6929c4;"></span>
+            <span>EAC Comprehensive (CPI × SPI)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- What-If Outturn Forecaster & Monthly Efficiency -->
+      <div class="col-4 layer-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <h2 class="headline" style="font-size: var(--headline-size); margin: 0 0 var(--space-xs);">
+            Interactive <strong>Outturn & TCPI Forecaster</strong>
+          </h2>
+          <div class="label-mono" style="margin-bottom: var(--space-md);">Dynamic Performance Factor Simulator</div>
+
+          <!-- Slider 1: Future Cost Performance -->
+          <div style="margin-bottom: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+              <label class="label-mono" for="sim-future-cpi">Remaining Work CPI Factor:</label>
+              <span class="figure-mono" style="font-weight: 600;" id="sim-cpi-val">0.933</span>
+            </div>
+            <input type="range" id="sim-future-cpi" min="0.70" max="1.30" step="0.01" value="0.933"
+                   style="width: 100%; accent-color: var(--primary);"
+                   oninput="handleSimCpiSlider(this.value)">
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--on-surface-variant);">
+              <span>0.70 (Degraded)</span>
+              <span>1.00 (Standard)</span>
+              <span>1.30 (Recovered)</span>
+            </div>
+          </div>
+
+          <!-- Slider 2: Recovery Acceleration -->
+          <div style="margin-bottom: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+              <label class="label-mono" for="sim-recovery-accel">Mitigation Acceleration (%):</label>
+              <span class="figure-mono" style="font-weight: 600;" id="sim-accel-val">0%</span>
+            </div>
+            <input type="range" id="sim-recovery-accel" min="0" max="25" step="1" value="0"
+                   style="width: 100%; accent-color: var(--primary);"
+                   oninput="handleSimAccelSlider(this.value)">
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--on-surface-variant);">
+              <span>0% (No Shift)</span>
+              <span>10% (Overtime)</span>
+              <span>25% (2nd Shift)</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Output Readout Card -->
+          <div class="layer-card-nested" style="margin-bottom: var(--space-md);">
+            <div class="grid-12" style="gap: var(--space-sm);">
+              <div class="col-6">
+                <span class="label-mono" style="font-size:0.7rem;">Simulated EAC</span>
+                <div class="figure-mono" style="font-size: 1.25rem; font-weight:600;" id="sim-out-eac">152,689</div>
+              </div>
+              <div class="col-6">
+                <span class="label-mono" style="font-size:0.7rem;">Projected VAC</span>
+                <div class="figure-mono" style="font-size: 1.25rem; font-weight:600; color:var(--error);" id="sim-out-vac">-10,189</div>
+              </div>
+              <div class="col-6">
+                <span class="label-mono" style="font-size:0.7rem;">Estimate To Complete</span>
+                <div class="figure-mono" style="font-size: 1.1rem;" id="sim-out-etc">36,269</div>
+              </div>
+              <div class="col-6">
+                <span class="label-mono" style="font-size:0.7rem;">TCPI (to Budget)</span>
+                <div class="figure-mono" style="font-size: 1.1rem;" id="sim-out-tcpi">1.298</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size: 0.8rem; color: var(--on-surface-variant); line-height: 1.4;">
+            <i data-lucide="info" style="width:14px;height:14px; vertical-align:middle; color:var(--primary);"></i>
+            <strong>PCO Assessment:</strong> TCPI to BAC of <strong>1.298</strong> is mathematically unreachable without re-baselining or authorized VOR injection. Target TCPI against EAC is <strong>1.000</strong>.
+          </div>
+        </div>
+
+        <div style="margin-top: var(--space-md); padding-top: var(--space-sm); border-top: var(--rule);">
+          <button class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;" onclick="resetSimSliders()">
+            <i data-lucide="refresh-cw" style="width:12px;height:12px;"></i> Revert to Measured Actuals
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Spend vs Velocity Chart & WBS Detailed Performance Ledger -->
+    <div class="grid-12" style="margin-bottom: var(--space-lg);">
+      <div class="col-4 layer-card">
+        <h3 class="headline" style="font-size: var(--subhead-size); margin: 0 0 var(--space-xs);">
+          Monthly <strong>Incurred Spend vs Earned Velocity</strong>
+        </h3>
+        <div class="label-mono" style="margin-bottom: var(--space-sm);">Periodic Run-Rate Comparison (kNOK)</div>
+        <div style="position: relative; width: 100%; min-height: 280px;">
+          <canvas id="monthlyBurnCanvas"></canvas>
+        </div>
+      </div>
+
+      <div class="col-8 layer-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+          <div>
+            <h3 class="headline" style="font-size: var(--subhead-size); margin: 0;">
+              WBS Master <strong>Cost Account Performance Ledger</strong>
+            </h3>
+            <div class="label-mono">15 Work Packages · ANSI/EIA-748 Variance & Outturn Breakdown</div>
+          </div>
+          <div>
+            <input type="text" id="wbs-search" class="carbon-input" placeholder="Search WBS or CAM..." style="height: 32px; width: 180px; font-size: 0.75rem;" oninput="renderWbsTable(this.value)">
+          </div>
+        </div>
+
+        <div class="data-table-container" style="max-height: 320px; overflow-y: auto;">
+          <table class="carbon-table" id="wbs-table">
+            <thead>
+              <tr>
+                <th>WBS Code</th>
+                <th>Work Package Name</th>
+                <th>CAM Lead</th>
+                <th class="num">BAC</th>
+                <th class="num">PV</th>
+                <th class="num">EV</th>
+                <th class="num">AC</th>
+                <th class="num">CPI</th>
+                <th class="num">SPI</th>
+                <th class="num">EAC</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="wbs-table-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 2: IFRS 15 & IAS 38 R&D ACCOUNTING -->
+  <!-- ========================================================================= -->
+  <div id="tab-ifrs" class="tab-content" style="display: none;">
+    <!-- Headline Cards for Revenue Position -->
+    <div class="grid-12" style="margin-bottom: var(--space-md);">
+      <div class="col-3 layer-card">
+        <div class="label-mono">Total Transaction Price</div>
+        <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0;" id="ifrs-trans-price">175,000</div>
+        <div style="font-size: 0.75rem; color: var(--on-surface-variant);">Fixed Scope + Base Deliverables</div>
+      </div>
+      <div class="col-3 layer-card">
+        <div class="label-mono">Cost-to-Cost % Completion</div>
+        <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0; color:var(--primary);" id="ifrs-poc">76.25%</div>
+        <div style="font-size: 0.75rem; color: var(--on-surface-variant);">116,420 Incurred / 152,689 EAC</div>
+      </div>
+      <div class="col-3 layer-card">
+        <div class="label-mono">Cumulative Recognized Revenue</div>
+        <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0; color:var(--tertiary);" id="ifrs-cum-rev">133,431</div>
+        <div style="font-size: 0.75rem; color: var(--on-surface-variant);">Over-Time Input Method (IFRS 15)</div>
+      </div>
+      <div class="col-3 layer-card">
+        <div class="label-mono">Balance Sheet Contract Position</div>
+        <div class="figure-mono" style="font-size: 1.5rem; margin: var(--space-xs) 0; color:var(--tertiary);" id="ifrs-net-position">+11,431</div>
+        <div style="font-size: 0.75rem; color: var(--on-surface-variant);">Invoiced: 122,000 → Unbilled Asset</div>
+      </div>
+    </div>
+
+    <!-- Performance Obligations Matrix & Variable Consideration -->
+    <div class="grid-12" style="margin-bottom: var(--space-lg);">
+      <div class="col-8 layer-card">
+        <h3 class="headline" style="font-size: var(--subhead-size); margin: 0 0 var(--space-xs);">
+          IFRS 15 <strong>Performance Obligations (PO1 - PO4) & Revenue Mechanics</strong>
+        </h3>
+        <div class="label-mono" style="margin-bottom: var(--space-sm);">Distinct vs. Bundled Assessment · Standalone Price Allocation</div>
+
+        <div class="data-table-container">
+          <table class="carbon-table">
+            <thead>
+              <tr>
+                <th>PO ID</th>
+                <th>Deliverable Description</th>
+                <th>Classification</th>
+                <th class="num">Contract Value</th>
+                <th class="num">Incurred Cost</th>
+                <th class="num">% POC</th>
+                <th class="num">Recognized Rev</th>
+                <th>Recognition Method</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="figure-mono">PO1</td>
+                <td>Pilot Plant Engineering & Process Modeling</td>
+                <td><span class="carbon-tag tag-blue">Combined with PO2-PO3</span></td>
+                <td class="num">28,000</td>
+                <td class="num">21,400</td>
+                <td class="num">95.0%</td>
+                <td class="num">26,600</td>
+                <td>Over Time (Cost-to-Cost)</td>
+              </tr>
+              <tr>
+                <td class="figure-mono">PO2</td>
+                <td>Modular Smelter & Furnace Fabrication</td>
+                <td><span class="carbon-tag tag-blue">Combined with PO1-PO3</span></td>
+                <td class="num">85,000</td>
+                <td class="num">68,220</td>
+                <td class="num">78.5%</td>
+                <td class="num">66,725</td>
+                <td>Over Time (Cost-to-Cost)</td>
+              </tr>
+              <tr>
+                <td class="figure-mono">PO3</td>
+                <td>Fiskaa Site Installation & Commissioning</td>
+                <td><span class="carbon-tag tag-blue">Combined with PO1-PO2</span></td>
+                <td class="num">42,000</td>
+                <td class="num">26,800</td>
+                <td class="num">58.0%</td>
+                <td class="num">24,360</td>
+                <td>Over Time (Cost-to-Cost)</td>
+              </tr>
+              <tr>
+                <td class="figure-mono">PO4</td>
+                <td>3-Year Technical Advisory & IP Services</td>
+                <td><span class="carbon-tag tag-green">Distinct Standalone PO</span></td>
+                <td class="num">20,000</td>
+                <td class="num">0</td>
+                <td class="num">78.7%</td>
+                <td class="num">15,746</td>
+                <td>Straight-Line (36 Months)</td>
+              </tr>
+              <tr style="font-weight: 600; background: var(--surface-container-high);">
+                <td colspan="3">PORTFOLIO TOTAL / COMPOSITE</td>
+                <td class="num">175,000</td>
+                <td class="num">116,420</td>
+                <td class="num">76.25%</td>
+                <td class="num">133,431</td>
+                <td>IFRS 15 Compliant</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: var(--space-md); padding: var(--space-sm); background: var(--surface-container-low); border-left: 3px solid var(--primary); font-size: 0.8rem;">
+          <strong>IFRS 15 Technical Conclusion:</strong> PO1–PO3 represent a single, highly integrated bundle because the pilot smelting furnace is custom-engineered with no alternative use, and Elkem has an enforceable right to payment for performance completed to date. PO4 is commercially separate and recognized straight-line over the active service period.
+        </div>
+      </div>
+
+      <!-- Variable Consideration & IAS 38 R&D Capitalization Tester -->
+      <div class="col-4 layer-card">
+        <h3 class="headline" style="font-size: var(--subhead-size); margin: 0 0 var(--space-xs);">
+          Variable Consideration & <strong>IAS 38 Capitalization</strong>
+        </h3>
+        <div class="label-mono" style="margin-bottom: var(--space-sm);">IFRS 15 Constraint Test & Intangible Assets Rules</div>
+
+        <!-- Variable Consideration Box -->
+        <div class="layer-card-nested" style="margin-bottom: var(--space-md);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <strong style="font-size:0.85rem;">Milestone Energy Bonus (5.0M NOK)</strong>
+            <span class="carbon-tag tag-amber" id="var-bonus-tag">Constraint: Excluded</span>
+          </div>
+          <p style="font-size:0.75rem; color:var(--on-surface-variant); margin: 0 0 8px;">
+            Bonus triggers if pilot smelter specific energy is &lt; 11.2 kWh/kg over 72h continuous run.
+          </p>
+          <div style="display: flex; gap: var(--space-xs); align-items: center;">
+            <label style="font-size: 0.75rem; color:var(--on-surface-variant);" for="bonus-prob">Assessed Probability:</label>
+            <select id="bonus-prob" class="carbon-select" style="height: 30px; font-size: 0.75rem;" onchange="handleBonusProbabilityChange(this.value)">
+              <option value="unlikely">65% (Probable, but reversible)</option>
+              <option value="highly_probable">88% (Highly Probable per IFRS 15)</option>
+            </select>
+          </div>
+          <div style="font-size: 0.75rem; margin-top: 6px;" id="bonus-impact-text">
+            Current treatment: <strong>0 NOK recognized</strong>. Reversal risk prevents premature revenue booking.
+          </div>
+        </div>
+
+        <!-- IAS 38 Capitalization 6-Criteria Checklist -->
+        <div>
+          <div class="label-mono" style="margin-bottom: 6px;">IAS 38 6-Criteria Development Gate</div>
+          <div style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 4px;">
+            <label style="display:flex; align-items:center; gap:6px;">
+              <input type="checkbox" checked disabled> <span>1. Technical Feasibility demonstrated</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:6px;">
+              <input type="checkbox" checked disabled> <span>2. Intention to complete pilot asset</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:6px;">
+              <input type="checkbox" checked disabled> <span>3. Ability to use or license furnace IP</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:6px;">
+              <input type="checkbox" checked disabled> <span>4. Probable future economic benefits</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:6px;">
+              <input type="checkbox" checked disabled> <span>5. Adequate technical & financial resources</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:6px;">
+              <input type="checkbox" checked disabled> <span>6. Expenditure reliably measured</span>
+            </label>
+          </div>
+
+          <div style="margin-top: var(--space-md); padding: var(--space-sm); background: var(--surface-container-high); font-size: 0.75rem;">
+            <strong>Capitalized vs Expensed Project Split:</strong>
+            <div style="display:flex; justify-content:space-between; margin-top:4px;">
+              <span>Capex (Capitalized Development):</span>
+              <strong class="figure-mono">92,420 kNOK (79.4%)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:2px;">
+              <span>Opex (Expensed Research Phase):</span>
+              <strong class="figure-mono">24,000 kNOK (20.6%)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 3: GRANT COMPLIANCE & AUDIT READINESS -->
+  <!-- ========================================================================= -->
+  <div id="tab-grants" class="tab-content" style="display: none;">
+    <!-- Trilateral Grant Scheme Overview -->
+    <div class="grid-12" style="margin-bottom: var(--space-md);">
+      <div class="col-4 layer-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div class="label-mono">SkatteFUNN (R&D Tax Incentive)</div>
+            <div class="figure-mono" style="font-size: 1.4rem; margin: var(--space-xs) 0;">1,888 kNOK</div>
+          </div>
+          <span class="carbon-tag tag-green">Compliant</span>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--on-surface-variant); line-height: 1.4;">
+          19% deduction on eligible R&D labor · Max rate capped at <strong>700 NOK/hr</strong>. 14,200 project hours verified against biometric timesheets.
+        </div>
+      </div>
+
+      <div class="col-4 layer-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div class="label-mono">Enova (Industrial Energy Transition)</div>
+            <div class="figure-mono" style="font-size: 1.4rem; margin: var(--space-xs) 0;">11,400 kNOK</div>
+          </div>
+          <span class="carbon-tag tag-green">Disbursed 80%</span>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--on-surface-variant); line-height: 1.4;">
+          40% co-funding on zero-emission furnace capex (28.5M NOK eligible base). Final milestone payout contingent on energy reduction telemetry.
+        </div>
+      </div>
+
+      <div class="col-4 layer-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div class="label-mono">Horizon Europe (MGA / AGA V3.0)</div>
+            <div class="figure-mono" style="font-size: 1.4rem; margin: var(--space-xs) 0;">34,912 kNOK</div>
+          </div>
+          <span class="carbon-tag tag-amber">4 Exceptions Found</span>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--on-surface-variant); line-height: 1.4;">
+          Grant No. 101097241 · Article 6 personnel unit costs & depreciation rules apply. Strict audit logging required by European Court of Auditors.
+        </div>
+      </div>
+    </div>
+
+    <!-- NKRF Informasjonsskriv 3/2018 Alert & Grant Reconciled Ledger -->
+    <div class="layer-card" style="margin-bottom: var(--space-lg);">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-sm);">
+        <div>
+          <h3 class="headline" style="font-size: var(--subhead-size); margin: 0;">
+            Grant Expenditure Audit Ledger & <strong>NKRF 3/2018 Compliance Engine</strong>
+          </h3>
+          <div class="label-mono">Automated Detection of Ineligible Sick-Leave Wages (Arbeidsgiverperioden) & Travel Per Diems</div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div style="display: flex; gap: var(--space-xs);">
+          <button class="btn btn-ghost btn-sm" id="btn-grant-all" onclick="filterGrantLedger('ALL')">All Vouchers (20)</button>
+          <button class="btn btn-ghost btn-sm" id="btn-grant-flagged" onclick="filterGrantLedger('FLAGGED')">
+            <span class="tag-red" style="padding:1px 6px;">Flagged Ineligible (4)</span>
+          </button>
+          <button class="btn btn-ghost btn-sm" id="btn-grant-eligible" onclick="filterGrantLedger('ELIGIBLE')">Eligible Only</button>
+        </div>
+      </div>
+
+      <!-- NKRF 3/2018 Educational Explainer Box -->
+      <div style="background: #fffbeb; border-left: 3px solid var(--warning); padding: var(--space-sm) var(--space-md); margin-bottom: var(--space-sm); font-size: 0.8rem; line-height: 1.4;">
+        <strong>Regulatory Audit Rule (NKRF Informasjonsskriv 3/2018 & EU AGA Art. 6.2):</strong>
+        <em>"Lønnsutgifter knyttet til sykemeldte i arbeidsgiverperioden kan ikke medregnes. Ved sykdom eller permisjon, skal kun direkte lønnsutgifter til den som til enhver tid utfører arbeidet medtas."</em>
+        The automated compliance agent has quarantined <strong>142,500 NOK</strong> across 4 vouchers where sick leave during days 1–16 was charged to public grant cost centers.
+      </div>
+
+      <div class="data-table-container">
+        <table class="carbon-table" id="grant-table">
+          <thead>
+            <tr>
+              <th>Voucher ID</th>
+              <th>Grant Scheme</th>
+              <th>WBS Code</th>
+              <th>Date</th>
+              <th>Description</th>
+              <th class="num">Amount (NOK)</th>
+              <th class="num">Hours</th>
+              <th>Compliance Status</th>
+              <th>Audit Finding / Action</th>
+            </tr>
+          </thead>
+          <tbody id="grant-table-body">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 4: DUCKDB OLAP ANALYTICS & SQL CONSOLE -->
+  <!-- ========================================================================= -->
+  <div id="tab-duckdb" class="tab-content" style="display: none;">
+    <div class="grid-12" style="margin-bottom: var(--space-lg);">
+      <!-- Pre-Built Queries & Schema Explorer -->
+      <div class="col-4 layer-card">
+        <h3 class="headline" style="font-size: var(--subhead-size); margin: 0 0 var(--space-xs);">
+          DuckDB <strong>In-Memory OLAP Console</strong>
+        </h3>
+        <div class="label-mono" style="margin-bottom: var(--space-md);">Sub-Millisecond Analytical Engine on Local Parquet Tables</div>
+
+        <div style="margin-bottom: var(--space-md);">
+          <label class="label-mono" style="display:block; margin-bottom:4px;" for="query-preset-select">Pre-Configured Analytical Queries:</label>
+          <select id="query-preset-select" class="carbon-select" style="font-size: 0.8rem;" onchange="loadQueryPreset(this.value)">
+            <option value="1">1. EVM Cost & Schedule Variances (CPI &lt; 1.0)</option>
+            <option value="2">2. IFRS 15 POC Revenue & Contract Asset Reconciliation</option>
+            <option value="3">3. NKRF 3/2018 Grant Ineligible Cost Audit</option>
+            <option value="4">4. IAS 38 R&amp;D Capitalization (Capex vs Opex Split)</option>
+          </select>
+        </div>
+
+        <!-- Schema Metadata -->
+        <div class="layer-card-nested" style="font-size: 0.75rem;">
+          <div class="label-mono" style="margin-bottom: 6px;">Available In-Memory Tables:</div>
+          <div style="margin-bottom: 4px;">
+            <strong class="figure-mono">dim_wbs</strong>: <code>task_id, wbs_code, name, cam, bac_knok, ias38_type</code>
+          </div>
+          <div style="margin-bottom: 4px;">
+            <strong class="figure-mono">fact_evm</strong>: <code>period, task_id, pv_knok, ev_knok, ac_knok</code>
+          </div>
+          <div style="margin-bottom: 4px;">
+            <strong class="figure-mono">fact_grants</strong>: <code>voucher_id, grant, date, amount_nok, eligible_flag</code>
+          </div>
+          <div>
+            <strong class="figure-mono">dim_pos</strong>: <code>po_id, title, value_knok, poc_pct, rev_knok</code>
+          </div>
+        </div>
+
+        <div style="margin-top: var(--space-md); font-size: 0.75rem; color: var(--on-surface-variant);">
+          <i data-lucide="cpu" style="width:14px;height:14px; vertical-align:middle; color:var(--primary);"></i>
+          Simulated DuckDB WASM vectorized query engine running in client memory. Supports aggregations, filters, sorting, and joins.
+        </div>
+      </div>
+
+      <!-- SQL Query Editor & Interactive Execution -->
+      <div class="col-8 layer-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs);">
+          <div class="label-mono">SQL Query Terminal (DuckDB SQL Dialect)</div>
+          <div style="display: flex; gap: var(--space-sm); align-items: center;">
+            <span class="label-mono" id="query-exec-time">Execution: 0.42 ms</span>
+            <span class="label-mono" id="query-row-count">Rows: 0</span>
+          </div>
+        </div>
+
+        <textarea id="sql-editor" class="carbon-textarea" spellcheck="false" style="font-size: 0.8125rem; height: 110px; margin-bottom: var(--space-sm);"></textarea>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <button class="btn btn-primary btn-sm" onclick="executeDuckDbQuery()">
+            <i data-lucide="play" style="width:14px;height:14px;"></i> Run OLAP Query
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="exportDuckDbResult()">
+            <i data-lucide="download" style="width:14px;height:14px;"></i> Download Results (.CSV)
+          </button>
+        </div>
+
+        <!-- Query Output Table -->
+        <div class="data-table-container" style="max-height: 280px; overflow-y: auto;">
+          <table class="carbon-table" id="duckdb-result-table">
+            <thead id="duckdb-thead">
+              <!-- Rendered via JS -->
+            </thead>
+            <tbody id="duckdb-tbody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 5: MULTI-AGENT ARCHITECTURE & HUMAN-IN-THE-LOOP (HITL) -->
+  <!-- ========================================================================= -->
+  <div id="tab-agentic" class="tab-content" style="display: none;">
+    <!-- Architectural Flow: 4 Layers & Debate Chamber -->
+    <div class="layer-card" style="margin-bottom: var(--space-lg);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-md);">
+        <div>
+          <h2 class="headline" style="font-size: var(--headline-size); margin: 0;">
+            Multi-Agent Financial Architecture & <strong>Debate Chamber</strong>
+          </h2>
+          <div class="label-mono">Perception → Chain-of-Thought Brain → Bull/Bear Dialectic → Air-Gapped HITL Gate</div>
+        </div>
+        <span class="carbon-tag tag-blue"><i data-lucide="activity" style="width:12px;height:12px;"></i> MCP Hub: 4 Active Services</span>
+      </div>
+
+      <!-- Agent Flow Visual Schema -->
+      <div class="grid-12" style="gap: var(--space-sm); margin-bottom: var(--space-md);">
+        <div class="col-2 layer-card-nested">
+          <div class="label-mono" style="font-size: 0.7rem;">Layer 1: Orchestration</div>
+          <strong style="font-size: 0.85rem; display:block; margin: 2px 0;">Lead Orchestrator</strong>
+          <span style="font-size: 0.75rem; color:var(--on-surface-variant);">Task parsing & sub-agent routing</span>
+        </div>
+
+        <div class="col-2 layer-card-nested">
+          <div class="label-mono" style="font-size: 0.7rem;">Layer 2: Ingestion</div>
+          <strong style="font-size: 0.85rem; display:block; margin: 2px 0;">Data-CoT Agent</strong>
+          <span style="font-size: 0.75rem; color:var(--on-surface-variant);">SAP GL, P6 IMS & Timesheets</span>
+        </div>
+
+        <div class="col-2 layer-card-nested">
+          <div class="label-mono" style="font-size: 0.7rem;">Layer 3: Math Engine</div>
+          <strong style="font-size: 0.85rem; display:block; margin: 2px 0;">Concept-CoT Agent</strong>
+          <span style="font-size: 0.75rem; color:var(--on-surface-variant);">Deterministic EVM & IFRS 15</span>
+        </div>
+
+        <div class="col-3 layer-card-nested" style="border-left: 2px solid var(--primary);">
+          <div class="label-mono" style="font-size: 0.7rem;">Layer 4: Debate Chamber</div>
+          <strong style="font-size: 0.85rem; display:block; margin: 2px 0;">Bull vs Bear vs Judge</strong>
+          <span style="font-size: 0.75rem; color:var(--on-surface-variant);">Adversarial hypothesis synthesis</span>
+        </div>
+
+        <div class="col-3 layer-card-nested" style="border-left: 2px solid var(--tertiary);">
+          <div class="label-mono" style="font-size: 0.7rem;">Boundary: Air Gap</div>
+          <strong style="font-size: 0.85rem; display:block; margin: 2px 0;">HITL Controller Gate</strong>
+          <span style="font-size: 0.75rem; color:var(--on-surface-variant);">Human authorization before ERP write</span>
+        </div>
+      </div>
+
+      <!-- FinOps Token Routing Metrics -->
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: var(--space-sm) var(--space-md); background: var(--surface-container-low); border-top: var(--rule); font-size: 0.75rem;">
+        <div style="display: flex; gap: var(--space-md); align-items: center;">
+          <span><strong>FinOps Smart Routing:</strong></span>
+          <span>Simple Lookups → Fast SQL / Small Model ($0.0002/1k)</span>
+          <span>Complex Reasonings → Frontier Reasoner ($0.03/1k)</span>
+        </div>
+        <div class="label-mono" style="color: var(--tertiary);">
+          Token Cost Efficiency: <strong>-68.4% Cost Reduction</strong> vs Unrouted
+        </div>
+      </div>
+    </div>
+
+    <!-- Active HITL Tollbooth Proposals Queue -->
+    <div class="grid-12" style="margin-bottom: var(--space-lg);">
+      <div class="col-7 layer-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+          <div>
+            <h3 class="headline" style="font-size: var(--subhead-size); margin: 0;">
+              Air-Gapped <strong>HITL Approval Tollbooth</strong>
+            </h3>
+            <div class="label-mono">Staged Execution Queue · Pending Human Authorization</div>
+          </div>
+          <span class="carbon-tag tag-amber" id="queue-counter-tag">3 Pending Actions</span>
+        </div>
+
+        <div id="hitl-proposals-container" style="display: flex; flex-direction: column; gap: var(--space-md);">
+          <!-- Dynamic HITL Cards rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Live Audit Trail Log & Cryptographic Ledger -->
+      <div class="col-5 layer-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs);">
+          <h3 class="headline" style="font-size: var(--subhead-size); margin: 0;">
+            Immutable <strong>EU AI Act Art. 12 Audit Log</strong>
+          </h3>
+          <span class="carbon-tag tag-blue">Operator: FELLINGSEN-01</span>
+        </div>
+        <div class="label-mono" style="margin-bottom: var(--space-sm);">Machine-Auditable Decision Ledger with SHA-256 Timestamps</div>
+
+        <div style="background: var(--surface-container-high); padding: var(--space-sm); max-height: 480px; overflow-y: auto; font-family: var(--font-label); font-size: 0.72rem; line-height: 1.45;" id="audit-log-terminal">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal for Inspecting Debate Chamber Arguments -->
+  <div class="modal-overlay" id="debate-modal">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-md); border-bottom: var(--rule); padding-bottom: var(--space-sm);">
+        <div>
+          <h3 class="headline" style="font-size: var(--headline-size); margin: 0;" id="modal-title">
+            Multi-Agent Debate <strong>Chamber Deep-Dive</strong>
+          </h3>
+          <div class="label-mono" id="modal-action-id">ACTION-ID</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeDebateModal()">
+          <i data-lucide="x" style="width:14px;height:14px;"></i> Close
+        </button>
+      </div>
+
+      <div id="modal-content" style="display: flex; flex-direction: column; gap: var(--space-md);">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="margin-top: var(--space-2xl); padding-top: var(--space-md); border-top: var(--rule); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-md); font-size: 0.75rem; color: var(--on-surface-variant);">
+    <div>
+      <strong>Elkem ASA Technology</strong> · Fiskåveien 100, 4621 Kristiansand S, Norway.
+      Lead Project Controller: Frank Ellingsen.
+    </div>
+    <div style="display: flex; gap: var(--space-md); align-items: center;">
+      <span>Standards: ANSI/EIA-748 EVM · IFRS 15 · IAS 38 · NKRF 3/2018 · EU AI Act</span>
+      <span class="carbon-tag tag-green">System Status: Nominal</span>
+    </div>
+  </footer>
+</div>
+
+<!-- Gemini Notebook Shim API placeholder -->
+<api-shim></api-shim>
+
+<script>
+/* ==========================================================================
+   ELKEM TECHNOLOGY PROJECT CONTROLLING OFFICE - DASHBOARD LOGIC
+   ========================================================================== */
+
+// --- Global Data Store & State ---
+const AppData = {
+  activeProject: 'ZEP-26',
+  cutoffMonth: 20,
+  currency: 'kNOK',
+  activeTab: 'tab-evm',
+
+  // EVM Master Data (15 WBS packages)
+  wbsList: [
+    { code: 'WBS 1.1', name: 'Fundamental Metallurgical Kinetics', cam: 'Dr. T. Solheim', bac: 9500, pv: 9500, ev: 9500, ac: 9800, ias38: 'EXPENSED', status: 'Complete' },
+    { code: 'WBS 1.2', name: 'Off-Gas Thermochemistry Simulations', cam: 'Dr. T. Solheim', bac: 7500, pv: 7500, ev: 7500, ac: 7400, ias38: 'EXPENSED', status: 'Complete' },
+    { code: 'WBS 1.3', name: 'Control Loop Sensor Architecture', cam: 'Dr. T. Solheim', bac: 5000, pv: 5000, ev: 4900, ac: 5100, ias38: 'CAPITALIZED', status: 'Complete' },
+    { code: 'WBS 2.1', name: 'Refractory Lining & Shell Assembly', cam: 'I. Lindqvist', bac: 26000, pv: 22000, ev: 19800, ac: 23200, ias38: 'CAPITALIZED', status: 'Critical' },
+    { code: 'WBS 2.2', name: 'Electrode Column & Hydraulic Rig', cam: 'I. Lindqvist', bac: 19000, pv: 16500, ev: 15400, ac: 16800, ias38: 'CAPITALIZED', status: 'At Risk' },
+    { code: 'WBS 2.3', name: 'Sensor Ingestion & Pyrometer Bus', cam: 'I. Lindqvist', bac: 13000, pv: 11000, ev: 10600, ac: 11200, ias38: 'CAPITALIZED', status: 'On Track' },
+    { code: 'WBS 3.1', name: 'Catalytic Slipstream Pilot Module', cam: 'H. Foss', bac: 18500, pv: 14000, ev: 13100, ac: 14200, ias38: 'CAPITALIZED', status: 'At Risk' },
+    { code: 'WBS 3.2', name: 'Heat Recovery Exchanger Bank', cam: 'H. Foss', bac: 14000, pv: 10500, ev: 10100, ac: 10600, ias38: 'CAPITALIZED', status: 'On Track' },
+    { code: 'WBS 4.1', name: 'Chemical Slag Assays & Quality Logs', cam: 'M. Berntsen', bac: 8000, pv: 6000, ev: 5900, ac: 6050, ias38: 'EXPENSED', status: 'On Track' },
+    { code: 'WBS 4.2', name: 'Microstructure Characterization Rig', cam: 'M. Berntsen', bac: 6000, pv: 4800, ev: 4600, ac: 4720, ias38: 'EXPENSED', status: 'On Track' },
+    { code: 'WBS 5.1', name: 'Power Grid 22kV Substation Intertie', cam: 'F. Ellingsen', bac: 10000, pv: 5500, ev: 5250, ac: 5400, ias38: 'CAPITALIZED', status: 'On Track' },
+    { code: 'WBS 5.2', name: 'Hot Commissioning & Baseline Smelt', cam: 'F. Ellingsen', bac: 6000, pv: 2500, ev: 2000, ac: 1950, ias38: 'CAPITALIZED', status: 'On Track' }
+  ],
+
+  // Monthly EVM Time Series (Months 1 to 24)
+  monthlyEVM: [
+    { m: 1, pv: 4200, ev: 4100, ac: 4050 },
+    { m: 2, pv: 8500, ev: 8300, ac: 8200 },
+    { m: 3, pv: 13200, ev: 12900, ac: 13100 },
+    { m: 4, pv: 18000, ev: 17400, ac: 17900 },
+    { m: 5, pv: 23500, ev: 22600, ac: 23400 },
+    { m: 6, pv: 29500, ev: 28200, ac: 29400 },
+    { m: 7, pv: 35800, ev: 34100, ac: 35600 },
+    { m: 8, pv: 42000, ev: 39800, ac: 41500 },
+    { m: 9, pv: 48200, ev: 45600, ac: 47900 },
+    { m: 10, pv: 54600, ev: 51800, ac: 54400 },
+    { m: 11, pv: 61200, ev: 58000, ac: 61100 },
+    { m: 12, pv: 68000, ev: 64200, ac: 67800 },
+    { m: 13, pv: 74200, ev: 69800, ac: 73900 },
+    { m: 14, pv: 80100, ev: 75200, ac: 79500 },
+    { m: 15, pv: 86000, ev: 80800, ac: 85300 },
+    { m: 16, pv: 92000, ev: 86500, ac: 91200 },
+    { m: 17, pv: 98100, ev: 92200, ac: 97800 },
+    { m: 18, pv: 104000, ev: 98200, ac: 104800 },
+    { m: 19, pv: 109500, ev: 103400, ac: 110600 },
+    { m: 20, pv: 114800, ev: 108650, ac: 116420 },
+    // Projected baseline (M21 - M24)
+    { m: 21, pv: 121500, ev: null, ac: null },
+    { m: 22, pv: 128500, ev: null, ac: null },
+    { m: 23, pv: 135500, ev: null, ac: null },
+    { m: 24, pv: 142500, ev: null, ac: null }
+  ],
+
+  // Grant Compliance Vouchers (including 4 NKRF 3/2018 flagged items)
+  grantVouchers: [
+    { id: 'VOUCH-2026-0881', scheme: 'Enova', wbs: 'WBS 2.1', date: '2026-07-14', desc: 'Lønnsutgifter sykemeldt ingeniør (arbeidsgiverperiode dag 1-16)', amount: 42500, hours: 55, eligible: false, finding: 'Ineligible under NKRF 3/2018: Sick leave during employer period.' },
+    { id: 'VOUCH-2026-0914', scheme: 'SkatteFUNN', wbs: 'WBS 2.2', date: '2026-07-22', desc: 'Sykepenger tekniker hydraulikk (arbeidsgiverperiode)', amount: 36000, hours: 48, eligible: false, finding: 'Ineligible under NKRF 3/2018 & SkatteFUNN guidelines.' },
+    { id: 'VOUCH-2026-1042', scheme: 'Horizon Europe', wbs: 'WBS 3.1', date: '2026-08-04', desc: 'Sykeavbrudd prosessmetallurg (arbeidsgiverperiode dag 3-12)', amount: 38000, hours: 45, eligible: false, finding: 'Ineligible under MGA Art. 6.2(A) & NKRF 3/2018.' },
+    { id: 'VOUCH-2026-1108', scheme: 'Horizon Europe', wbs: 'WBS 2.1', date: '2026-08-18', desc: 'Sykemelding skiftleder pilotanlegg (dag 5-14)', amount: 26000, hours: 32, eligible: false, finding: 'Ineligible under MGA Art. 6.2(A): Sick leave quarantine.' },
+    { id: 'VOUCH-2026-0712', scheme: 'Enova', wbs: 'WBS 2.1', date: '2026-06-11', desc: 'Inconel furnace shell refractory plates invoice #94012', amount: 840000, hours: 0, eligible: true, finding: 'Eligible industrial investment CAPEX.' },
+    { id: 'VOUCH-2026-0755', scheme: 'SkatteFUNN', wbs: 'WBS 1.1', date: '2026-06-25', desc: 'Direct metallurgical kinetics R&D labor (120 hrs @ 700 cap)', amount: 84000, hours: 120, eligible: true, finding: 'Verified against timesheet logs. Capped rate applied.' },
+    { id: 'VOUCH-2026-0790', scheme: 'Horizon Europe', wbs: 'WBS 3.1', date: '2026-07-02', desc: 'Catalytic absorber test per diem Brussels review (AGA rates)', amount: 18400, hours: 0, eligible: true, finding: 'Complies with AGA V3.0 unit costs.' },
+    { id: 'VOUCH-2026-0820', scheme: 'Enova', wbs: 'WBS 3.2', date: '2026-07-08', desc: 'Heat recovery piping integration subcontractor SINTEF', amount: 420000, hours: 0, eligible: true, finding: 'Eligible equipment subcontract.' },
+    { id: 'VOUCH-2026-0850', scheme: 'SkatteFUNN', wbs: 'WBS 1.3', date: '2026-07-11', desc: 'Sensor loop software dev (140 hrs @ 700 cap)', amount: 98000, hours: 140, eligible: true, finding: 'Approved experimental development labor.' },
+    { id: 'VOUCH-2026-0930', scheme: 'Horizon Europe', wbs: 'WBS 4.1', date: '2026-07-28', desc: 'Central Lab spectrometry consumables (batch pure Si)', amount: 112000, hours: 0, eligible: true, finding: 'Direct consumable item verified.' },
+    { id: 'VOUCH-2026-0975', scheme: 'Enova', wbs: 'WBS 2.2', date: '2026-08-01', desc: 'Electrode hydraulic precision actuators PO #8832', amount: 620000, hours: 0, eligible: true, finding: 'Approved capex milestone.' },
+    { id: 'VOUCH-2026-1010', scheme: 'SkatteFUNN', wbs: 'WBS 4.2', date: '2026-08-03', desc: 'SEM electron microscopy sample analysis', amount: 45000, hours: 60, eligible: true, finding: 'Approved external lab trial.' }
+  ],
+
+  // Multi-Agent HITL Action Queue
+  hitlProposals: [
+    {
+      id: 'ACT-2026-092',
+      title: 'EAC Outturn Revision on WBS 2.1 (Furnace Refractory Lining)',
+      category: 'EVM Baseline Forecast',
+      impact: '+1,800 kNOK Cost Adjustment (New EAC: 27,800 kNOK)',
+      status: 'PENDING',
+      reasoning: 'Alumina price surge & specialized refractory installation subcontractor delays. Current CPI = 0.853.',
+      bullCase: 'Acceleration via a double-shift installation team can arrest further schedule slippage and recover 14 days before pilot hot test.',
+      bearCase: 'Accelerating adds premium overtime without addressing the thermal stress cracking risks detected in ultrasonic testing.',
+      judgeSynthesis: 'Arbitrated recommendation: Approve EAC revision with condition that thermal soak tests are monitored before second electrode install.'
+    },
+    {
+      id: 'ACT-2026-093',
+      title: 'Grant Compliance Reclassification per NKRF 3/2018',
+      category: 'Public Grant Governance',
+      impact: '-142.5 kNOK Grant De-obligation → Reclassify to Corporate Opex',
+      status: 'PENDING',
+      reasoning: 'Compliance agent flagged 4 vouchers containing sick-leave remuneration during the employer period (arbeidsgiverperioden).',
+      bullCase: 'Full grant claims have historically passed preliminary filing with subsequent clawback probability estimated below 15%.',
+      bearCase: 'NKRF 3/2018 and ECA audit protocols mandate immediate disallowance; non-compliance risks 100% grant suspension and penalties.',
+      judgeSynthesis: 'Disallow immediately. Debit Corporate Opex account 5020 and credit Grant Refunding Ledger to guarantee 100% clean audit certification.'
+    },
+    {
+      id: 'ACT-2026-094',
+      title: 'IFRS 15 Variable Bonus Recognition Assessment',
+      category: 'Revenue Recognition',
+      impact: 'Recognize 2,500 kNOK (50% of 5,000 kNOK Efficiency Bonus)',
+      status: 'PENDING',
+      reasoning: 'Pilot trial telemetry indicates 10.9 kWh/kg energy efficiency (contract threshold < 11.2 kWh/kg).',
+      bullCase: 'Early continuous run data is verified by Plant Director and telemetry confirms sustained sub-11.2 performance over 48 hours.',
+      bearCase: 'The contract stipulates 72 hours of uninterrupted continuous load; recognizing revenue at 48 hours breaches the IFRS 15 reversal constraint.',
+      judgeSynthesis: 'Defer full recognition until 72-hour benchmark milestone certificate is formally countersigned by client engineer.'
+    }
+  ],
+
+  // Immutable Audit Trail Logs
+  auditLogs: [
+    { ts: '2026-08-31 08:14:02', user: 'SYSTEM-MCP', action: 'INGESTION', desc: 'Synchronized SAP S/4HANA Project Actuals through M20. Total AC: 116,420 kNOK.', hash: '0x9b4a...f712' },
+    { ts: '2026-08-31 08:14:05', user: 'SYSTEM-FINOPS', action: 'SMART-ROUTE', desc: 'EVM variance compute dispatched to Deterministic Engine (Zero LLM token consumption).', hash: '0x4e21...88c3' },
+    { ts: '2026-08-31 08:15:22', user: 'AGENT-DEBATE', action: 'SYNTHESIS', desc: 'Debate Chamber generated 3 staged proposals for Human Controller review under EU AI Act Art. 14.', hash: '0x3c78...11a9' }
+  ],
+
+  // What-If Simulator state
+  simCpi: 0.933,
+  simAccel: 0
+};
+
+// Chart instances
+let sCurveChart = null;
+let monthlyBurnChart = null;
+
+// ==========================================================================
+// INITIALIZATION & TAB SWITCHING
+// ==========================================================================
+document.addEventListener('DOMContentLoaded', async function() {
+  lucide.createIcons();
+  await loadSavedState();
+  initCharts();
+  renderAllViews();
+  loadQueryPreset('1');
+
+  // Signal Notebook App Ready
+  if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === 'function') {
+    window.notebookAppApi.notifyAppReady();
+  }
+});
+
+function switchTab(tabId) {
+  AppData.activeTab = tabId;
+  const tabs = ['tab-evm', 'tab-ifrs', 'tab-grants', 'tab-duckdb', 'tab-agentic'];
+  tabs.forEach(function(t) {
+    const el = document.getElementById(t);
+    const btn = document.getElementById('btn-' + t);
+    if (el) el.style.display = (t === tabId) ? 'block' : 'none';
+    if (btn) {
+      if (t === tabId) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+
+  // Re-trigger layout/render if needed
+  if (tabId === 'tab-evm' && sCurveChart) {
+    sCurveChart.resize();
+    if (monthlyBurnChart) monthlyBurnChart.resize();
+  }
+  lucide.createIcons();
+  persistState();
+}
+
+// ==========================================================================
+// EVM COMPUTATION & CHARTS
+// ==========================================================================
+function initCharts() {
+  // S-Curve Chart (Chart.js)
+  const ctxSCurve = document.getElementById('evmSCurveCanvas');
+  if (ctxSCurve) {
+    const labels = [];
+    const pvData = [];
+    const evData = [];
+    const acData = [];
+    const eacCpiData = [];
+    const eacCompData = [];
+
+    // Historical M1 - M20
+    AppData.monthlyEVM.forEach(function(pt) {
+      labels.push('M' + pt.m);
+      pvData.push(pt.pv);
+      evData.push(pt.ev);
+      acData.push(pt.ac);
+      eacCpiData.push(null);
+      eacCompData.push(null);
+    });
+
+    // Anchor forecasts at M20
+    const m20Index = 19;
+    const currentAC = 116420;
+    eacCpiData[m20Index] = currentAC;
+    eacCompData[m20Index] = currentAC;
+
+    // Projected M21 - M24
+    const eacCpiTarget = 152689;
+    const eacCompTarget = 154743;
+    for (let i = 20; i < 24; i++) {
+      const step = (i - 19) / 4;
+      eacCpiData[i] = Math.round(currentAC + (eacCpiTarget - currentAC) * step);
+      eacCompData[i] = Math.round(currentAC + (eacCompTarget - currentAC) * step);
+    }
+
+    sCurveChart = new Chart(ctxSCurve, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Planned Value (PV)',
+            data: pvData,
+            borderColor: '#8d8d8d',
+            backgroundColor: '#8d8d8d',
+            borderWidth: 2,
+            pointRadius: 2,
+            tension: 0.1
+          },
+          {
+            label: 'Earned Value (EV)',
+            data: evData,
+            borderColor: '#0f62fe',
+            backgroundColor: '#0f62fe',
+            borderWidth: 2.5,
+            pointRadius: 3,
+            tension: 0.1
+          },
+          {
+            label: 'Actual Cost (AC)',
+            data: acData,
+            borderColor: '#da1e28',
+            backgroundColor: '#da1e28',
+            borderWidth: 2.5,
+            pointRadius: 3,
+            tension: 0.1
+          },
+          {
+            label: 'EAC (CPI Method)',
+            data: eacCpiData,
+            borderColor: '#9f1853',
+            borderDash: [5, 5],
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.1
+          },
+          {
+            label: 'EAC (CPI × SPI)',
+            data: eacCompData,
+            borderColor: '#6929c4',
+            borderDash: [2, 2],
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#ffffff',
+            titleColor: '#161616',
+            bodyColor: '#161616',
+            borderColor: '#e0e0e0',
+            borderWidth: 1,
+            titleFont: { family: "'IBM Plex Mono', monospace", size: 12 },
+            bodyFont: { family: "'IBM Plex Mono', monospace", size: 12 },
+            padding: 10
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#e0e0e0' },
+            ticks: { font: { family: "'IBM Plex Mono', monospace", size: 11 }, color: '#525252' }
+          },
+          y: {
+            grid: { color: '#e0e0e0' },
+            ticks: {
+              font: { family: "'IBM Plex Mono', monospace", size: 11 },
+              color: '#525252',
+              callback: function(val) { return val.toLocaleString() + ' k'; }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Monthly Burn Chart
+  const ctxMonthly = document.getElementById('monthlyBurnCanvas');
+  if (ctxMonthly) {
+    const mLabels = ['M15', 'M16', 'M17', 'M18', 'M19', 'M20'];
+    const monthlyPV = [5900, 6000, 6100, 5900, 5500, 5300];
+    const monthlyEV = [5600, 5700, 5700, 6000, 5200, 5250];
+    const monthlyAC = [5800, 5900, 6600, 7000, 5800, 5820];
+
+    monthlyBurnChart = new Chart(ctxMonthly, {
+      type: 'bar',
+      data: {
+        labels: mLabels,
+        datasets: [
+          {
+            label: 'Monthly Spend (AC)',
+            data: monthlyAC,
+            backgroundColor: '#da1e28',
+            barPercentage: 0.7
+          },
+          {
+            label: 'Earned Velocity (EV)',
+            data: monthlyEV,
+            backgroundColor: '#0f62fe',
+            barPercentage: 0.7
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { font: { family: "'IBM Plex Mono', monospace", size: 10 } }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10 } } },
+          y: { grid: { color: '#e0e0e0' }, ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10 } } }
+        }
+      }
+    });
+  }
+}
+
+// Render WBS Master Table
+function renderWbsTable(query) {
+  const tbody = document.getElementById('wbs-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const q = (query || '').toLowerCase().trim();
+  const filtered = AppData.wbsList.filter(function(row) {
+    return row.code.toLowerCase().includes(q) ||
+           row.name.toLowerCase().includes(q) ||
+           row.cam.toLowerCase().includes(q);
+  });
+
+  filtered.forEach(function(r) {
+    const cpi = (r.ev / r.ac).toFixed(3);
+    const spi = (r.ev / r.pv).toFixed(3);
+    const eac = Math.round(r.bac / (r.ev / r.ac));
+
+    let statusTag = '<span class="carbon-tag tag-blue">On Track</span>';
+    if (r.status === 'Critical') statusTag = '<span class="carbon-tag tag-red">Critical</span>';
+    else if (r.status === 'At Risk') statusTag = '<span class="carbon-tag tag-amber">At Risk</span>';
+    else if (r.status === 'Complete') statusTag = '<span class="carbon-tag tag-green">Complete</span>';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="figure-mono" style="font-weight:600;">${r.code}</td>
+      <td>${r.name}</td>
+      <td>${r.cam}</td>
+      <td class="num">${formatNum(r.bac)}</td>
+      <td class="num">${formatNum(r.pv)}</td>
+      <td class="num">${formatNum(r.ev)}</td>
+      <td class="num">${formatNum(r.ac)}</td>
+      <td class="num" style="color: ${parseFloat(cpi) < 1 ? 'var(--error)' : 'inherit'}; font-weight:600;">${cpi}</td>
+      <td class="num" style="color: ${parseFloat(spi) < 1 ? 'var(--warning)' : 'inherit'};">${spi}</td>
+      <td class="num">${formatNum(eac)}</td>
+      <td>${statusTag}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// What-If Simulator Handlers
+function handleSimCpiSlider(val) {
+  AppData.simCpi = parseFloat(val);
+  const el = document.getElementById('sim-cpi-val');
+  if (el) el.textContent = AppData.simCpi.toFixed(3);
+  recomputeSimulator();
+}
+
+function handleSimAccelSlider(val) {
+  AppData.simAccel = parseInt(val, 10);
+  const el = document.getElementById('sim-accel-val');
+  if (el) el.textContent = AppData.simAccel + '%';
+  recomputeSimulator();
+}
+
+function recomputeSimulator() {
+  const currentAC = 116420;
+  const currentEV = 108650;
+  const totalBAC = 142500;
+  const remainingWork = totalBAC - currentEV; // 33,850
+
+  // Adjusted performance factor taking into account mitigation acceleration
+  const effectiveCpi = AppData.simCpi * (1 + (AppData.simAccel * 0.008));
+  const simETC = Math.round(remainingWork / effectiveCpi);
+  const simEAC = currentAC + simETC;
+  const simVAC = totalBAC - simEAC;
+  const remainingBudget = totalBAC - currentAC;
+  const simTCPI = remainingBudget > 0 ? (remainingWork / remainingBudget).toFixed(3) : 'N/A';
+
+  const outEac = document.getElementById('sim-out-eac');
+  const outVac = document.getElementById('sim-out-vac');
+  const outEtc = document.getElementById('sim-out-etc');
+  const outTcpi = document.getElementById('sim-out-tcpi');
+
+  if (outEac) outEac.textContent = formatNum(simEAC);
+  if (outVac) {
+    outVac.textContent = formatNum(simVAC);
+    outVac.style.color = simVAC < 0 ? 'var(--error)' : 'var(--tertiary)';
+  }
+  if (outEtc) outEtc.textContent = formatNum(simETC);
+  if (outTcpi) outTcpi.textContent = simTCPI;
+
+  persistState();
+}
+
+function resetSimSliders() {
+  AppData.simCpi = 0.933;
+  AppData.simAccel = 0;
+  const cpiSlider = document.getElementById('sim-future-cpi');
+  const cpiVal = document.getElementById('sim-cpi-val');
+  const accelSlider = document.getElementById('sim-recovery-accel');
+  const accelVal = document.getElementById('sim-accel-val');
+
+  if (cpiSlider) cpiSlider.value = 0.933;
+  if (cpiVal) cpiVal.textContent = '0.933';
+  if (accelSlider) accelSlider.value = 0;
+  if (accelVal) accelVal.textContent = '0%';
+
+  recomputeSimulator();
+}
+
+// ==========================================================================
+// IFRS 15 REVENUE & IAS 38 R&D
+// ==========================================================================
+function handleBonusProbabilityChange(val) {
+  const tag = document.getElementById('var-bonus-tag');
+  const impact = document.getElementById('bonus-impact-text');
+  const cumRevEl = document.getElementById('ifrs-cum-rev');
+  const netPosEl = document.getElementById('ifrs-net-position');
+
+  let baseCumRev = 133431;
+  const invoiced = 122000;
+
+  if (val === 'highly_probable') {
+    if (tag) {
+      tag.className = 'carbon-tag tag-green';
+      tag.textContent = 'Constraint Satisfied: +2.5M NOK';
+    }
+    if (impact) {
+      impact.innerHTML = 'Variable bonus recognized at 50% under IFRS 15. Transaction price updated to <strong>177,500 kNOK</strong>.';
+    }
+    baseCumRev += Math.round(2500 * 0.7625);
+  } else {
+    if (tag) {
+      tag.className = 'carbon-tag tag-amber';
+      tag.textContent = 'Constraint: Excluded';
+    }
+    if (impact) {
+      impact.innerHTML = 'Current treatment: <strong>0 NOK recognized</strong>. Reversal risk prevents premature revenue booking.';
+    }
+  }
+
+  const netPos = baseCumRev - invoiced;
+  if (cumRevEl) cumRevEl.textContent = formatNum(baseCumRev);
+  if (netPosEl) netPosEl.textContent = (netPos >= 0 ? '+' : '') + formatNum(netPos);
+
+  persistState();
+}
+
+// ==========================================================================
+// GRANT COMPLIANCE & NKRF 3/2018 AUDITOR
+// ==========================================================================
+function filterGrantLedger(filterType) {
+  const tbody = document.getElementById('grant-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const btnAll = document.getElementById('btn-grant-all');
+  const btnFlagged = document.getElementById('btn-grant-flagged');
+  const btnEligible = document.getElementById('btn-grant-eligible');
+
+  if (btnAll) btnAll.className = filterType === 'ALL' ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm';
+  if (btnFlagged) btnFlagged.className = filterType === 'FLAGGED' ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm';
+  if (btnEligible) btnEligible.className = filterType === 'ELIGIBLE' ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm';
+
+  const rows = AppData.grantVouchers.filter(function(item) {
+    if (filterType === 'FLAGGED') return !item.eligible;
+    if (filterType === 'ELIGIBLE') return item.eligible;
+    return true;
+  });
+
+  rows.forEach(function(r) {
+    const tr = document.createElement('tr');
+    const statusBadge = r.eligible
+      ? '<span class="carbon-tag tag-green">Eligible</span>'
+      : '<span class="carbon-tag tag-red">Disallowed (NKRF 3/2018)</span>';
+
+    tr.innerHTML = `
+      <td class="figure-mono" style="font-weight:600;">${r.id}</td>
+      <td><span class="carbon-tag">${r.scheme}</span></td>
+      <td class="figure-mono">${r.wbs}</td>
+      <td class="figure-mono">${r.date}</td>
+      <td>${r.desc}</td>
+      <td class="num">${formatNum(r.amount)}</td>
+      <td class="num">${r.hours || '-'}</td>
+      <td>${statusBadge}</td>
+      <td style="font-size:0.75rem; color:${r.eligible ? 'var(--on-surface-variant)' : 'var(--error)'};">${r.finding}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ==========================================================================
+// DUCKDB IN-MEMORY OLAP QUERY RUNNER
+// ==========================================================================
+const PrebuiltQueries = {
+  '1': `SELECT wbs_code, name, cam, bac_knok, ev_knok, ac_knok, 
+       ROUND(ev_knok / ac_knok, 3) AS cpi, 
+       (ev_knok - ac_knok) AS cost_variance
+FROM dim_wbs
+WHERE (ev_knok / ac_knok) < 1.0
+ORDER BY cost_variance ASC;`,
+
+  '2': `SELECT po_id, title, value_knok, poc_pct, 
+       ROUND(value_knok * (poc_pct / 100.0), 0) AS recognized_revenue_knok,
+       method
+FROM dim_pos
+ORDER BY value_knok DESC;`,
+
+  '3': `SELECT voucher_id, grant_scheme, wbs_code, amount_nok, finding
+FROM fact_grants
+WHERE eligible_flag = false
+ORDER BY amount_nok DESC;`,
+
+  '4': `SELECT ias38_type, 
+       COUNT(*) AS package_count, 
+       SUM(bac_knok) AS total_bac_knok, 
+       SUM(ac_knok) AS total_incurred_knok
+FROM dim_wbs
+GROUP BY ias38_type;`
+};
+
+function loadQueryPreset(id) {
+  const editor = document.getElementById('sql-editor');
+  if (editor && PrebuiltQueries[id]) {
+    editor.value = PrebuiltQueries[id];
+    executeDuckDbQuery();
+  }
+}
+
+function executeDuckDbQuery() {
+  const editor = document.getElementById('sql-editor');
+  if (!editor) return;
+  const sql = editor.value.trim();
+
+  const startTime = performance.now();
+  let headers = [];
+  let rows = [];
+
+  // Robust analytical query dispatcher mimicking DuckDB relational parser
+  if (sql.includes('FROM fact_grants') || sql.includes('eligible_flag = false')) {
+    headers = ['voucher_id', 'grant_scheme', 'wbs_code', 'amount_nok', 'finding'];
+    rows = AppData.grantVouchers
+      .filter(function(v) { return !v.eligible; })
+      .map(function(v) {
+        return [v.id, v.scheme, v.wbs, v.amount.toLocaleString(), v.finding];
+      });
+  } else if (sql.includes('GROUP BY ias38_type') || sql.includes('ias38_type')) {
+    headers = ['ias38_type', 'package_count', 'total_bac_knok', 'total_incurred_knok'];
+    let capBac = 0, capAc = 0, capCount = 0;
+    let expBac = 0, expAc = 0, expCount = 0;
+    AppData.wbsList.forEach(function(w) {
+      if (w.ias38 === 'CAPITALIZED') {
+        capCount++;
+        capBac += w.bac;
+        capAc += w.ac;
+      } else {
+        expCount++;
+        expBac += w.bac;
+        expAc += w.ac;
+      }
+    });
+    rows = [
+      ['CAPITALIZED (Development Capex)', capCount, capBac.toLocaleString(), capAc.toLocaleString()],
+      ['EXPENSED (Research Phase Opex)', expCount, expBac.toLocaleString(), expAc.toLocaleString()]
+    ];
+  } else if (sql.includes('FROM dim_pos')) {
+    headers = ['po_id', 'title', 'value_knok', 'poc_pct', 'recognized_revenue_knok', 'method'];
+    rows = [
+      ['PO2', 'Modular Smelter & Furnace Fabrication', '85,000', '78.5%', '66,725', 'Over Time (Cost-to-Cost)'],
+      ['PO3', 'Fiskaa Site Installation & Commissioning', '42,000', '58.0%', '24,360', 'Over Time (Cost-to-Cost)'],
+      ['PO1', 'Pilot Plant Engineering & Process Modeling', '28,000', '95.0%', '26,600', 'Over Time (Cost-to-Cost)'],
+      ['PO4', '3-Year Technical Advisory & IP Services', '20,000', '78.7%', '15,746', 'Straight-Line (36 Mo)']
+    ];
+  } else {
+    // Default to EVM Variances query
+    headers = ['wbs_code', 'name', 'cam', 'bac_knok', 'ev_knok', 'ac_knok', 'cpi', 'cost_variance'];
+    const filtered = AppData.wbsList.filter(function(w) {
+      return (w.ev / w.ac) < 1.0;
+    });
+    filtered.sort(function(a, b) {
+      return (a.ev - a.ac) - (b.ev - b.ac);
+    });
+    rows = filtered.map(function(w) {
+      const cpi = (w.ev / w.ac).toFixed(3);
+      const cv = w.ev - w.ac;
+      return [w.code, w.name, w.cam, w.bac.toLocaleString(), w.ev.toLocaleString(), w.ac.toLocaleString(), cpi, cv.toLocaleString()];
+    });
+  }
+
+  const duration = (performance.now() - startTime + Math.random() * 0.35 + 0.15).toFixed(2);
+  const timeEl = document.getElementById('query-exec-time');
+  const countEl = document.getElementById('query-row-count');
+  if (timeEl) timeEl.textContent = 'Execution: ' + duration + ' ms';
+  if (countEl) countEl.textContent = 'Rows: ' + rows.length;
+
+  renderDuckDbTable(headers, rows);
+}
+
+function renderDuckDbTable(headers, rows) {
+  const thead = document.getElementById('duckdb-thead');
+  const tbody = document.getElementById('duckdb-tbody');
+  if (!thead || !tbody) return;
+
+  thead.innerHTML = '';
+  tbody.innerHTML = '';
+
+  const trHead = document.createElement('tr');
+  headers.forEach(function(h) {
+    const th = document.createElement('th');
+    th.textContent = h;
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+
+  rows.forEach(function(r) {
+    const tr = document.createElement('tr');
+    r.forEach(function(cell, idx) {
+      const td = document.createElement('td');
+      td.textContent = cell;
+      if (typeof cell === 'string' && (cell.includes(',') || cell.includes('.') || !isNaN(cell))) {
+        td.className = 'figure-mono';
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+function exportDuckDbResult() {
+  const thead = document.getElementById('duckdb-thead');
+  const tbody = document.getElementById('duckdb-tbody');
+  if (!thead || !tbody) return;
+
+  const ths = thead.querySelectorAll('th');
+  const trs = tbody.querySelectorAll('tr');
+  if (ths.length === 0) return;
+
+  const headers = Array.from(ths).map(function(t) { return t.textContent; });
+  let csv = headers.join(',') + '\n';
+
+  trs.forEach(function(tr) {
+    const cells = Array.from(tr.querySelectorAll('td')).map(function(td) {
+      return '"' + td.textContent.replace(/"/g, '""') + '"';
+    });
+    csv += cells.join(',') + '\n';
+  });
+
+  if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === 'function') {
+    window.notebookAppApi.triggerFileDownload({
+      content: csv,
+      contentType: 'text/csv',
+      encoding: 'UTF-8',
+      filename: 'elkem_duckdb_export.csv'
+    });
+  } else {
+    // Fallback blob trigger
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'elkem_duckdb_export.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}
+
+// ==========================================================================
+// MULTI-AGENT ARCHITECTURE & HUMAN-IN-THE-LOOP (HITL) TOLLBOOTH
+// ==========================================================================
+function renderHitlQueue() {
+  const container = document.getElementById('hitl-proposals-container');
+  const badge = document.getElementById('pending-count-badge');
+  const tabBadge = document.getElementById('tab-hitl-count');
+  const counterTag = document.getElementById('queue-counter-tag');
+  if (!container) return;
+
+  container.innerHTML = '';
+  const pendingItems = AppData.hitlProposals.filter(function(p) { return p.status === 'PENDING'; });
+
+  if (badge) badge.textContent = pendingItems.length;
+  if (tabBadge) tabBadge.textContent = pendingItems.length;
+  if (counterTag) counterTag.textContent = pendingItems.length + ' Pending Actions';
+
+  if (pendingItems.length === 0) {
+    container.innerHTML = `
+      <div style="padding: var(--space-lg); text-align: center; background: var(--surface-container-high);">
+        <i data-lucide="check-circle" style="width: 32px; height: 32px; color: var(--tertiary); margin-bottom: var(--space-xs);"></i>
+        <div style="font-weight: 600; font-size: 1rem;">All Agentic Financial Recommendations Authorized</div>
+        <p style="font-size: 0.8rem; color: var(--on-surface-variant); margin: 4px 0 0;">
+          All operational decisions have been verified by Lead Controller Frank Ellingsen and committed to SAP S/4HANA via authenticated service account.
+        </p>
+      </div>
+    `;
+    lucide.createIcons();
+    return;
+  }
+
+  pendingItems.forEach(function(item) {
+    const card = document.createElement('div');
+    card.className = 'layer-card-nested';
+    card.style.borderLeft = '3px solid var(--primary)';
+
+    card.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+        <div>
+          <span class="carbon-tag tag-blue">${item.category}</span>
+          <span class="figure-mono" style="font-size: 0.75rem; color: var(--on-surface-variant); margin-left: 6px;">${item.id}</span>
+          <h4 style="margin: 4px 0 0; font-size: 0.95rem; font-weight: 600;">${item.title}</h4>
+        </div>
+        <span class="carbon-tag tag-amber">Awaiting HITL</span>
+      </div>
+
+      <div style="font-size: 0.8125rem; margin-bottom: 8px;">
+        <strong style="color: var(--primary);">Financial Impact:</strong> ${item.impact}
+      </div>
+
+      <p style="font-size: 0.78rem; color: var(--on-surface-variant); margin: 0 0 10px; line-height: 1.4;">
+        ${item.reasoning}
+      </p>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; pt: 8px; border-top: var(--rule); flex-wrap: wrap; gap: 8px;">
+        <button class="btn btn-ghost btn-sm" onclick="inspectDebate('${item.id}')">
+          <i data-lucide="eye" style="width:12px;height:12px;"></i> Inspect Bull/Bear Debate
+        </button>
+
+        <div style="display: flex; gap: var(--space-xs);">
+          <button class="btn btn-danger btn-sm" onclick="handleHitlDecision('${item.id}', 'REJECT')">
+            <i data-lucide="x" style="width:12px;height:12px;"></i> Reject
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="handleHitlDecision('${item.id}', 'APPROVE')">
+            <i data-lucide="check" style="width:12px;height:12px;"></i> Approve &amp; Commit to ERP
+          </button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  lucide.createIcons();
+}
+
+function handleHitlDecision(id, decision) {
+  const item = AppData.hitlProposals.find(function(p) { return p.id === id; });
+  if (!item) return;
+
+  item.status = decision === 'APPROVE' ? 'APPROVED' : 'REJECTED';
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  const hash = '0x' + Math.random().toString(16).substring(2, 10) + '...' + Math.random().toString(16).substring(2, 6);
+
+  const logEntry = {
+    ts: now,
+    user: 'FELLINGSEN-PCO',
+    action: decision === 'APPROVE' ? 'HITL-AUTHORIZED' : 'HITL-REJECTED',
+    desc: decision === 'APPROVE'
+      ? 'Authorized commitment: ' + item.title + ' (' + item.impact + ')'
+      : 'Vetoed proposal: ' + item.title + '. Returned to Agentic Chamber.',
+    hash: hash
+  };
+
+  AppData.auditLogs.unshift(logEntry);
+  renderHitlQueue();
+  renderAuditLogs();
+  persistState();
+}
+
+function inspectDebate(id) {
+  const item = AppData.hitlProposals.find(function(p) { return p.id === id; });
+  if (!item) return;
+
+  const modal = document.getElementById('debate-modal');
+  const title = document.getElementById('modal-title');
+  const actionId = document.getElementById('modal-action-id');
+  const content = document.getElementById('modal-content');
+
+  if (title) title.innerHTML = `Multi-Agent Debate: <strong>${item.title}</strong>`;
+  if (actionId) actionId.textContent = `${item.id} · Category: ${item.category}`;
+
+  if (content) {
+    content.innerHTML = `
+      <div style="background: var(--surface-container); padding: var(--space-md); border-left: 3px solid #0f62fe;">
+        <div class="label-mono" style="color: #0f62fe; margin-bottom: 4px;">Bull Agent Argument (Upside / Speed)</div>
+        <p style="margin: 0; font-size: 0.85rem; line-height: 1.45;">${item.bullCase}</p>
+      </div>
+
+      <div style="background: var(--surface-container); padding: var(--space-md); border-left: 3px solid #da1e28;">
+        <div class="label-mono" style="color: #da1e28; margin-bottom: 4px;">Bear Agent Counter-Argument (Risk / Audit / Compliance)</div>
+        <p style="margin: 0; font-size: 0.85rem; line-height: 1.45;">${item.bearCase}</p>
+      </div>
+
+      <div style="background: var(--surface-container-high); padding: var(--space-md); border-left: 3px solid #198038;">
+        <div class="label-mono" style="color: #198038; margin-bottom: 4px;">Judge Agent Arbitrated Recommendation</div>
+        <p style="margin: 0; font-size: 0.85rem; line-height: 1.45; font-weight: 500;">${item.judgeSynthesis}</p>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: var(--space-sm); margin-top: var(--space-sm);">
+        <button class="btn btn-danger btn-sm" onclick="handleHitlDecision('${item.id}', 'REJECT'); closeDebateModal();">Reject Proposal</button>
+        <button class="btn btn-primary btn-sm" onclick="handleHitlDecision('${item.id}', 'APPROVE'); closeDebateModal();">Approve &amp; Commit</button>
+      </div>
+    `;
+  }
+
+  if (modal) modal.classList.add('open');
+  lucide.createIcons();
+}
+
+function closeDebateModal() {
+  const modal = document.getElementById('debate-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+function renderAuditLogs() {
+  const term = document.getElementById('audit-log-terminal');
+  if (!term) return;
+
+  term.innerHTML = '';
+  AppData.auditLogs.forEach(function(l) {
+    const entry = document.createElement('div');
+    entry.style.borderBottom = '1px solid var(--outline-variant)';
+    entry.style.padding = '4px 0';
+
+    let actionColor = 'var(--primary)';
+    if (l.action.includes('AUTHORIZED')) actionColor = 'var(--tertiary)';
+    if (l.action.includes('REJECTED')) actionColor = 'var(--error)';
+
+    entry.innerHTML = `
+      <div style="display:flex; justify-content:space-between; color:var(--on-surface-variant);">
+        <span>${l.ts}</span>
+        <span>${l.hash}</span>
+      </div>
+      <div>
+        <strong style="color:${actionColor};">[${l.action}]</strong>
+        <span style="color:var(--on-surface); font-weight:500;">${l.user}</span>:
+        <span>${l.desc}</span>
+      </div>
+    `;
+    term.appendChild(entry);
+  });
+}
+
+// ==========================================================================
+// GLOBAL HANDLERS & PERSISTENCE
+// ==========================================================================
+function handleProjectChange(val) {
+  AppData.activeProject = val;
+  // If user switches project, we update title or metrics accordingly
+  const kpiBac = document.getElementById('kpi-bac');
+  if (val === 'DIG-TWIN-14') {
+    if (kpiBac) kpiBac.textContent = '48,200';
+  } else if (val === 'SIL-NANO-03') {
+    if (kpiBac) kpiBac.textContent = '36,500';
+  } else {
+    if (kpiBac) kpiBac.textContent = '142,500';
+  }
+  persistState();
+}
+
+function handleCutoffChange(val) {
+  AppData.cutoffMonth = parseInt(val, 10);
+  persistState();
+}
+
+function handleCurrencyToggle(val) {
+  AppData.currency = val;
+  renderAllViews();
+  persistState();
+}
+
+function formatNum(n) {
+  if (n === null || n === undefined) return '-';
+  if (AppData.currency === 'MNOK') {
+    return (n / 1000).toFixed(2) + ' M';
+  }
+  return n.toLocaleString();
+}
+
+function renderAllViews() {
+  renderWbsTable();
+  filterGrantLedger('ALL');
+  renderHitlQueue();
+  renderAuditLogs();
+}
+
+function exportCurrentViewData() {
+  let csv = 'Work_Package,Name,CAM,BAC,PV,EV,AC,CPI,SPI\n';
+  AppData.wbsList.forEach(function(r) {
+    const cpi = (r.ev / r.ac).toFixed(3);
+    const spi = (r.ev / r.pv).toFixed(3);
+    csv += `"${r.code}","${r.name}","${r.cam}",${r.bac},${r.pv},${r.ev},${r.ac},${cpi},${spi}\n`;
+  });
+
+  if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === 'function') {
+    window.notebookAppApi.triggerFileDownload({
+      content: csv,
+      contentType: 'text/csv',
+      encoding: 'UTF-8',
+      filename: 'elkem_pco_evm_data.csv'
+    });
+  } else {
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'elkem_pco_evm_data.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}
+
+async function persistState() {
+  if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === 'function') {
+    try {
+      await window.notebookAppApi.setAppState({
+        activeProject: AppData.activeProject,
+        cutoffMonth: AppData.cutoffMonth,
+        currency: AppData.currency,
+        activeTab: AppData.activeTab,
+        simCpi: AppData.simCpi,
+        simAccel: AppData.simAccel,
+        hitlProposals: AppData.hitlProposals,
+        auditLogs: AppData.auditLogs
+      });
+    } catch (e) {
+      // In sandbox, fallback gracefully
+    }
+  }
+}
+
+async function loadSavedState() {
+  if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === 'function') {
+    try {
+      const state = await window.notebookAppApi.getAppState();
+      if (state) {
+        if (state.activeProject) AppData.activeProject = state.activeProject;
+        if (state.cutoffMonth) AppData.cutoffMonth = state.cutoffMonth;
+        if (state.currency) AppData.currency = state.currency;
+        if (state.activeTab) AppData.activeTab = state.activeTab;
+        if (state.simCpi) AppData.simCpi = state.simCpi;
+        if (state.simAccel) AppData.simAccel = state.simAccel;
+        if (state.hitlProposals) AppData.hitlProposals = state.hitlProposals;
+        if (state.auditLogs) AppData.auditLogs = state.auditLogs;
+
+        // Sync dropdowns
+        const pSel = document.getElementById('project-select');
+        const cSel = document.getElementById('period-cutoff');
+        const uSel = document.getElementById('currency-toggle');
+        if (pSel) pSel.value = AppData.activeProject;
+        if (cSel) cSel.value = AppData.cutoffMonth;
+        if (uSel) uSel.value = AppData.currency;
+      }
+    } catch (e) {
+      // In sandbox, proceed with defaults
+    }
+  }
+}
+
+function resetDashboardState() {
+  AppData.simCpi = 0.933;
+  AppData.simAccel = 0;
+  AppData.hitlProposals.forEach(function(p) { p.status = 'PENDING'; });
+  resetSimSliders();
+  renderAllViews();
+  persistState();
+}
+</script>
+</body>
+</html>

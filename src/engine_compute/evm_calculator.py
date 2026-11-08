@@ -30,8 +30,11 @@ class EVMInput:
     bcws: float     # Budgeted Cost of Work Scheduled (Planned Value / PV)
     bcwp: float     # Budgeted Cost of Work Performed (Earned Value / EV)
     acwp: float     # Actual Cost of Work Performed (Actual Cost / AC)
-    contract_value: Optional[float] = None  # Total contract price for IFRS 15
-    invoiced_to_date: Optional[float] = None # Milestone invoices sent to customer
+    project_domain: str = "Technology R&D"  # e.g., "Furnace Technology", "Pilot Plant", "Carbon Solutions"
+    cam_name: str = "Lead Project Controller"  # Project Manager / Control Account Manager
+    grant_funding_body: Optional[str] = None   # "Enova", "SkatteFUNN", "Research Council of Norway"
+    contract_value: Optional[float] = None     # Total contract price for IFRS 15
+    invoiced_to_date: Optional[float] = None   # Milestone invoices sent to customer
 
 
 @dataclass
@@ -71,11 +74,19 @@ class EVMResult:
     contract_asset: Optional[float]         # Unbilled revenue (Recognized > Invoiced)
     contract_liability: Optional[float]     # Advance payment (Invoiced > Recognized)
 
+    # Elkem Context
+    project_domain: str = "Technology R&D"
+    cam_name: str = "Lead Project Controller"
+    grant_funding_body: Optional[str] = None
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert result dataclass to dictionary."""
         return {
             "control_account_id": self.control_account_id,
             "control_account_name": self.control_account_name,
+            "project_domain": self.project_domain,
+            "cam_name": self.cam_name,
+            "grant_funding_body": self.grant_funding_body,
             "bac": self.bac,
             "bcws": self.bcws,
             "bcwp": self.bcwp,
@@ -191,6 +202,9 @@ class EVMCalculator:
         return EVMResult(
             control_account_id=inp.control_account_id,
             control_account_name=inp.control_account_name,
+            project_domain=inp.project_domain,
+            cam_name=inp.cam_name,
+            grant_funding_body=inp.grant_funding_body,
             bac=round(inp.bac, 2),
             bcws=round(inp.bcws, 2),
             bcwp=round(inp.bcwp, 2),
@@ -212,6 +226,57 @@ class EVMCalculator:
             contract_asset=contract_asset,
             contract_liability=contract_liability
         )
+
+    @staticmethod
+    def get_elkem_portfolio_sample_data() -> List[EVMInput]:
+        """
+        Returnerer FoU- og pilotanleggsprosjekter for Elkem ASA Technology (Fiskå).
+        """
+        return [
+            EVMInput(
+                control_account_id="CA-2045",
+                control_account_name="Fiskå Carbon-Neutral Smelting Pilot Plant",
+                project_domain="Process Development & Pilot Plant",
+                cam_name="Dr. Håkon Olsen (Lead Scientist)",
+                bac=45000000.0,      # 45 MNOK
+                bcws=22500000.0,     # 22.5 MNOK
+                bcwp=21000000.0,     # 21.0 MNOK
+                acwp=23400000.0,     # 23.4 MNOK
+                grant_funding_body="Enova (Klima- og energifondet)",
+                contract_value=50000000.0,
+                invoiced_to_date=18000000.0
+            ),
+            EVMInput(
+                control_account_id="CA-1042",
+                control_account_name="Furnace Automation & Digital Twin System",
+                project_domain="Furnace Technology & Automation",
+                cam_name="Ingeniør Marianne Lie (Senior Controller)",
+                bac=10000000.0,      # 10 MNOK
+                bcws=4000000.0,      # 4.0 MNOK
+                bcwp=3500000.0,      # 3.5 MNOK
+                acwp=3800000.0,      # 3.8 MNOK
+                grant_funding_body="Norges Forskningsråd (NFR)",
+                contract_value=12500000.0,
+                invoiced_to_date=3000000.0
+            ),
+            EVMInput(
+                control_account_id="CA-3080",
+                control_account_name="NextGen Battery Anode Material R&D",
+                project_domain="Silicon & Carbon Solutions",
+                cam_name="Kjell Arne Bakke (R&D Director)",
+                bac=15000000.0,      # 15 MNOK
+                bcws=8000000.0,      # 8.0 MNOK
+                bcwp=8200000.0,      # 8.2 MNOK
+                acwp=7900000.0,      # 7.9 MNOK
+                grant_funding_body="SkatteFUNN (RF-1053B #298412)",
+                contract_value=16500000.0,
+                invoiced_to_date=8500000.0
+            )
+        ]
+
+
+# Backward compatibility and domain alias
+ElkemEVMComplianceEngine = EVMCalculator
 
 
 if __name__ == "__main__":
