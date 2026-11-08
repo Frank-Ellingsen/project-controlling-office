@@ -21,11 +21,18 @@ class PowerBIPushPipeline:
     def generate_scurve_rows(self, project_id: str, periods: int = 6) -> List[Dict[str, Any]]:
         """Genererer S-kurverader (PV, EV, AC) for månedlig rapportering."""
         rows = []
-        base_pv = 1000000.0
+        profiles = {
+            "CA-1042": {"base_pv": 1000000.0, "ev_ratio": 0.95, "ac_ratio": 1.03},
+            "CA-2088": {"base_pv": 2500000.0, "ev_ratio": 1.05, "ac_ratio": 0.98},
+            "CA-3015": {"base_pv": 800000.0,  "ev_ratio": 0.90, "ac_ratio": 1.02},
+        }
+        prof = profiles.get(project_id, {"base_pv": 1000000.0, "ev_ratio": 0.95, "ac_ratio": 1.03})
+        base_pv = prof["base_pv"]
+
         for m in range(1, periods + 1):
             pv = base_pv * m
-            ev = pv * 0.95
-            ac = pv * 1.03
+            ev = pv * prof["ev_ratio"]
+            ac = pv * prof["ac_ratio"]
             rows.append({
                 "project_id": project_id,
                 "month_num": m,
