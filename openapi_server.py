@@ -5,7 +5,6 @@ FastAPI backend implementing OpenAPI 3.1 specifications for:
 - EIA-748 Earned Value Management (EVM)
 - IFRS 15 Revenue Recognition & Contract Asset Accounting
 - Grant compliance auditing (NKRF 3/2018, SkatteFUNN, Enova, Horizon Europe)
-- Local DuckDB OLAP Analytics
 - Multi-Agent Human-in-the-Loop (HITL) Action Proposals
 - Serving the Interactive Project Controlling Office Dashboard (HTML)
 """
@@ -28,7 +27,6 @@ from src.engine_compute.evm_calculator import EVMCalculator, EVMInput, EACType
 from src.engine_compute.grant_calculator import SkatteFUNNCalculator, SkatteFUNNInput
 from src.engine_compute.duckdb_store import DuckDBStore
 from src.engine_agents.audit_logger import AuditLogger
-from src.engine_agents.orchestrator import OrchestratorRouter
 
 # Initialize core services
 app = FastAPI(
@@ -51,7 +49,6 @@ app.add_middleware(
 
 duckdb_store = DuckDBStore()
 audit_logger = AuditLogger()
-router = OrchestratorRouter()
 
 # Path to the interactive dashboard HTML
 HTML_DASHBOARD_PATH = os.path.join(
@@ -62,7 +59,7 @@ HTML_DASHBOARD_PATH = os.path.join(
 
 # --- Pydantic Models ---
 
-class EVMCalculationRequest(BaseModel):
+class EVMRequest(BaseModel):
     control_account_id: str = Field(..., example="WBS-2.1")
     control_account_name: Optional[str] = Field("Refractory Lining & Shell Assembly", example="Refractory Lining")
     bac: float = Field(..., gt=0, example=26000000.0, description="Budget at Completion (NOK)")
@@ -71,7 +68,7 @@ class EVMCalculationRequest(BaseModel):
     acwp: float = Field(..., ge=0, example=23200000.0, description="Actual Cost / ACWP (NOK)")
     contract_value: Optional[float] = Field(None, example=32000000.0)
     invoiced_to_date: Optional[float] = Field(None, example=15000000.0)
-    eac_method: str = Field("cpi", example="cpi", description="'cpi', 'composite', or 'budgeted'")
+    eac_method: Optional[str] = Field("cpi", example="cpi", description="'cpi', 'composite', or 'budgeted'")
 
 
 class SkatteFUNNAuditRequest(BaseModel):
@@ -182,13 +179,13 @@ def get_scurve_timeseries():
 
 
 @app.post("/api/v1/evm/calculate")
-def calculate_evm(req: EVMCalculationRequest):
+def calculate_evm(req: EVMRequest):
     """
     Computes deterministic EIA-748 EVM and IFRS 15 PoC metrics.
     Zero LLM dependencies.
     """
     try:
-        eac_type = EACType(req.eac_method)
+        eac_type = EACType(req.eac_method) if req.eac_method else EACType.CPI_BASED
     except ValueError:
         eac_type = EACType.CPI_BASED
 
@@ -204,7 +201,6 @@ def calculate_evm(req: EVMCalculationRequest):
     )
     result = EVMCalculator.calculate(inp, default_eac_method=eac_type)
 
-    # Log variance trigger if CPI is under 0.95
     if result.cpi < 0.95:
         audit_logger.log_event(
             event_type="EVM_VARIANCE_WARNING",
