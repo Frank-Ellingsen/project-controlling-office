@@ -15,13 +15,11 @@ st.markdown("""
     .main-header { font-size: 2.2rem; font-weight: 700; color: #002B49; margin-bottom: 0px; }
     .sub-header { font-size: 1.1rem; color: #555555; margin-bottom: 25px; }
     .stButton>button { background-color: #002B49; color: white; font-weight: 600; }
-    .dim-box { background: #F8FAFC; border-left: 4px solid #005A9C; padding: 1rem; border-radius: 0 8px 8px 0; margin-bottom: 0.8rem; }
-    .dim-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #002B49; margin-bottom: 0.3rem; }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="main-header">🏛️ Elkem ASA Technology — Project Controlling Office</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Fiskå R&D & Pilot Plant Portfolio | EIA-748 EVM | IFRS 15 | Dedikerte Dynamiske Prosjekt-Gantt</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Fiskå R&D & Pilot Plant Portfolio | EIA-748 EVM | IFRS 15 | Risk Matrix & Project Evaluator</div>', unsafe_allow_html=True)
 
 st.sidebar.header("🔍 Porteføljefilter")
 selected_domain = st.sidebar.multiselect(
@@ -48,7 +46,13 @@ projects_df = pd.DataFrame([
         "Contract_Asset_NOK": 5333333.0,
         "Start_Date": "2024-01-01",
         "End_Date": "2025-06-30",
-        "Status": "Forsinket / Over Budsjett (🔴)"
+        "Status": "Forsinket / Over Budsjett (🔴)",
+        "Description": "Industrielt pilotanlegg på Fiskå for utslippsfri smelting, reduksjonsteknologi og testkjøring av reaktorer.",
+        "Purpose": "Utvikle og demonstrere en karbonnøytral smelteprosess for silisium for å bidra til lavutslipps-veikartet.",
+        "Quality_Std": "EIA-748 EVMS retningslinje 22, COSO 2013 internkontroll og Enovas kontrollforskrift.",
+        "Finance_Rule": "IAS 38 / NRS 8 balanseføring av kvalifiserte pilotutviklingskostnader, IFRS 15 over-tid inntektsføring (PoC %).",
+        "Download_Src": "SAP Core Financial (GL 4300/5000), P6 XML export, leverandørfakturaer.",
+        "Upload_Src": "Enova rapportportal, Power BI Direct Lake S-kurver, Altinn Skatteetaten RF-1053B."
     },
     {
         "Project_ID": "CA-1042",
@@ -67,7 +71,13 @@ projects_df = pd.DataFrame([
         "Contract_Asset_NOK": 1375000.0,
         "Start_Date": "2024-02-15",
         "End_Date": "2024-12-31",
-        "Status": "Kritisk Avvik (🔴)"
+        "Status": "Kritisk Avvik (🔴)",
+        "Description": "Digital tvilling og nevralt nettverk for sanntids energikontroll og termisk avviksdeteksjon i reduksjonsovner.",
+        "Purpose": "Stabilisere ovnsdrift, minimere energiforbruk og forhindre gasslekkasjer ved datadrevet modellstyring.",
+        "Quality_Std": "Forskningsrådets krav om min. 60% eksterntid og full sporbarhet fra LK/IK-satser til hovedbok.",
+        "Finance_Rule": "NFR trepartsmodell (LK direkte lønn, IK1/IK2 indirekte kostnader).",
+        "Download_Src": "Elektroniske timelister per forsker, Ovnssensorer PLC, SAP ERP POs.",
+        "Upload_Src": "NFR Årlig timesatsinnmelding, M365 Teams Adaptive Cards for HITL-godkjenning."
     },
     {
         "Project_ID": "CA-3080",
@@ -86,7 +96,13 @@ projects_df = pd.DataFrame([
         "Contract_Asset_NOK": 520000.0,
         "Start_Date": "2024-01-15",
         "End_Date": "2025-03-31",
-        "Status": "On Schedule / Under Budget (🟢)"
+        "Status": "On Schedule / Under Budget (🟢)",
+        "Description": "Forskning og utvikling innen silisium-graffitt og biokarbon anodematerialer for battericeller.",
+        "Purpose": "Utvikle kommersielle, ultra-rene anodematerialer med lavt miljøavtrykk for elbilmarkedet.",
+        "Quality_Std": "SkatteFUNN forskrift § 16-40: Daglige timelister, tak 1 850t/år og 530 kr/t, ISA 805 / ISAE 3000 revisorattest.",
+        "Finance_Rule": "SkatteFUNN 19% skattefradrag regnskapsføres etter NRS 4 / IAS 20 som kortsiktig tilskuddsfordring.",
+        "Download_Src": "Lønnsdata, daglige timelister for FoU-personell, godkjente underleverandørfakturaer.",
+        "Upload_Src": "Skatteetaten skjema RF-1053B, CPA ISA 805 revisjonsnotat, DuckDB konsolidering."
     }
 ])
 
@@ -107,95 +123,136 @@ col5.metric("Portefølje SPI", f"{avg_spi:.3f}", delta="Behind Schedule" if avg_
 
 st.markdown("---")
 
-tab1, tab2, tab3, tab4 = st.tabs([
-    "📇 Prosjektkort & Dynamiske Gantt", 
-    "📈 EVM & IFRS 15 Ytelse", 
-    "🧾 ERP Transaksjons-Drilldown", 
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📇 Detaljerte Prosjektkort & WBS", 
+    "📈 EVM & S-Kurver", 
+    "⚠️ Prosjekt Risikomatrise",
+    "🎓 Prosjektevaluator & Læringspunkter",
     "🛡️ Governance & HITL Approval"
 ])
 
 with tab1:
-    st.subheader("📇 Prosjektkort & Dedikerte Dynamiske Gantt-kart")
-    st.caption("Viser detaljerte 9-dimensjonale prosjektkort og dedikerte Gantt-tidslinjer per prosjekt.")
+    st.subheader("📇 9-Dimensjonale Prosjektkort med Dedikert Gantt-Tidslinje")
+    selected_proj_id = st.selectbox("Velg Prosjekt", options=filtered_projects["Project_ID"].tolist())
+    p = filtered_projects[filtered_projects["Project_ID"] == selected_proj_id].iloc[0]
+    
+    st.markdown(f"### **[{p['Project_ID']}] {p['Project_Name']}**")
+    
+    c_left, c_right = st.columns(2)
+    with c_left:
+        st.markdown(f"**1. Beskrivelse**: {p['Description']}")
+        st.markdown(f"**2. Formål**: {p['Purpose']}")
+        st.markdown(f"**3. Time & Stage-Gate**: Tidsrom {p['Start_Date']} til {p['End_Date']}. Følger Stage-Gate kontroll.")
+        st.markdown(f"**4. Quality & Compliance**: {p['Quality_Std']}")
+        st.markdown(f"**5. Finance & Regnskap**: {p['Finance_Rule']}")
+    with c_right:
+        st.markdown(f"**6. Budsjett & EVM**: BAC: {p['BAC_NOK']/1e6:.1f}M | CPI: {p['CPI']} | SPI: {p['SPI']} | EAC: {p['EAC_NOK']/1e6:.1f}M")
+        st.markdown(f"**7. Offentlig Tilskudd**: {p['Grant']}")
+        st.markdown(f"**8. Download (ERP/Inndata)**: {p['Download_Src']}")
+        st.markdown(f"**9. Upload (Utdata/Portaler)**: {p['Upload_Src']}")
 
-    for idx, p in filtered_projects.iterrows():
-        with st.expander(f"📌 [{p['Project_ID']}] {p['Project_Name']} — (CPI: {p['CPI']:.3f} | SPI: {p['SPI']:.3f})", expanded=True):
-            
-            c_a, c_b, c_c = st.columns(3)
-            with c_a:
-                st.markdown(f'''<div class="dim-box"><div class="dim-title">1. Beskrivelse</div><p class="small">{p['Project_Name']} ved Fiskå pilotanlegg/lab.</p></div>''', unsafe_allow_html=True)
-                st.markdown(f'''<div class="dim-box"><div class="dim-title">4. Time & Stage-Gate</div><p class="small">{p['Start_Date']} – {p['End_Date']}<br>Stage-Gate milepæler (Gate 1–5)</p></div>''', unsafe_allow_html=True)
-                st.markdown(f'''<div class="dim-box"><div class="dim-title">7. Finance & IFRS 15</div><p class="small">PoC: {p['PoC_Pct']}%<br>Contract Asset: {p['Contract_Asset_NOK']/1e6:.2f} MNOK</p></div>''', unsafe_allow_html=True)
-            with c_b:
-                st.markdown(f'''<div class="dim-box"><div class="dim-title">2. Formål</div><p class="small">Forskning og industriell demonstrasjon for Elkem ASA Technology.</p></div>''', unsafe_allow_html=True)
-                st.markdown(f'''<div class="dim-box"><div class="dim-title">5. Cost & EVM</div><p class="small">BAC: {p['BAC_NOK']/1e6:.1f}M | ACWP: {p['AC_NOK']/1e6:.1f}M<br>EAC: {p['EAC_NOK']/1e6:.1f}M</p></div>''', unsafe_allow_html=True)
-                st.markdown(f'''<div class="dim-box"><div class="dim-title">8. Funding</div><p class="small">Offentlig tilskudd: {p['Grant']}</p></div>''', unsafe_allow_html=True)
-            with c_c:
-                st.markdown(f'''<div class="dim-box"><div class="dim-title">3. Scope (WBS)</div><p class="small">WBS elementer & Stage-Gate milepæler</p></div>''', unsafe_allow_html=True)
-                st.markdown(f'''<div class="dim-box"><div class="dim-title">6. Quality & Compliance</div><p class="small">EIA-748, COSO 2013, ISA 805 / ISAE 3000</p></div>''', unsafe_allow_html=True)
-                st.markdown(f'''<div class="dim-box"><div class="dim-title">9. Data Sources</div><p class="small">Inndata: SAP ERP, Timelister<br>Utdata: Enova/NFR Portal, Power BI</p></div>''', unsafe_allow_html=True)
-
-            st.markdown("#### 🗓️ Dynamisk Gantt-kart")
-            if p['Project_ID'] == "CA-2045":
-                wbs_gantt = pd.DataFrame([
-                    {"Task": "WBS 1.1 Pilot Design & HAZOP", "Start": "2024-01-01", "Finish": "2024-04-30", "Status": "Fullført (🟢)"},
-                    {"Task": "WBS 1.2 Procurement Reactor Vessel", "Start": "2024-04-01", "Finish": "2024-11-15", "Status": "Kritisk Sti (🔴)"},
-                    {"Task": "  └─ Refractory Lining Isolasjon", "Start": "2024-05-01", "Finish": "2024-10-01", "Status": "Kritisk Sti (🔴)"},
-                    {"Task": "  └─ Optical Pyrometers & Sensors", "Start": "2024-06-15", "Finish": "2024-11-15", "Status": "Fullført (🟢)"},
-                    {"Task": "🚩 Gate 3 Enova Approval", "Start": "2024-11-15", "Finish": "2024-11-20", "Status": "Stage-Gate (◆)"},
-                    {"Task": "WBS 1.3 Hot Testing & Operations", "Start": "2024-11-20", "Finish": "2025-06-30", "Status": "Planlagt"}
-                ])
-            elif p['Project_ID'] == "CA-1042":
-                wbs_gantt = pd.DataFrame([
-                    {"Task": "WBS 2.1 Sensor & PLC Calibration", "Start": "2024-02-15", "Finish": "2024-06-30", "Status": "Fullført (🟢)"},
-                    {"Task": "WBS 2.2 Neural Twin Training", "Start": "2024-06-01", "Finish": "2024-10-31", "Status": "Kritisk Sti (🔴)"},
-                    {"Task": "🚩 Gate 4 Control Room Go-Live", "Start": "2024-12-01", "Finish": "2024-12-31", "Status": "Stage-Gate (◆)"}
-                ])
-            else:
-                wbs_gantt = pd.DataFrame([
-                    {"Task": "WBS 3.1 Anode Formulation", "Start": "2024-01-15", "Finish": "2024-07-31", "Status": "Fullført (🟢)"},
-                    {"Task": "WBS 3.2 Cell Cycle Testing", "Start": "2024-07-01", "Finish": "2025-03-31", "Status": "On Schedule (🟢)"},
-                    {"Task": "WBS 3.3 SkatteFUNN Audit", "Start": "2025-01-01", "Finish": "2025-03-31", "Status": "Planlagt"}
-                ])
-
-            fig_p = px.timeline(
-                wbs_gantt, x_start="Start", x_end="Finish", y="Task", color="Status",
-                title=f"Gantt-tidslinje for {p['Project_ID']}",
-                color_discrete_map={
-                    "Fullført (🟢)": "#28A745",
-                    "On Schedule (🟢)": "#20C997",
-                    "Kritisk Sti (🔴)": "#DC3545",
-                    "Stage-Gate (◆)": "#6F42C1",
-                    "Planlagt": "#6C757D"
-                }
-            )
-            fig_p.update_yaxes(autorange="reversed", title="")
-            fig_p.update_layout(height=260, margin=dict(l=10, r=10, t=30, b=10))
-            st.plotly_chart(fig_p, use_container_width=True)
+    st.markdown("---")
+    st.subheader(f"📊 Dedikert WBS Gantt-Kart: {selected_proj_id}")
+    
+    wbs_data_dict = {
+        "CA-2045": [
+            {"WBS": "WBS 1.1 Pilot Design & HAZOP", "Start": "2024-01-01", "Finish": "2024-04-30", "Status": "Fullført (🟢)"},
+            {"WBS": "WBS 1.2 Procurement Reactor Vessel", "Start": "2024-04-01", "Finish": "2024-11-15", "Status": "Kritisk sti (🔴)"},
+            {"WBS": "🚩 Gate 3 Approval (Enova)", "Start": "2024-11-15", "Finish": "2024-11-20", "Status": "Stage-Gate (◆)"},
+            {"WBS": "WBS 1.3 Commissioning & Testing", "Start": "2024-11-20", "Finish": "2025-06-30", "Status": "Planlagt"}
+        ],
+        "CA-1042": [
+            {"WBS": "WBS 2.1 Sensor Calibration", "Start": "2024-02-15", "Finish": "2024-06-30", "Status": "Fullført (🟢)"},
+            {"WBS": "WBS 2.2 Neural Twin Training", "Start": "2024-06-01", "Finish": "2024-10-31", "Status": "Kritisk sti (🔴)"},
+            {"WBS": "🚩 Gate 4 System Go-Live", "Start": "2024-12-01", "Finish": "2024-12-31", "Status": "Stage-Gate (◆)"}
+        ],
+        "CA-3080": [
+            {"WBS": "WBS 3.1 Silicon-Graphite Formulation", "Start": "2024-01-15", "Finish": "2024-07-31", "Status": "Fullført (🟢)"},
+            {"WBS": "WBS 3.2 Battery Cell Cycle Testing", "Start": "2024-07-01", "Finish": "2025-03-31", "Status": "On Schedule (🟢)"}
+        ]
+    }
+    
+    df_gantt_single = pd.DataFrame(wbs_data_dict.get(selected_proj_id, []))
+    fig_single = px.timeline(df_gantt_single, x_start="Start", x_end="Finish", y="WBS", color="Status", title=f"WBS Tidslinje for {selected_proj_id}")
+    fig_single.update_yaxes(autorange="reversed")
+    st.plotly_chart(fig_single, use_container_width=True)
 
 with tab2:
-    st.subheader("📈 Earned Value Management (EIA-748) & IFRS 15 Analysis")
-    selected_proj = st.selectbox("Velg prosjekt for dypdykk", options=filtered_projects["Project_ID"].tolist())
+    st.subheader("📈 Earned Value Management (EIA-748) & S-Kurver")
+    selected_proj = st.selectbox("Velg prosjekt for S-kurve", options=filtered_projects["Project_ID"].tolist(), key="scurve_select")
     p_data = filtered_projects[filtered_projects["Project_ID"] == selected_proj].iloc[0]
     
-    col_e1, col_e2, col_e3, col_e4 = st.columns(4)
-    col_e1.metric("Budsjett (BAC)", f"{p_data['BAC_NOK']/1e6:.2f} MNOK")
-    col_e2.metric("Opptjent Verdi (EV)", f"{p_data['EV_NOK']/1e6:.2f} MNOK")
-    col_e3.metric("Cost Variance (CV)", f"{(p_data['EV_NOK'] - p_data['AC_NOK'])/1e3:.0f} kNOK", delta=f"CPI: {p_data['CPI']:.3f}")
-    col_e4.metric("Schedule Variance (SV)", f"{(p_data['EV_NOK'] - p_data['PV_NOK'])/1e3:.0f} kNOK", delta=f"SPI: {p_data['SPI']:.3f}")
+    months = ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Oktober (YTD)", "Nov", "Des"]
+    pv_curve = [p_data['BAC_NOK'] * (i/12) for i in range(1, 13)]
+    ev_curve = [p_data['EV_NOK'] * (i/10) if i <= 10 else None for i in range(1, 13)]
+    ac_curve = [p_data['AC_NOK'] * (i/10) if i <= 10 else None for i in range(1, 13)]
+    
+    fig_scurve = go.Figure()
+    fig_scurve.add_trace(go.Scatter(x=months, y=pv_curve, mode='lines+markers', name='BCWS (Planlagt Verdi)', line=dict(color='#002B49', width=3)))
+    fig_scurve.add_trace(go.Scatter(x=months, y=ev_curve, mode='lines+markers', name='BCWP (Opptjent Verdi)', line=dict(color='#28A745', width=3)))
+    fig_scurve.add_trace(go.Scatter(x=months, y=ac_curve, mode='lines+markers', name='ACWP (Faktisk Kostnad)', line=dict(color='#DC3545', width=3, dash='dot')))
+    fig_scurve.update_layout(title=f"S-Kurve: {p_data['Project_Name']} ({p_data['Project_ID']})", yaxis_title="NOK", height=400)
+    
+    st.plotly_chart(fig_scurve, use_container_width=True)
 
 with tab3:
-    st.subheader("🧾 ERP Transaksjons-Drilldown (DuckDB Line-Item Taxonomy)")
-    tx_df = pd.DataFrame([
-        {"Bilag": "VND-99281", "Dato": "2024-10-14", "WBS": "CA-2045.2", "Beskrivelse": "Reaktor isolasjonskomponenter", "Leverandør": "Elkem Carbon AS", "Beløp (NOK)": 1450000.0, "SkatteFUNN Status": "N/A"},
-        {"Bilag": "TIM-88210", "Dato": "2024-10-18", "WBS": "CA-3080.1", "Beskrivelse": "Lab-ingeniør 120t @ 550 kr/t", "Leverandør": "Intern Timeføring", "Beløp (NOK)": 66000.0, "SkatteFUNN Status": "⚠️ Justert til 530 kr/t"},
-        {"Bilag": "TIM-88245", "Dato": "2024-10-28", "WBS": "CA-2045.1", "Beskrivelse": "Senior Forsker 80t @ 530 kr/t", "Leverandør": "Intern Timeføring", "Beløp (NOK)": 42400.0, "SkatteFUNN Status": "Godkjent"}
+    st.subheader("⚠️ Prosjekt Risikomatrise (Risk Matrix & Heatmap)")
+    st.caption("Kvantitativ risikoevaluering etter COSO 2013 og EIA-748 avviksretningslinjer.")
+    
+    risks_df = pd.DataFrame([
+        {"ID": "R-01", "Prosjekt": "CA-2045", "Risikobeskrivelse": "Leverandørforsinkelse på reaktorbeholder (Long-Lead)", "Prob": 4, "Impact": 4, "Score": 16, "Nivå": "Kritisk (🔴)", "Mitigering": "Parallell oppfølging og del-oppstart HAZOP."},
+        {"ID": "R-02", "Prosjekt": "CA-2045", "Risikobeskrivelse": "Enova Stage-Gate 3 milepæl forsinket (Tilskuddsutbetaling)", "Prob": 3, "Impact": 5, "Score": 15, "Nivå": "Kritisk (🔴)", "Mitigering": "Fremskynde dokumentasjon og delutbetaling."},
+        {"ID": "R-03", "Prosjekt": "CA-1042", "Risikobeskrivelse": "GPU-beregningskapasitet overskredet ved modellering", "Prob": 4, "Impact": 3, "Score": 12, "Nivå": "Moderat (🟡)", "Mitigering": "Kjøpe skybasert burst-kapasitet (Nordic Cloud)."},
+        {"ID": "R-04", "Prosjekt": "CA-1042", "Risikobeskrivelse": "Ovnstilgang på Fiskå overlapper med CA-2045 i Q4", "Prob": 3, "Impact": 4, "Score": 12, "Nivå": "Moderat (🟡)", "Mitigering": "Samkjørt testplan for Kristiansand."},
+        {"ID": "R-05", "Prosjekt": "CA-3080", "Risikobeskrivelse": "SkatteFUNN timesats overstiger 530 kr/t for seniorforskere", "Prob": 2, "Impact": 3, "Score": 6, "Nivå": "Lav (🟢)", "Mitigering": "Automatisk capping i ERP-timelistesystemet."}
     ])
-    st.dataframe(tx_df, use_container_width=True)
+    
+    col_r1, col_r2 = st.columns([7, 5])
+    with col_r1:
+        st.dataframe(risks_df, use_container_width=True)
+    with col_r2:
+        fig_heatmap = px.density_heatmap(risks_df, x="Impact", y="Prob", z="Score", title="Risiko Heatmap (Sannsynlighet vs Konsekvens)", color_continuous_scale="YlOrRd")
+        st.plotly_chart(fig_heatmap, use_container_width=True)
 
 with tab4:
+    st.subheader("🎓 Project Evaluator & Retrospective Lessons Learned")
+    st.caption("Systematisk erfaringsoverføring og evaluering for å forbedre fremtidige Elkem R&D-baselines.")
+    
+    col_l1, col_l2 = st.columns(2)
+    with col_l1:
+        st.markdown("#### 📌 Læringspunkter (Lessons Learned Repository)")
+        st.info("1. **Innkjøp & Long-Lead**: Spesialkomponenter krever minimum 6 ukers tidsbuffer i baselinetidslinjen (PV). Må kobles fra utbetalingsmilepæler.")
+        st.warning("2. **Pilotressurser**: Samtidige pilotprosjekter ved Fiskå må koordineres i en felles ovns- og testplan før Gate 2-godkjenning.")
+        st.success("3. **Tilskudds-Compliance**: Automatisk kapping av timelisters timesatser (530 kr/t) ved månedsoppgjør fjerner revisjonsavvik.")
+    
+    with col_l2:
+        st.markdown("#### 🎛️ Interaktiv Project Evaluator Scorecard")
+        score_sched = st.slider("1. Tids- og Milepælspresisjon", 1, 5, 3)
+        score_cost = st.slider("2. Budsjett- og EVM Presisjon", 1, 5, 4)
+        score_grant = st.slider("3. Tilskudds- Compliance", 1, 5, 5)
+        score_tech = st.slider("4. Teknisk Kvalitet & Pilot Readiness", 1, 5, 4)
+        
+        total_eval = (score_sched + score_cost + score_grant + score_tech) * 5
+        st.metric("Beregnet Evalueringsindeks for Fremtidige Prosjekter", f"{total_eval} / 100", delta="Klasse A (Høy Læringsverdi)" if total_eval >= 75 else "Klasse B")
+
+with tab5:
     st.subheader("🛡️ Governance & Human-in-the-Loop (HITL) Tollbooth")
-    st.info("COSO 2013 & EU AI Act Art. 12 kryptografisk uforanderlig godkjenningslogg for EAC-prognoseendringer.")
+    st.caption("COSO 2013 & EU AI Act Art. 12 kryptografisk uforanderlig godkjenningslogg.")
+    
+    with st.form("hitl_form"):
+        st.write("**Endringsforslag for EAC (Prognose ved fullføring)**")
+        st.text_input("Prosjekt ID", value="CA-2045")
+        st.number_input("Opprinnelig Budsjett (BAC)", value=45000000.0, disabled=True)
+        st.number_input("Ny Beregnet EAC (NOK)", value=50142857.0)
+        reason = st.text_area("Begrunnelse for avviksgodkjenning", value="Leverandørforsinkelse på reaktorbeholder og termisk isolasjon ved Fiskå pilotanlegg.")
+        approver = st.text_input("Godkjennes av (Technology Controller)", value="Frank Ellingsen")
+        
+        col_btn1, col_btn2 = st.columns(2)
+        submit_approve = col_btn1.form_submit_button("✅ GODKJENN EAC-PROGNOSE")
+        submit_reject = col_btn2.form_submit_button("❌ AVVIS / BE OM REVIDERING")
+        
+        if submit_approve:
+            st.success(f"EAC-endring godkjent av {approver}! Audit-hash generert: `0x8f2a99c4e10b` (COSO 2013 Logged).")
 
 st.markdown("---")
 st.caption("🏛️ Elkem ASA Technology Controlling Office | Kristiansand, Norway | System Status: ONLINE 🟢")
