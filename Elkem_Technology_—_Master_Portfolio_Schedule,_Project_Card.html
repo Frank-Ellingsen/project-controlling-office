@@ -1,0 +1,3296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="carbon">
+  <title>Elkem ASA Technology — Project Controlling Office Workstation</title>
+
+  <!-- Typography: IBM Plex Sans & IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Allowed CDN Libraries -->
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces */
+      --background: #f4f6f9;
+      --surface: #ffffff;
+      --surface-container-low: #f8fafc;
+      --surface-container: #ffffff;
+      --surface-container-high: #eef2f6;
+      --surface-elevated: #ffffff;
+
+      /* Inks */
+      --on-surface: #0b1523;
+      --on-surface-variant: #475569;
+      --on-surface-subtle: #64748b;
+
+      /* Rules and Dividers */
+      --outline: #94a3b8;
+      --outline-variant: #e2e8f0;
+
+      /* Elkem Brand & Accents */
+      --primary: #002b49;           /* Elkem Navy */
+      --on-primary: #ffffff;
+      --primary-light: #0a436e;
+      --primary-container: #e6f0f8;
+      --on-primary-container: #002b49;
+      --secondary: #334155;
+      --tertiary: #0284c7;
+
+      /* Semantic Status Colors */
+      --positive: #059669;          /* Emerald */
+      --positive-bg: #ecfdf5;
+      --positive-border: #a7f3d0;
+      --warning: #d97706;           /* Amber */
+      --warning-bg: #fffbeb;
+      --warning-border: #fde68a;
+      --error: #dc2626;             /* Ruby */
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --focus: #002b49;
+
+      /* Data Series Colors */
+      --data-1: #002b49;            /* Elkem Navy */
+      --data-2: #0284c7;            /* Electric Sky */
+      --data-3: #059669;            /* Emerald */
+      --data-4: #d97706;            /* Amber */
+      --data-5: #dc2626;            /* Ruby */
+      --data-context: #94a3b8;
+
+      /* Fonts */
+      --font-headline: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-label: 'IBM Plex Mono', monospace;
+
+      /* Spacing Scale (4pt base) */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+
+      /* Type Scale (Dashboard / Data Explorer) */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Shape */
+      --rounded: 0.25rem;
+      --rounded-lg: 0.375rem;
+      --rounded-full: 9999px;
+
+      /* Effects */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-1: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-2: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --rule: 1px solid var(--outline-variant);
+      --field-rule: 1px solid var(--outline);
+    }
+
+    /* Base Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { overflow-x: clip; margin: 0; padding: 0; }
+    header { position: static !important; }
+
+    body {
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: var(--space-3xl);
+    }
+
+    /* Container */
+    .app-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: var(--space-md) var(--space-lg);
+    }
+
+    /* Typography Utilities */
+    h1, h2, h3, h4, h5 {
+      color: var(--on-surface);
+      font-family: var(--font-headline);
+      font-weight: 600;
+      margin-top: 0;
+      line-height: 1.25;
+    }
+
+    .mono-num {
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .section-eyebrow {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-subtle);
+      margin-bottom: var(--space-xs);
+    }
+
+    /* Top Executive Header */
+    .top-header {
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md) var(--space-lg);
+      margin-bottom: var(--space-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-top-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      border-bottom: var(--rule);
+      padding-bottom: var(--space-md);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .elkem-logo-badge {
+      background-color: var(--primary);
+      color: var(--on-primary);
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: 0.1em;
+      padding: var(--space-xs) var(--space-md);
+      border-radius: var(--rounded);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hub-title-block h1 {
+      font-size: var(--headline-size);
+      margin-bottom: var(--space-xs);
+    }
+
+    .hub-subtitle {
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.5rem;
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      font-weight: 500;
+      border-radius: var(--rounded-full);
+      border: 1px solid var(--outline-variant);
+      background-color: var(--surface-container-low);
+      color: var(--on-surface-variant);
+    }
+
+    .badge-pill.emerald {
+      background-color: var(--positive-bg);
+      color: var(--positive);
+      border-color: var(--positive-border);
+    }
+
+    .badge-pill.amber {
+      background-color: var(--warning-bg);
+      color: var(--warning);
+      border-color: var(--warning-border);
+    }
+
+    .badge-pill.ruby {
+      background-color: var(--error-bg);
+      color: var(--error);
+      border-color: var(--error-border);
+    }
+
+    .header-meta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .controller-credential-chip {
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+      border: 1px solid rgba(0, 43, 73, 0.2);
+      border-radius: var(--rounded);
+      padding: var(--space-xs) var(--space-sm);
+      font-size: 0.8125rem;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    /* Core Architectural Axiom Banner */
+    .axiom-banner {
+      margin-top: var(--space-md);
+      background: linear-gradient(135deg, #001f35 0%, #002b49 60%, #0a436e 100%);
+      color: #ffffff;
+      border-radius: var(--rounded);
+      padding: var(--space-md) var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .axiom-headline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    .axiom-statement {
+      font-size: 1.125rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .axiom-statement span.highlight {
+      color: #38bdf8;
+    }
+
+    .axiom-compliance-tag {
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: var(--rounded);
+      padding: 0.2rem 0.5rem;
+    }
+
+    .axiom-pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--space-sm);
+      margin-top: var(--space-xs);
+    }
+
+    .axiom-pillar-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.8125rem;
+    }
+
+    .axiom-pillar-card .pillar-title {
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .axiom-pillar-card p {
+      margin: 0;
+      color: #e2e8f0;
+      font-size: 0.8125rem;
+      line-height: 1.35;
+    }
+
+    /* Executive KPI Scorecard Grid */
+    .kpi-scorecard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .kpi-tile {
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 120px;
+    }
+
+    .kpi-tile::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background-color: var(--primary);
+    }
+
+    .kpi-tile.positive::after { background-color: var(--positive); }
+    .kpi-tile.warning::after { background-color: var(--warning); }
+    .kpi-tile.error::after { background-color: var(--error); }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--space-xs);
+    }
+
+    .kpi-label {
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--on-surface-subtle);
+    }
+
+    .kpi-value {
+      font-family: var(--font-label);
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--on-surface);
+      line-height: 1.1;
+      margin: var(--space-xs) 0;
+    }
+
+    .kpi-subtext {
+      font-size: 0.78rem;
+      color: var(--on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .kpi-subtext strong {
+      font-family: var(--font-label);
+    }
+
+    /* Governance Alert Banner */
+    .governance-ticker {
+      background: var(--surface);
+      border-left: 4px solid var(--error);
+      border-top: var(--rule);
+      border-right: var(--rule);
+      border-bottom: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      margin-bottom: var(--space-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ticker-content {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 0.875rem;
+    }
+
+    .ticker-btn {
+      background-color: var(--surface-container-high);
+      border: var(--rule);
+      color: var(--on-surface);
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--rounded);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+
+    .ticker-btn:hover {
+      background-color: var(--outline-variant);
+    }
+
+    /* Section Wrapper */
+    .dashboard-section {
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: var(--rule);
+    }
+
+    .section-title-wrap h2 {
+      font-size: var(--headline-size);
+      margin: 0;
+    }
+
+    .section-description {
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+      margin-top: 0.2rem;
+    }
+
+    /* Project Cards Selector Nav */
+    .project-tabs-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      background-color: var(--surface-container-low);
+      padding: var(--space-xs);
+      border-radius: var(--rounded);
+      border: var(--rule);
+      margin-bottom: var(--space-lg);
+    }
+
+    .project-tab-btn {
+      flex: 1;
+      min-width: 220px;
+      background: transparent;
+      border: none;
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+
+    .project-tab-btn:hover {
+      background-color: var(--surface-container-high);
+    }
+
+    .project-tab-btn.active {
+      background-color: var(--surface);
+      box-shadow: var(--shadow-sm);
+      border-left: 3px solid var(--primary);
+    }
+
+    .project-tab-btn.active.breach { border-left-color: var(--error); }
+    .project-tab-btn.active.compliant { border-left-color: var(--positive); }
+    .project-tab-btn.active.monitored { border-left-color: var(--warning); }
+
+    .tab-btn-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tab-project-id {
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--on-surface);
+    }
+
+    .tab-project-name {
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tab-quick-metrics {
+      display: flex;
+      gap: var(--space-sm);
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      color: var(--on-surface-subtle);
+    }
+
+    /* Project Detail Container */
+    .project-detail-panel {
+      border: var(--rule);
+      border-radius: var(--rounded);
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .project-hero-header {
+      background: var(--surface-container-low);
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: var(--rule);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .project-hero-title h3 {
+      font-size: 1.25rem;
+      margin: 0 0 var(--space-xs) 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .project-hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .project-stat-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      background-color: var(--surface);
+      padding: var(--space-sm) var(--space-md);
+      border: var(--rule);
+      border-radius: var(--rounded);
+    }
+
+    .stat-pill {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-pill .stat-label {
+      font-family: var(--font-label);
+      font-size: 0.65rem;
+      color: var(--on-surface-subtle);
+      text-transform: uppercase;
+    }
+
+    .stat-pill .stat-val {
+      font-family: var(--font-label);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    /* 9 Dimensions Tabs Header */
+    .dimensions-tabs-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      background-color: var(--surface-container-high);
+      border-bottom: var(--rule);
+      padding: 0;
+      overflow-x: auto;
+    }
+
+    .dim-tab-btn {
+      background: var(--surface-container-low);
+      border: none;
+      border-right: 1px solid var(--outline-variant);
+      padding: 0.65rem 1rem;
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+      transition: all var(--dur-micro) var(--ease-out);
+    }
+
+    .dim-tab-btn:hover {
+      background-color: var(--surface);
+      color: var(--on-surface);
+    }
+
+    .dim-tab-btn.active {
+      background-color: var(--surface);
+      color: var(--primary);
+      font-weight: 600;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .dimension-content-body {
+      padding: var(--space-lg);
+      background: var(--surface);
+    }
+
+    .dim-pane {
+      display: none;
+    }
+
+    .dim-pane.active {
+      display: block;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Content Cards inside dimensions */
+    .dim-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .dim-subcard {
+      background: var(--surface-container-low);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+    }
+
+    .dim-subcard h4 {
+      font-size: 0.9375rem;
+      margin-bottom: var(--space-sm);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--primary);
+      border-bottom: var(--rule);
+      padding-bottom: 0.35rem;
+    }
+
+    /* EVM Table */
+    .evm-spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      margin-top: var(--space-sm);
+    }
+
+    .evm-spec-table th, .evm-spec-table td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: var(--rule);
+      text-align: left;
+    }
+
+    .evm-spec-table th {
+      background-color: var(--surface-container-high);
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--on-surface-subtle);
+      font-weight: 600;
+    }
+
+    .evm-spec-table td.numeric {
+      text-align: right;
+      font-family: var(--font-label);
+    }
+
+    /* Stage-Gate Ribbon */
+    .stage-gate-track {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-xs);
+      margin: var(--space-md) 0;
+    }
+
+    .stage-gate-node {
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-sm);
+      text-align: center;
+      position: relative;
+    }
+
+    .stage-gate-node.completed {
+      background-color: var(--positive-bg);
+      border-color: var(--positive-border);
+    }
+
+    .stage-gate-node.current {
+      background-color: var(--primary-container);
+      border-color: var(--primary);
+      border-width: 2px;
+      font-weight: 600;
+    }
+
+    .stage-gate-node .gate-title {
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--on-surface-subtle);
+    }
+
+    .stage-gate-node .gate-name {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      margin-top: 0.2rem;
+    }
+
+    .stage-gate-node .gate-marker {
+      font-size: 0.85rem;
+      margin-top: 0.3rem;
+      color: var(--primary);
+    }
+
+    /* Master Gantt Chart Timeline */
+    .gantt-wrapper {
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .gantt-controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      background-color: var(--surface-container-low);
+      border-bottom: var(--rule);
+    }
+
+    .gantt-filter-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .btn-filter {
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: 0.3rem 0.6rem;
+      font-size: 0.75rem;
+      font-family: var(--font-label);
+      cursor: pointer;
+      transition: all var(--dur-micro) var(--ease-out);
+    }
+
+    .btn-filter:hover { background-color: var(--surface-container-high); }
+    .btn-filter.active {
+      background-color: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+    }
+
+    .gantt-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    .gantt-header th {
+      background-color: var(--surface-container-high);
+      border-bottom: var(--rule);
+      border-right: 1px solid var(--outline-variant);
+      padding: 0.4rem 0.5rem;
+      font-family: var(--font-label);
+      font-size: 0.68rem;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .gantt-header th.wbs-header {
+      width: 320px;
+      text-align: left;
+      padding-left: var(--space-md);
+    }
+
+    .gantt-row {
+      border-bottom: 1px solid var(--outline-variant);
+    }
+
+    .gantt-row:hover {
+      background-color: var(--surface-container-low);
+    }
+
+    .gantt-row.conflict-row {
+      background-color: #fffbeb !important;
+    }
+
+    .gantt-cell-wbs {
+      padding: 0.45rem var(--space-md);
+      font-size: 0.8125rem;
+      white-space: nowrap;
+      border-right: 1px solid var(--outline-variant);
+    }
+
+    .gantt-cell-wbs.level-1 {
+      font-weight: 600;
+      color: var(--primary);
+      background-color: var(--surface-container-low);
+    }
+
+    .gantt-cell-wbs.level-2 {
+      padding-left: 2rem;
+      color: var(--on-surface);
+    }
+
+    .gantt-timeline-cell {
+      padding: 0.4rem 0.2rem;
+      position: relative;
+      border-right: 1px solid #f1f5f9;
+      height: 34px;
+    }
+
+    .data-date-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: calc(33.333% + 320px);
+      width: 2px;
+      background-color: var(--error);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .gantt-bar {
+      position: absolute;
+      top: 6px;
+      height: 18px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+      font-family: var(--font-label);
+      font-size: 0.65rem;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .gantt-bar.baseline {
+      background-color: #94a3b8;
+      top: 14px;
+      height: 8px;
+      opacity: 0.6;
+      border-radius: 1px;
+    }
+
+    .gantt-bar.actual-emerald { background-color: var(--positive); }
+    .gantt-bar.actual-amber { background-color: var(--warning); }
+    .gantt-bar.actual-ruby { background-color: var(--error); }
+    .gantt-bar.actual-navy { background-color: var(--primary); }
+
+    .gantt-milestone-marker {
+      display: inline-block;
+      color: #002b49;
+      font-size: 0.9rem;
+      font-weight: bold;
+      transform: translateY(-1px);
+    }
+
+    .conflict-tag-badge {
+      font-family: var(--font-label);
+      font-size: 0.65rem;
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid var(--warning-border);
+      border-radius: var(--rounded-full);
+      padding: 0.1rem 0.4rem;
+      margin-left: 0.4rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    /* S-Curve Chart Section */
+    .chart-controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .chart-btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .chart-btn {
+      background: var(--surface-container-low);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: 0.35rem 0.75rem;
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      transition: all var(--dur-micro) var(--ease-out);
+    }
+
+    .chart-btn:hover {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface);
+    }
+
+    .chart-btn.active {
+      background-color: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+    }
+
+    .chart-canvas-container {
+      position: relative;
+      min-height: 380px;
+      width: 100%;
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+    }
+
+    .chart-legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-lg);
+      margin-top: var(--space-md);
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legend-bullet {
+      width: 12px;
+      height: 4px;
+      border-radius: 2px;
+    }
+
+    /* ERP DuckDB Line-Item Drilldown Table */
+    .erp-filter-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+      background: var(--surface-container-low);
+      padding: var(--space-md);
+      border-radius: var(--rounded);
+      border: var(--rule);
+    }
+
+    .form-control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .form-control-group label {
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--on-surface-subtle);
+    }
+
+    .filter-input, .filter-select {
+      background-color: var(--surface);
+      border: var(--field-rule);
+      border-radius: var(--rounded);
+      padding: 0.4rem 0.6rem;
+      font-size: 0.8125rem;
+      color: var(--on-surface);
+      font-family: var(--font-body);
+    }
+
+    .filter-input:focus, .filter-select:focus {
+      outline: 2px solid var(--focus);
+      outline-offset: 1px;
+    }
+
+    .erp-table-responsive {
+      overflow-x: auto;
+      border: var(--rule);
+      border-radius: var(--rounded);
+      background: var(--surface);
+    }
+
+    .erp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      min-width: 1100px;
+    }
+
+    .erp-table th {
+      background-color: var(--surface-container-high);
+      padding: 0.55rem 0.75rem;
+      text-align: left;
+      font-family: var(--font-label);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--on-surface-subtle);
+      border-bottom: var(--rule);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    .erp-table td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--outline-variant);
+      vertical-align: middle;
+    }
+
+    .erp-table tr:hover {
+      background-color: var(--surface-container-low);
+    }
+
+    .cap-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: var(--rounded-full);
+      font-family: var(--font-label);
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+
+    .cap-badge.capped {
+      background-color: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid var(--warning-border);
+    }
+
+    .cap-badge.normal {
+      background-color: var(--positive-bg);
+      color: var(--positive);
+      border: 1px solid var(--positive-border);
+    }
+
+    .cap-badge.material {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface-variant);
+      border: 1px solid var(--outline-variant);
+    }
+
+    .erp-subtotal-strip {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: var(--space-xl);
+      padding: var(--space-md);
+      background: var(--surface-container-low);
+      border-top: var(--rule);
+      font-family: var(--font-label);
+      font-size: 0.8125rem;
+    }
+
+    .subtotal-item strong {
+      font-size: 1rem;
+      color: var(--primary);
+    }
+
+    /* Dual-Engine HITL Tollbooth Section */
+    .dual-engine-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .engine-panel {
+      border: var(--rule);
+      border-radius: var(--rounded);
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .engine-header {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface-container-high);
+      border-bottom: var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .engine-header h4 {
+      margin: 0;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .engine-body {
+      padding: var(--space-md);
+    }
+
+    .code-sql-terminal {
+      background-color: #0b1523;
+      color: #93c5fd;
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      overflow-x: auto;
+      line-height: 1.4;
+      margin-bottom: var(--space-sm);
+    }
+
+    .computed-metrics-block {
+      background: var(--surface-container-low);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      font-family: var(--font-label);
+      font-size: 0.78rem;
+    }
+
+    .reasoning-text {
+      font-size: 0.875rem;
+      color: var(--on-surface);
+      line-height: 1.5;
+    }
+
+    .reasoning-text p {
+      margin-top: 0;
+      margin-bottom: var(--space-sm);
+    }
+
+    /* Tollbooth Gate Card */
+    .tollbooth-gate-box {
+      border: 2px solid var(--primary);
+      border-radius: var(--rounded-lg);
+      background: linear-gradient(180deg, #ffffff 0%, var(--surface-container-low) 100%);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-2);
+      margin-bottom: var(--space-lg);
+    }
+
+    .tollbooth-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: var(--rule);
+    }
+
+    .tollbooth-badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--error-bg);
+      color: var(--error);
+      border: 1px solid var(--error-border);
+      border-radius: var(--rounded-full);
+      padding: 0.2rem 0.6rem;
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .tollbooth-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .toll-metric-item {
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .toll-metric-item .lbl {
+      font-family: var(--font-label);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--on-surface-subtle);
+    }
+
+    .toll-metric-item .val {
+      font-family: var(--font-label);
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    .tollbooth-actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+    }
+
+    .controller-signature-preview {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 0.8125rem;
+    }
+
+    .btn-action-primary {
+      background-color: var(--primary);
+      color: var(--on-primary);
+      border: 1px solid var(--primary);
+      border-radius: var(--rounded);
+      padding: 0.5rem 1.25rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all var(--dur-micro) var(--ease-out);
+    }
+
+    .btn-action-primary:hover {
+      background-color: var(--primary-light);
+    }
+
+    .btn-action-danger {
+      background-color: var(--surface);
+      color: var(--error);
+      border: 1px solid var(--error-border);
+      border-radius: var(--rounded);
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all var(--dur-micro) var(--ease-out);
+    }
+
+    .btn-action-danger:hover {
+      background-color: var(--error-bg);
+    }
+
+    /* SHA-256 Blockchain Ledger View */
+    .blockchain-ledger-box {
+      background: var(--surface-container-low);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+    }
+
+    .ledger-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-sm);
+    }
+
+    .blocks-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .crypto-block-card {
+      background: var(--surface);
+      border: var(--rule);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      display: grid;
+      grid-template-columns: 80px 180px 1fr 140px;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .crypto-block-card.latest-block {
+      border-left: 4px solid var(--positive);
+      background-color: #fafdfb;
+    }
+
+    .hash-snippet {
+      color: var(--primary);
+      background: var(--surface-container-high);
+      padding: 0.1rem 0.3rem;
+      border-radius: var(--rounded);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Footer */
+    .hub-footer {
+      border-top: var(--rule);
+      margin-top: var(--space-3xl);
+      padding-top: var(--space-lg);
+      color: var(--on-surface-subtle);
+      font-size: 0.8125rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .footer-right {
+      display: flex;
+      gap: var(--space-md);
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+    }
+
+    /* Print & Accessibility */
+    @media (max-width: 1024px) {
+      .dual-engine-grid {
+        grid-template-columns: 1fr;
+      }
+      .stage-gate-track {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-container {
+        padding: var(--space-sm);
+      }
+      .header-top-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .project-tabs-nav {
+        flex-direction: column;
+      }
+      .stage-gate-track {
+        grid-template-columns: 1fr;
+      }
+      .crypto-block-card {
+        grid-template-columns: 1fr;
+        gap: 0.2rem;
+      }
+      .dim-tab-btn {
+        padding: 0.5rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Section 1: Executive Top Navigation & Header -->
+    <header class="top-header">
+      <div class="header-top-row">
+        <div class="brand-group">
+          <div class="elkem-logo-badge">ELKEM</div>
+          <div class="hub-title-block">
+            <h1>Technology Controller Hub</h1>
+            <div class="hub-subtitle">
+              <span>Elkem ASA Technology · Fiskaa Industrial Park, Kristiansand (PCO-Hub)</span>
+              <span class="badge-pill emerald"><i data-lucide="shield-check" style="width:12px;height:12px;"></i> SAP R/3 Synced</span>
+              <span class="badge-pill emerald"><i data-lucide="database" style="width:12px;height:12px;"></i> DuckDB OLAP Active</span>
+              <span class="badge-pill emerald"><i data-lucide="file-check" style="width:12px;height:12px;"></i> EIA-748 EVMS</span>
+              <span class="badge-pill emerald"><i data-lucide="lock" style="width:12px;height:12px;"></i> SHA-256 Ledger Live</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-meta-actions">
+          <div class="controller-credential-chip">
+            <i data-lucide="user-check" style="width:14px;height:14px;"></i>
+            <span><strong>Frank Ellingsen</strong> · Lead Technology Controller</span>
+          </div>
+          <div class="badge-pill" style="font-size:0.75rem; padding:0.3rem 0.6rem;">
+            <span>Data Date: <strong>2026-08-31 (M08 Close)</strong></span>
+          </div>
+          <button class="ticker-btn" onclick="exportFullDossier()" title="Export Audit JSON">
+            <i data-lucide="download" style="width:13px;height:13px;"></i> Export Dossier
+          </button>
+        </div>
+      </div>
+
+      <!-- Core Architectural Axiom Banner -->
+      <div class="axiom-banner">
+        <div class="axiom-headline">
+          <div class="axiom-statement">
+            <span class="highlight">Models Reason.</span> Software Computes. <span class="highlight">Agents Orchestrate.</span> Systems Verify.
+          </div>
+          <div class="axiom-compliance-tag">COSO 2013 & EU AI Act Art. 12/14 Enforced</div>
+        </div>
+        <div class="axiom-pillars-grid">
+          <div class="axiom-pillar-card">
+            <div class="pillar-title"><i data-lucide="cpu" style="width:12px;height:12px;"></i> 01 Compute (Deterministic)</div>
+            <p>100% zero-hallucination math via DuckDB OLAP, ANSI/EIA-748 EVM, and IFRS 15 PoC formulas.</p>
+          </div>
+          <div class="axiom-pillar-card">
+            <div class="pillar-title"><i data-lucide="brain-circuit" style="width:12px;height:12px;"></i> 02 Synthesize (Agentic)</div>
+            <p>Specialized domain LLM contextualizes variance roots, audit drafts, and public grant regulations.</p>
+          </div>
+          <div class="axiom-pillar-card">
+            <div class="pillar-title"><i data-lucide="user-shield" style="width:12px;height:12px;"></i> 03 Supervise (HITL Tollbooth)</div>
+            <p>Mandatory human controller authorization gate prior to any ERP baseline modification or MR draw.</p>
+          </div>
+          <div class="axiom-pillar-card">
+            <div class="pillar-title"><i data-lucide="git-commit" style="width:12px;height:12px;"></i> 04 Verify (Crypto Chain)</div>
+            <p>Cryptographic SHA-256 linked blocks creating tamper-evident audit trails under EU AI Act Art. 12.</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Section 2: Executive Portfolio KPI Scorecard Grid -->
+    <section class="kpi-scorecard-grid">
+      <div class="kpi-tile">
+        <div class="kpi-header">
+          <span class="kpi-label">Baseline Budget (BAC)</span>
+          <i data-lucide="layers" style="width:16px;height:16px;color:var(--on-surface-subtle);"></i>
+        </div>
+        <div class="kpi-value mono-num">75.70M <span style="font-size:0.95rem;font-weight:400;">NOK</span></div>
+        <div class="kpi-subtext">Portfolio 3 Active Control Accounts</div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-header">
+          <span class="kpi-label">Earned Value (BCWP)</span>
+          <i data-lucide="trending-up" style="width:16px;height:16px;color:var(--tertiary);"></i>
+        </div>
+        <div class="kpi-value mono-num">50.50M <span style="font-size:0.95rem;font-weight:400;">NOK</span></div>
+        <div class="kpi-subtext">Planned (BCWS): <strong>53.60M NOK</strong> (94.2%)</div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-header">
+          <span class="kpi-label">Actual Cost (ACWP)</span>
+          <i data-lucide="wallet" style="width:16px;height:16px;color:var(--primary);"></i>
+        </div>
+        <div class="kpi-value mono-num">50.20M <span style="font-size:0.95rem;font-weight:400;">NOK</span></div>
+        <div class="kpi-subtext">ERP SAP Ledger Incurred Direct</div>
+      </div>
+
+      <div class="kpi-tile positive">
+        <div class="kpi-header">
+          <span class="kpi-label">Cost Performance (CPI)</span>
+          <span class="badge-pill emerald">CV: +0.30M</span>
+        </div>
+        <div class="kpi-value mono-num" style="color:var(--positive);">1.006</div>
+        <div class="kpi-subtext">Cost Efficiency: <strong>1.006 NOK / Spent</strong></div>
+      </div>
+
+      <div class="kpi-tile warning">
+        <div class="kpi-header">
+          <span class="kpi-label">Schedule Index (SPI)</span>
+          <span class="badge-pill amber">SV: -3.10M</span>
+        </div>
+        <div class="kpi-value mono-num" style="color:var(--warning);">0.942</div>
+        <div class="kpi-subtext">Lagging: <strong>-5.78% Progress Slippage</strong></div>
+      </div>
+
+      <div class="kpi-tile error">
+        <div class="kpi-header">
+          <span class="kpi-label">EAC Forecast & VAC</span>
+          <span class="badge-pill ruby">1 Breach</span>
+        </div>
+        <div class="kpi-value mono-num">75.67M <span style="font-size:0.95rem;font-weight:400;">NOK</span></div>
+        <div class="kpi-subtext">CA-2045 Deficit: <strong style="color:var(--error);">-2.76M NOK</strong></div>
+      </div>
+    </section>
+
+    <!-- Governance Alert Banner -->
+    <div class="governance-ticker">
+      <div class="ticker-content">
+        <i data-lucide="alert-triangle" style="width:18px;height:18px;color:var(--error);"></i>
+        <div>
+          <strong>EIA-748 Governance Watchlist:</strong> Control Account <strong>CA-2045 (Fiskå Carbon-Neutral Pilot)</strong> has breached both Cost (-14.9%) and Schedule (-6.6%) thresholds. Overrun forecast of <strong>-2.76M NOK</strong> requires Management Reserve (MR) allocation.
+        </div>
+      </div>
+      <button class="ticker-btn" onclick="scrollToTollbooth()">
+        <i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Open HITL Approval Tollbooth
+      </button>
+    </div>
+
+    <!-- Section 3: Detailed Interactive Project Cards (9 Dimensions) -->
+    <section class="dashboard-section" id="project-cards-section">
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <div class="section-eyebrow">Enterprise Portfolio Management · ANSI/EIA-748</div>
+          <h2>Control Account Project Dossiers</h2>
+          <div class="section-description">Deep dive into each technology project across all 9 operational, engineering, and financial dimensions.</div>
+        </div>
+      </div>
+
+      <!-- Project Selector Tabs -->
+      <div class="project-tabs-nav" id="projectNavTabs">
+        <button class="project-tab-btn active breach" onclick="selectProject('ca2045')">
+          <div class="tab-btn-title-row">
+            <span class="tab-project-id">CA-2045</span>
+            <span class="badge-pill ruby">Threshold Breach</span>
+          </div>
+          <span class="tab-project-name">Fiskå Carbon-Neutral Pilot</span>
+          <div class="tab-quick-metrics">
+            <span>CPI: 0.870</span>
+            <span>SPI: 0.934</span>
+            <span>BAC: 18.50M</span>
+          </div>
+        </button>
+
+        <button class="project-tab-btn compliant" onclick="selectProject('ca1042')">
+          <div class="tab-btn-title-row">
+            <span class="tab-project-id">CA-1042</span>
+            <span class="badge-pill emerald">Compliant / Ahead</span>
+          </div>
+          <span class="tab-project-name">Furnace Automation & Twin</span>
+          <div class="tab-quick-metrics">
+            <span>CPI: 1.085</span>
+            <span>SPI: 1.054</span>
+            <span>BAC: 42.00M</span>
+          </div>
+        </button>
+
+        <button class="project-tab-btn monitored" onclick="selectProject('ca3080')">
+          <div class="tab-btn-title-row">
+            <span class="tab-project-id">CA-3080</span>
+            <span class="badge-pill amber">Monitored / On Track</span>
+          </div>
+          <span class="tab-project-name">NextGen Battery Anode R&D</span>
+          <div class="tab-quick-metrics">
+            <span>CPI: 0.970</span>
+            <span>SPI: 0.980</span>
+            <span>BAC: 15.20M</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Project Detail Card Dynamic Host -->
+      <div class="project-detail-panel" id="projectDetailHost">
+        <!-- Will be populated dynamically via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Section 4: Interactive Master Gantt of Gantts Timeline -->
+    <section class="dashboard-section" id="gantt-section">
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <div class="section-eyebrow">Integrated Master Schedule (IMS) · Primavera P6 Sync</div>
+          <h2>Master Gantt of Gantts Timeline</h2>
+          <div class="section-description">Multi-level WBS portfolio roll-up, Stage-Gate milestone markers (◆), and critical resource conflicts.</div>
+        </div>
+
+        <div class="gantt-filter-group">
+          <button class="btn-filter active" id="filterGanttAll" onclick="filterGantt('all')">All Work Packages</button>
+          <button class="btn-filter" id="filterGanttConflict" onclick="filterGantt('conflict')">
+            <i data-lucide="alert-circle" style="width:12px;height:12px;color:var(--warning);"></i> Resource Conflicts Only
+          </button>
+          <button class="btn-filter" id="filterGanttCritical" onclick="filterGantt('critical')">Critical Path</button>
+        </div>
+      </div>
+
+      <div class="gantt-wrapper">
+        <table class="gantt-table">
+          <thead>
+            <tr class="gantt-header">
+              <th class="wbs-header">WBS Element & Task Description</th>
+              <th>M01</th><th>M02</th><th>M03</th><th>M04</th><th>M05</th><th>M06</th><th>M07</th><th>M08</th><th>M09</th><th>M10</th><th>M11</th><th>M12</th><th>M13</th><th>M14</th><th>M15</th><th>M16</th><th>M17</th><th>M18</th>
+            </tr>
+          </thead>
+          <tbody id="ganttTableBody">
+            <!-- Populated via renderGantt() -->
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:var(--space-sm); font-size:0.75rem; color:var(--on-surface-subtle); display:flex; justify-content:space-between; align-items:center;">
+        <span><strong style="color:var(--error);">Red Vertical Guide:</strong> Current Data Date / Fiscal Close (Month 08 · August 2026).</span>
+        <span><strong style="color:var(--primary);">◆ Diamond:</strong> Formal Stage-Gate Decision Gate.</span>
+      </div>
+    </section>
+
+    <!-- Section 5: Interactive S-Curves (BCWS vs BCWP vs ACWP) -->
+    <section class="dashboard-section" id="scurve-section">
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <div class="section-eyebrow">Earned Value S-Curves · ANSI/EIA-748</div>
+          <h2>Cumulative Performance & Forecasting S-Curves</h2>
+          <div class="section-description">Compare planned baseline (BCWS), physical earned work (BCWP), and actual ERP costs (ACWP) with predictive EAC extrapolation.</div>
+        </div>
+
+        <div class="chart-controls-bar">
+          <div class="chart-btn-group" id="chartProjectSelector">
+            <button class="chart-btn active" onclick="switchChartProject('portfolio')">Consolidated Portfolio</button>
+            <button class="chart-btn" onclick="switchChartProject('ca2045')">CA-2045 (Pilot Plant)</button>
+            <button class="chart-btn" onclick="switchChartProject('ca1042')">CA-1042 (Furnace)</button>
+            <button class="chart-btn" onclick="switchChartProject('ca3080')">CA-3080 (Battery)</button>
+          </div>
+
+          <div class="chart-btn-group" id="chartMethodSelector">
+            <button class="chart-btn active" onclick="switchForecastMethod('cpi')">EAC = BAC/CPI</button>
+            <button class="chart-btn" onclick="switchForecastMethod('composite')">EAC = AC+(BAC-EV)/(CPI×SPI)</button>
+            <button class="chart-btn" onclick="switchForecastMethod('planned')">EAC = AC+BAC-EV</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-canvas-container">
+        <canvas id="evmSCurveCanvas"></canvas>
+      </div>
+
+      <div class="chart-legend-row">
+        <div class="legend-item"><span class="legend-bullet" style="background-color:#94a3b8;"></span> Planned Value (BCWS Baseline)</div>
+        <div class="legend-item"><span class="legend-bullet" style="background-color:#0284c7;"></span> Earned Value (BCWP Physical)</div>
+        <div class="legend-item"><span class="legend-bullet" style="background-color:#002b49;"></span> Actual Cost (ACWP Ledger)</div>
+        <div class="legend-item"><span class="legend-bullet" style="background-color:#dc2626; border-top: 2px dashed #dc2626;"></span> EAC Forecast Extrapolation</div>
+      </div>
+    </section>
+
+    <!-- Section 6: ERP Line-Item Transaction Drill-down Table -->
+    <section class="dashboard-section" id="erp-ledger-section">
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <div class="section-eyebrow">Local-First OLAP · DuckDB Taxonomy</div>
+          <h2>ERP Line-Item Transaction Ledger & Grant Audit</h2>
+          <div class="section-description">Transaction-level drill-down with automatic SkatteFUNN statutory rate capping (530 NOK/hr) and IAS 38 capitalization flags.</div>
+        </div>
+
+        <button class="ticker-btn" onclick="exportTransactionsCSV()">
+          <i data-lucide="download" style="width:13px;height:13px;"></i> Export Ledger CSV
+        </button>
+      </div>
+
+      <!-- Filters Bar -->
+      <div class="erp-filter-bar">
+        <div class="form-control-group">
+          <label for="erpFilterSearch">Search Transaction / Supplier</label>
+          <input type="text" id="erpFilterSearch" class="filter-input" placeholder="e.g. Lind, Refractory, Höganäs..." oninput="applyErpFilters()">
+        </div>
+
+        <div class="form-control-group">
+          <label for="erpFilterCA">Control Account</label>
+          <select id="erpFilterCA" class="filter-select" onchange="applyErpFilters()">
+            <option value="ALL">All Accounts (Consolidated)</option>
+            <option value="CA-2045">CA-2045 (Pilot Plant)</option>
+            <option value="CA-1042">CA-1042 (Furnace Automation)</option>
+            <option value="CA-3080">CA-3080 (Battery Anode)</option>
+          </select>
+        </div>
+
+        <div class="form-control-group">
+          <label for="erpFilterCap">SkatteFUNN Rate Status</label>
+          <select id="erpFilterCap" class="filter-select" onchange="applyErpFilters()">
+            <option value="ALL">All Items</option>
+            <option value="CAPPED">Capped at 530 NOK/h Only</option>
+            <option value="ELIGIBLE">Standard Eligible (≤ 530 NOK/h)</option>
+          </select>
+        </div>
+
+        <div class="form-control-group">
+          <label for="erpFilterIAS">Accounting Treatment</label>
+          <select id="erpFilterIAS" class="filter-select" onchange="applyErpFilters()">
+            <option value="ALL">All Treatments</option>
+            <option value="CAPITALIZED">IAS 38 Capitalized Asset</option>
+            <option value="EXPENSED">Expensed Research (P&amp;L)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Responsive Table -->
+      <div class="erp-table-responsive">
+        <table class="erp-table">
+          <thead>
+            <tr>
+              <th>Tx ID &amp; Date</th>
+              <th>Control Account &amp; WBS</th>
+              <th>Resource / Vendor</th>
+              <th>Cost Category</th>
+              <th style="text-align:right;">Hours</th>
+              <th style="text-align:right;">Ledger Rate</th>
+              <th>Statutory Cap (530 kr)</th>
+              <th style="text-align:right;">Actual ACWP</th>
+              <th style="text-align:right;">Grant Base</th>
+              <th>IAS 38 Classification</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="erpTableBody">
+            <!-- Populated via renderErpTable() -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="erp-subtotal-strip">
+        <div class="subtotal-item">Filtered Items: <strong id="subtotalCount">0</strong></div>
+        <div class="subtotal-item">Direct ACWP Incurred: <strong id="subtotalAcwp">0.00 NOK</strong></div>
+        <div class="subtotal-item">SkatteFUNN Claimable Base: <strong id="subtotalGrantBase">0.00 NOK</strong></div>
+        <div class="subtotal-item">Projected 19% Tax Credit: <strong id="subtotalTaxCredit" style="color:var(--positive);">0.00 NOK</strong></div>
+      </div>
+    </section>
+
+    <!-- Section 7: COSO 2013 / EU AI Act Art. 12 Human-in-the-Loop Tollbooth Widget -->
+    <section class="dashboard-section" id="tollbooth-section">
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <div class="section-eyebrow">COSO 2013 Control Activity &amp; EU AI Act Art. 12/14</div>
+          <h2>Human-in-the-Loop (HITL) EAC Approval Tollbooth</h2>
+          <div class="section-description">Dual-Engine architecture: Deterministic zero-hallucination computation paired with agentic semantic synthesis and mandatory controller cryptographic signoff.</div>
+        </div>
+      </div>
+
+      <!-- Dual Engine Split -->
+      <div class="dual-engine-grid">
+        <!-- Engine 1: Deterministic Compute -->
+        <div class="engine-panel">
+          <div class="engine-header">
+            <h4><i data-lucide="calculator" style="width:14px;height:14px;color:var(--tertiary);"></i> Engine 1: Deterministic Compute</h4>
+            <span class="badge-pill emerald">100% Math Precision</span>
+          </div>
+          <div class="engine-body">
+            <div class="code-sql-terminal">
+-- DuckDB Deterministic OLAP Pipeline Execution Trace
+SELECT
+  wbs_node,
+  ROUND(SUM(bcwp) - SUM(acwp), 2) AS cv_nok,
+  ROUND(SUM(bcwp) / NULLIF(SUM(acwp), 0), 4) AS cpi,
+  ROUND(bac / (SUM(bcwp) / SUM(acwp)), 2) AS eac_cpi,
+  ROUND(bac - (bac / (SUM(bcwp) / SUM(acwp))), 2) AS vac_nok
+FROM fact_evm_ledger
+WHERE control_account = 'CA-2045'
+GROUP BY wbs_node, bac;
+            </div>
+
+            <div class="computed-metrics-block">
+              <div><strong>Account:</strong> CA-2045 (Fiskå Pilot Plant Reactivity)</div>
+              <div><strong>BAC:</strong> 18,500,000.00 NOK | <strong>EV:</strong> 11,400,000.00 NOK | <strong>AC:</strong> 13,100,000.00 NOK</div>
+              <div><strong>Calculated CV:</strong> <span style="color:var(--error); font-weight:600;">-1,700,000.00 NOK (-14.91%)</span></div>
+              <div><strong>Cumulative CPI:</strong> <span style="color:var(--error); font-weight:600;">0.8702</span> | <strong>SPI:</strong> 0.9344</div>
+              <div><strong>Deterministic EAC:</strong> <strong>21,264,367.82 NOK</strong></div>
+              <div><strong>Required MR Drawdown:</strong> <strong style="color:var(--error);">+2,764,367.82 NOK</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Engine 2: Agentic Reasoning -->
+        <div class="engine-panel">
+          <div class="engine-header">
+            <h4><i data-lucide="brain-circuit" style="width:14px;height:14px;color:var(--primary);"></i> Engine 2: Agentic Reasoning</h4>
+            <span class="badge-pill emerald">COSO 2013 Verified</span>
+          </div>
+          <div class="engine-body">
+            <div class="reasoning-text">
+              <p><strong>Operational Root Cause:</strong> Control Account CA-2045 has breached the EIA-748 10% threshold. The cost friction originated in furnace electrode relining iterations (+420 labor hours) and delayed delivery of off-spec silica requiring secondary batch chemical purification.</p>
+              <p><strong>Accounting &amp; Regulatory Treatment:</strong> Under standard EIA-748 Guideline 22, the required To-Complete Index (TCPI to BAC = 1.315) is mathematically unattainable with existing workforce limits. An EAC baseline adjustment to <strong>21.26M NOK</strong> is operationally justified.</p>
+              <p><strong>COSO Control Recommendation:</strong> Approve 2.76M NOK drawdown from Management Reserve (MR), contingent upon P-CAM Dr. Lind capping external contractor overtime and enforcing liquidated damages on the silica supplier.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Human-in-the-Loop Tollbooth Action Card -->
+      <div class="tollbooth-gate-box">
+        <div class="tollbooth-header">
+          <div>
+            <div class="section-eyebrow">Tollbooth Decision Gate #TB-2026-08</div>
+            <h3 style="margin:0;">Baseline Revision Authorization: CA-2045 Fiskå Pilot Plant</h3>
+          </div>
+          <span class="tollbooth-badge-live" id="tollboothStatusBadge"><i data-lucide="radio" style="width:12px;height:12px;"></i> Awaiting Controller Decision</span>
+        </div>
+
+        <div class="tollbooth-details-grid">
+          <div class="toll-metric-item">
+            <div class="lbl">Authorized Baseline (BAC)</div>
+            <div class="val mono-num">18,500,000 NOK</div>
+          </div>
+          <div class="toll-metric-item">
+            <div class="lbl">Proposed New EAC</div>
+            <div class="val mono-num" style="color:var(--error);">21,264,368 NOK</div>
+          </div>
+          <div class="toll-metric-item">
+            <div class="lbl">Requested MR Draw</div>
+            <div class="val mono-num" style="color:var(--error);">+2,764,368 NOK</div>
+          </div>
+          <div class="toll-metric-item">
+            <div class="lbl">Signing Authority</div>
+            <div class="val" style="font-size:0.95rem;">Frank Ellingsen (PCO)</div>
+          </div>
+        </div>
+
+        <div class="tollbooth-actions-row">
+          <div class="controller-signature-preview">
+            <i data-lucide="key" style="width:16px;height:16px;color:var(--primary);"></i>
+            <div>
+              <div><strong>Controller Public Key:</strong> <code>0x7F...E94A</code></div>
+              <div style="font-size:0.75rem; color:var(--on-surface-subtle);">Action will append an immutable cryptographic block to the audit ledger.</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:var(--space-sm); flex-wrap:wrap;">
+            <button class="btn-action-danger" onclick="rejectTollboothEac()">
+              <i data-lucide="x" style="width:14px;height:14px;"></i> Reject &amp; Freeze MR
+            </button>
+            <button class="btn-action-primary" id="btnApproveEac" onclick="approveTollboothEac()">
+              <i data-lucide="check-circle" style="width:14px;height:14px;"></i> Approve &amp; Append SHA-256 Block
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Blockchain Cryptographic Ledger -->
+      <div class="blockchain-ledger-box">
+        <div class="ledger-top-row">
+          <div style="display:flex; align-items:center; gap:var(--space-sm);">
+            <i data-lucide="shield" style="width:16px;height:16px;color:var(--primary);"></i>
+            <strong>EU AI Act Article 12 Cryptographic Audit Chain</strong>
+          </div>
+          <button class="btn-filter active" onclick="verifyLedgerIntegrity()">
+            <i data-lucide="check-check" style="width:12px;height:12px;"></i> Verify Ledger Integrity (0 Anomalies)
+          </button>
+        </div>
+
+        <div class="blocks-container" id="blockchainContainer">
+          <!-- Populated dynamically via renderBlockchain() -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="hub-footer">
+      <div class="footer-left">
+        <div class="elkem-logo-badge" style="font-size:0.85rem; padding:2px 8px;">ELKEM</div>
+        <span>Elkem ASA Technology Project Controlling Office · Fiskaa Industrial Park, Kristiansand, Norway</span>
+      </div>
+      <div class="footer-right">
+        <span>ANSI/EIA-748 EVMS</span>
+        <span>•</span>
+        <span>IFRS 15 / IAS 38</span>
+        <span>•</span>
+        <span>Forskrift § 16-40 (SkatteFUNN)</span>
+        <span>•</span>
+        <span>COSO 2013</span>
+        <span>•</span>
+        <span>EU AI Act Art. 12</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <api-shim></api-shim>
+  <script>
+    // --- Data Store & State Architecture ---
+    const portfolioProjects = {
+      ca2045: {
+        id: 'CA-2045',
+        title: 'Fiskå Carbon-Neutral Pilot',
+        officialName: 'Pilot Plant Reactivity & Biocarbon Smelting Overrun',
+        wbs: '123456.08.05.04',
+        lead: 'Dr. H. Lind',
+        location: 'Hall 4, Fiskaa Industrial Park, Kristiansand',
+        status: 'breach',
+        statusText: 'Threshold Breach Exceeded',
+        bac: 18500000,
+        bcws: 12200000,
+        bcwp: 11400000,
+        acwp: 13100000,
+        cv: -1700000,
+        sv: -800000,
+        cpi: 0.8702,
+        spi: 0.9344,
+        eac: 21264368,
+        vac: -2764368,
+        tcpiBac: 1.315,
+        tcpiEac: 0.870,
+        // 9 Dimensions data
+        dimensions: {
+          beskrivelse: `The Fiskå Carbon-Neutral Pilot plant is a dedicated semi-industrial submerged arc furnace (SAF) facility constructed to test biocarbon pellets, charcoal briquettes, and novel bio-reductants in high-temperature silicon and ferrosilicon production. The system includes high-amperage electrode assemblies, a closed off-gas recovery dome, automated charge feeding systems, and specialized slag instrumentation to evaluate chemical reactivity and off-gas stoichiometry under continuous thermal loads reaching 1,800°C.`,
+          formal: `The primary objective is the industrial decarbonization of Elkem's smelting footprint, substituting 100% of fossil coal reductants with sustainably certified biocarbon formulations to reach net-zero CO2 emissions by 2030. Secondary aims include generating certified thermodynamic reaction kinetics to scale up furnace operations across global plants in Norway, Iceland, and North America.`,
+          scopeWbs: [
+            { code: '123456.08.05.04.01', name: 'Furnace Refractory Relining & Shell Insulation', status: 'Completed (Overrun)', budget: '4.20M NOK', actual: '4.95M NOK' },
+            { code: '123456.08.05.04.02', name: 'High-Temp Slag Sensor Instrumentation & Optic Pyrometers', status: 'In Progress (Delayed)', budget: '3.60M NOK', actual: '3.90M NOK' },
+            { code: '123456.08.05.04.03', name: 'Biocarbon Test Smelting Campaigns (100h continuous)', status: 'Active (Current Focus)', budget: '7.50M NOK', actual: '3.40M NOK' },
+            { code: '123456.08.05.04.04', name: 'Post-Run Metallurgical & Slag Characterization', status: 'Scheduled', budget: '3.20M NOK', actual: '0.85M NOK' }
+          ],
+          time: {
+            currentGate: 'Gate 3: Pilot Build & Campaign Testing',
+            stageText: 'Stage 3 Development (ANSI/EIA-748 Month 08 of 18)',
+            floatDays: -21,
+            slippage: '3 Weeks Delay on Milestone MS03 (Electrode Relining)',
+            criticalMilestones: [
+              { code: 'MS01', name: 'Pilot Feed System Commissioning', date: '2026-02-15', status: 'Complete' },
+              { code: 'MS02', name: 'Induction Furnace Refractory Bake-out', date: '2026-05-10', status: 'Complete' },
+              { code: 'MS03', name: 'Slag Sensor Calibration & First Biocarbon Tap', date: '2026-08-15', status: 'Slipped to 2026-09-05' },
+              { code: 'MS04', name: '100-Hour Continuous Decarbonized Run', date: '2026-11-20', status: 'On Critical Path' },
+              { code: 'MS05', name: 'Gate 4 Validation Handoff Dossier', date: '2027-02-28', status: 'Planned' }
+            ]
+          },
+          cost: {
+            bac: '18,500,000 NOK',
+            bcws: '12,200,000 NOK',
+            bcwp: '11,400,000 NOK',
+            acwp: '13,100,000 NOK',
+            cv: '-1,700,000 NOK (-14.91%)',
+            sv: '-800,000 NOK (-6.56%)',
+            cpi: '0.870',
+            spi: '0.934',
+            eacCpi: '21,264,368 NOK',
+            eacComposite: '22,482,105 NOK',
+            eacPlanned: '20,200,000 NOK',
+            vac: '-2,764,368 NOK',
+            tcpiBac: '1.315 (Unrealistic target)',
+            tcpiEac: '0.870 (Viable target with MR draw)'
+          },
+          quality: {
+            qaScore: '84% (Quality Watchlist)',
+            openDefects: 3,
+            deviations: [
+              { id: 'NCR-2045-01', desc: 'Refractory lining micro-cracks detected during 1,750°C thermal ramp. Required 420 additional repair engineering hours.', severity: 'High', status: 'Remediated' },
+              { id: 'NCR-2045-02', desc: 'Raw silica supplier batch delivered out-of-spec alumina (>0.25%). Secondary chemical purification required.', severity: 'Medium', status: 'Under Supplier Claim' },
+              { id: 'NCR-2045-03', desc: 'Slag sensor fiber-optic spectrometer thermal drift exceeding ±8°C tolerances.', severity: 'Medium', status: 'Recalibrating' }
+            ]
+          },
+          finance: {
+            ifrsMethod: 'Cost-to-Cost Over-Time Recognition (IFRS 15)',
+            contractValue: '32,000,000 NOK (Nordic Green Metals Demonstration)',
+            pocPercentage: '61.61% (ACWP 13.10M / EAC 21.26M)',
+            recognizedRevenue: '19,715,200 NOK',
+            invoicedToDate: '16,500,000 NOK',
+            contractAsset: '3,215,200 NOK (Unbilled Revenue Balance)',
+            contractLiability: '0.00 NOK',
+            ias38Capitalization: '74% Capitalized (Intangible Asset under Construction § 16-40), 26% Expensed as Basic Research.'
+          },
+          funding: {
+            enovaGrant: 'Enova SF (Klima- og energifondet): 8.40M NOK approved grant (45.4% eligible capex). Next milestone drawdown: 2.10M NOK upon MS03 completion.',
+            nfrGrant: 'Research Council of Norway (NFR) Green Platform: 3.20M NOK co-funding.',
+            skattefunn: {
+              statutoryHourlyCap: '530 NOK / hour (2025/2026 Statutory Rate Cap)',
+              maxAnnualHours: '1,850 hours per employee',
+              maxProjectCostCeiling: '25,000,000 NOK',
+              taxCreditRate: '19%',
+              claimedHoursYtd: '6,420 hours (all internal labor capped at 530 NOK)',
+              calculatedDeduction: '1,289,320 NOK net tax reduction'
+            }
+          },
+          dataSources: {
+            sapSync: 'SAP R/3 Project System (PS) & CO Ledger synced (M08 close)',
+            duckdb: 'DuckDB OLAP Parquet facts verified with 100% checksum match',
+            timecardBatch: 'Batch ID #TC-2026-M08 (14 engineers, 1,480 hours verified)',
+            exportJson: 'CA-2045_EVM_M08_Final.json'
+          }
+        }
+      },
+      ca1042: {
+        id: 'CA-1042',
+        title: 'Furnace Automation & Digital Twin',
+        officialName: 'Off-gas Heat Recovery & Predictive Arc Control',
+        wbs: '123456.08.06.02',
+        lead: 'M. Vang',
+        location: 'Unit B & Central Process Control, Fiskaa',
+        status: 'compliant',
+        statusText: 'Compliant / Ahead of Baseline',
+        bac: 42000000,
+        bcws: 28000000,
+        bcwp: 29500000,
+        acwp: 27200000,
+        cv: 2300000,
+        sv: 1500000,
+        cpi: 1.0846,
+        spi: 1.0536,
+        eac: 38725424,
+        vac: 3274576,
+        tcpiBac: 0.845,
+        tcpiEac: 1.085,
+        dimensions: {
+          beskrivelse: `Development and deployment of a full Cyber-Physical Digital Twin and automated off-gas thermal recovery heat exchanger network. The architecture ingests sub-second telemetry from 840 multi-spectral sensors, off-gas gas chromatographs, and electrical phase transformers, executing model predictive control (MPC) algorithms to stabilize electric arc immersion depth and maximize steam generation.`,
+          formal: `Directly minimize thermal and electrical energy consumption across Elkem's smelting furnaces, yielding a 12% gross efficiency increase while exporting 35 GWh/year of high-pressure steam into Kristiansand's municipal district heating grid.`,
+          scopeWbs: [
+            { code: '123456.08.06.02.01', name: 'Off-gas Boiler Heat Exchanger Installation', status: 'Completed', budget: '18.50M NOK', actual: '17.80M NOK' },
+            { code: '123456.08.06.02.02', name: 'Digital Twin Model Predictive Control (MPC) Software', status: 'Active (Ahead)', budget: '12.00M NOK', actual: '6.20M NOK' },
+            { code: '123456.08.06.02.03', name: 'Sub-second Industrial IoT Sensor Array Integration', status: 'Active', budget: '7.50M NOK', actual: '2.40M NOK' },
+            { code: '123456.08.06.02.04', name: 'District Heating Grid Interconnect & FAT Signoff', status: 'Scheduled', budget: '4.00M NOK', actual: '0.80M NOK' }
+          ],
+          time: {
+            currentGate: 'Gate 3: Installation & Telemetry Commissioning',
+            stageText: 'Stage 3 Development (ANSI/EIA-748 Month 08 of 24)',
+            floatDays: 14,
+            slippage: 'None (+2 Weeks Ahead of Baseline)',
+            criticalMilestones: [
+              { code: 'MS01', name: 'Boiler Shell Mechanical Erection', date: '2026-01-30', status: 'Complete' },
+              { code: 'MS02', name: 'IoT Edge Gateway Telemetry Stream Live', date: '2026-04-18', status: 'Complete' },
+              { code: 'MS03', name: 'MPC Algorithm Closed-Loop Arc Test', date: '2026-07-22', status: 'Complete (Ahead)' },
+              { code: 'MS04', name: 'District Energy Valve Commissioning', date: '2026-12-10', status: 'On Track' },
+              { code: 'MS05', name: 'Gate 4 Industrial Handoff', date: '2027-06-30', status: 'Planned' }
+            ]
+          },
+          cost: {
+            bac: '42,000,000 NOK',
+            bcws: '28,000,000 NOK',
+            bcwp: '29,500,000 NOK',
+            acwp: '27,200,000 NOK',
+            cv: '+2,300,000 NOK (+7.80%)',
+            sv: '+1,500,000 NOK (+5.36%)',
+            cpi: '1.085',
+            spi: '1.054',
+            eacCpi: '38,725,424 NOK',
+            eacComposite: '38,150,000 NOK',
+            eacPlanned: '39,700,000 NOK',
+            vac: '+3,274,576 NOK (Projected Surplus)',
+            tcpiBac: '0.845 (Easily Achievable)',
+            tcpiEac: '1.085'
+          },
+          quality: {
+            qaScore: '98% (Exceeding Targets)',
+            openDefects: 0,
+            deviations: [
+              { id: 'QA-1042-01', desc: 'Thermocouple channel 42 recalibrated during cold start. No disruption.', severity: 'Low', status: 'Resolved' }
+            ]
+          },
+          finance: {
+            ifrsMethod: 'Cost-to-Cost Over-Time Recognition (IFRS 15)',
+            contractValue: '58,000,000 NOK (Internal Capitalization & Energy Grid Agreement)',
+            pocPercentage: '70.24% (ACWP 27.20M / EAC 38.73M)',
+            recognizedRevenue: '40,739,200 NOK',
+            invoicedToDate: '35,000,000 NOK',
+            contractAsset: '5,739,200 NOK',
+            contractLiability: '0.00 NOK',
+            ias38Capitalization: '88% Capitalized as Tangible PPE & Industrial Software Asset (IAS 16 / IAS 38).'
+          },
+          funding: {
+            enovaGrant: 'Enova SF: 16.50M NOK committed grant (Demonstration of innovative energy technology). Invoiced 10.20M NOK to date with zero audit friction.',
+            nfrGrant: 'NFR Innovation Project for the Industrial Sector (IPN): 4.50M NOK.',
+            skattefunn: {
+              statutoryHourlyCap: '530 NOK / hour',
+              maxAnnualHours: '1,850 hours',
+              maxProjectCostCeiling: '25,000,000 NOK',
+              taxCreditRate: '19%',
+              claimedHoursYtd: '8,210 hours',
+              calculatedDeduction: '1,980,450 NOK net tax reduction'
+            }
+          },
+          dataSources: {
+            sapSync: 'Direct SAP PS WBS 123456.08.06.02 Automated Journal Ingest',
+            duckdb: 'DuckDB Microservice Live Stream (52,400 sensor records / sec)',
+            timecardBatch: 'Batch #TC-2026-M08-AUTO (21 engineers, 2,120 hours verified)',
+            exportJson: 'CA-1042_EVM_M08_Final.json'
+          }
+        }
+      },
+      ca3080: {
+        id: 'CA-3080',
+        title: 'NextGen Battery Anode R&D',
+        officialName: 'Biocarbon Formulation & High-Purity Silicon Anode Synthesis',
+        wbs: '123456.09.02.01',
+        lead: 'E. Sivertsen',
+        location: 'Advanced Materials R&D Laboratory, Fiskaa PCO-Hub',
+        status: 'monitored',
+        statusText: 'Monitored / Near Target',
+        bac: 15200000,
+        bcws: 9800000,
+        bcwp: 9600000,
+        acwp: 9900000,
+        cv: -300000,
+        sv: -200000,
+        cpi: 0.9697,
+        spi: 0.9796,
+        eac: 15675000,
+        vac: -475000,
+        tcpiBac: 1.057,
+        tcpiEac: 0.970,
+        dimensions: {
+          beskrivelse: `Synthesis and electrochemical qualification of nanostructured silicon-biocarbon composite active anode materials for electric vehicle (EV) lithium-ion batteries. The project utilizes high-shear milling, carbon thermal vapor deposition (CVD), and pouch-cell charge-discharge cyclers to validate first-cycle coulombic efficiency (>91%) and retention capacity over 1,000 full cycles.`,
+          formal: `Establish Elkem's high-margin battery materials vertical, providing Tier-1 European cell manufacturers with low-carbon, sustainably sourced silicon-anode active materials exceeding current graphite energy density by 300%.`,
+          scopeWbs: [
+            { code: '123456.09.02.01.01', name: 'Silicon Nanopowder Precursor Synthesis & Sizing', status: 'Completed', budget: '4.80M NOK', actual: '4.60M NOK' },
+            { code: '123456.09.02.01.02', name: 'Biocarbon Pyrolysis & Conductive Carbon Coating (CVD)', status: 'In Progress', budget: '4.50M NOK', actual: '4.80M NOK' },
+            { code: '123456.09.02.01.03', name: 'Full Electrochemical Pouch-Cell Cycling Campaigns', status: 'Active (Current)', budget: '3.90M NOK', actual: '0.50M NOK' },
+            { code: '123456.09.02.01.04', name: 'Tier-1 Customer Qualification Dossier & Audit', status: 'Scheduled', budget: '2.00M NOK', actual: '0.00M NOK' }
+          ],
+          time: {
+            currentGate: 'Gate 2: Laboratory Synthesis & Prototype Cell Testing',
+            stageText: 'Stage 2 Detailed Investigation (Month 08 of 16)',
+            floatDays: 5,
+            slippage: 'Minor (-4 Days on CVD Furnace Heating Element)',
+            criticalMilestones: [
+              { code: 'MS01', name: 'Sub-micron Silicon Milling Protocol Complete', date: '2026-02-28', status: 'Complete' },
+              { code: 'MS02', name: 'Lab Scale CVD Carbon Coating Operational', date: '2026-06-15', status: 'Complete' },
+              { code: 'MS03', name: '100th Cycle Retention Report (>92%)', date: '2026-09-30', status: 'On Track' },
+              { code: 'MS04', name: 'Customer Sample Delivery (50 kg pilot)', date: '2026-12-15', status: 'Scheduled' },
+              { code: 'MS05', name: 'Gate 3 Stage Review', date: '2027-03-31', status: 'Planned' }
+            ]
+          },
+          cost: {
+            bac: '15,200,000 NOK',
+            bcws: '9,800,000 NOK',
+            bcwp: '9,600,000 NOK',
+            acwp: '9,900,000 NOK',
+            cv: '-300,000 NOK (-3.12%)',
+            sv: '-200,000 NOK (-2.04%)',
+            cpi: '0.970',
+            spi: '0.980',
+            eacCpi: '15,675,000 NOK',
+            eacComposite: '15,842,000 NOK',
+            eacPlanned: '15,500,000 NOK',
+            vac: '-475,000 NOK (Within 5% Tolerance)',
+            tcpiBac: '1.057 (Manageable within baseline)',
+            tcpiEac: '0.970'
+          },
+          quality: {
+            qaScore: '92% (Acceptable)',
+            openDefects: 1,
+            deviations: [
+              { id: 'QA-3080-01', desc: 'Particle size distribution D90 slightly elevated (14.2 µm vs target 12.0 µm). Secondary classification cycle instituted.', severity: 'Low', status: 'Controlled' }
+            ]
+          },
+          finance: {
+            ifrsMethod: 'Cost-to-Cost Over-Time Recognition (IFRS 15)',
+            contractValue: '22,500,000 NOK (Joint Development Agreement)',
+            pocPercentage: '63.16% (ACWP 9.90M / EAC 15.68M)',
+            recognizedRevenue: '14,211,000 NOK',
+            invoicedToDate: '12,000,000 NOK',
+            contractAsset: '2,211,000 NOK',
+            contractLiability: '0.00 NOK',
+            ias38Capitalization: '65% Capitalized Development, 35% Expensed (Pre-qualification electrochemical runs).'
+          },
+          funding: {
+            enovaGrant: 'Enova SF: 4.80M NOK support for battery material pilot processing.',
+            nfrGrant: 'Research Council of Norway / EU Horizon Battery 2030+: 3.80M NOK.',
+            skattefunn: {
+              statutoryHourlyCap: '530 NOK / hour',
+              maxAnnualHours: '1,850 hours',
+              maxProjectCostCeiling: '25,000,000 NOK',
+              taxCreditRate: '19%',
+              claimedHoursYtd: '4,520 hours',
+              calculatedDeduction: '835,180 NOK net tax credit'
+            }
+          },
+          dataSources: {
+            sapSync: 'SAP R/3 CO Module Journal Entry Verified',
+            duckdb: 'DuckDB Battery Cycler Telemetry Matrix Synced',
+            timecardBatch: 'Batch #TC-2026-M08-BAT (9 research specialists)',
+            exportJson: 'CA-3080_EVM_M08_Final.json'
+          }
+        }
+      }
+    };
+
+    let activeProjectKey = 'ca2045';
+    let activeDimension = 'beskrivelse';
+
+    // --- Gantt Schedule Data ---
+    const ganttData = [
+      { id: 'P-PORTFOLIO', wbs: 'PORTFOLIO', name: 'Elkem Technology Project Portfolio (Fiskaa)', level: 1, startM: 1, durM: 18, plannedPct: 70, earnedPct: 66, conflict: false, critical: false, gate: null },
+      
+      { id: 'G-2045', wbs: 'CA-2045', name: 'Fiskå Carbon-Neutral Pilot (Dr. H. Lind)', level: 1, startM: 1, durM: 18, plannedPct: 66, earnedPct: 61, conflict: true, critical: true, gate: 'G3 (M08)' },
+      { id: 'T-2045-01', wbs: '123456.08.05.04.01', name: 'Refractory Relining & Furnace Shell', level: 2, startM: 1, durM: 6, plannedPct: 100, earnedPct: 100, conflict: true, conflictDetail: 'Refractory Team shared with CA-1042 in M06-M08', critical: true, gate: null },
+      { id: 'T-2045-02', wbs: '123456.08.05.04.02', name: 'High-Temp Slag Sensors & Laser Spectroscopy', level: 2, startM: 5, durM: 4, plannedPct: 100, earnedPct: 75, conflict: false, critical: true, gate: null },
+      { id: 'T-2045-03', wbs: '123456.08.05.04.03', name: '100h Continuous Biocarbon Smelting Campaign', level: 2, startM: 8, durM: 6, plannedPct: 35, earnedPct: 20, conflict: true, conflictDetail: 'Hall 4 High-Voltage Transformer load limit conflict with CA-3080 in M09-M10', critical: true, gate: 'G3' },
+      { id: 'T-2045-04', wbs: '123456.08.05.04.04', name: 'Metallurgical Characterization & Closeout', level: 2, startM: 13, durM: 6, plannedPct: 0, earnedPct: 0, conflict: false, critical: false, gate: 'G4 (M18)' },
+
+      { id: 'G-1042', wbs: 'CA-1042', name: 'Furnace Automation & Digital Twin (M. Vang)', level: 1, startM: 1, durM: 18, plannedPct: 67, earnedPct: 70, conflict: true, critical: false, gate: 'G3 (M08)' },
+      { id: 'T-1042-01', wbs: '123456.08.06.02.01', name: 'Off-gas Boiler Heat Exchanger Mechanical Erection', level: 2, startM: 1, durM: 7, plannedPct: 100, earnedPct: 100, conflict: true, conflictDetail: 'Refractory specialist overlap in M07', critical: false, gate: null },
+      { id: 'T-1042-02', wbs: '123456.08.06.02.02', name: 'Digital Twin MPC Closed-Loop Software Engine', level: 2, startM: 4, durM: 8, plannedPct: 80, earnedPct: 90, conflict: false, critical: false, gate: null },
+      { id: 'T-1042-03', wbs: '123456.08.06.02.03', name: '840-Channel Industrial IoT Telemetry Stream', level: 2, startM: 6, durM: 7, plannedPct: 60, earnedPct: 65, conflict: false, critical: false, gate: null },
+      { id: 'T-1042-04', wbs: '123456.08.06.02.04', name: 'Kristiansand District Grid Integration & Signoff', level: 2, startM: 12, durM: 7, plannedPct: 0, earnedPct: 0, conflict: false, critical: false, gate: 'G4 (M18)' },
+
+      { id: 'G-3080', wbs: 'CA-3080', name: 'NextGen Battery Anode R&D (E. Sivertsen)', level: 1, startM: 1, durM: 16, plannedPct: 64, earnedPct: 63, conflict: true, critical: false, gate: 'G2 (M08)' },
+      { id: 'T-3080-01', wbs: '123456.09.02.01.01', name: 'Nanostructured Precursor Milling & Sizing', level: 2, startM: 1, durM: 5, plannedPct: 100, earnedPct: 100, conflict: false, critical: false, gate: null },
+      { id: 'T-3080-02', wbs: '123456.09.02.01.02', name: 'CVD Conductive Carbon Pyrolysis Furnace', level: 2, startM: 4, durM: 6, plannedPct: 90, earnedPct: 85, conflict: true, conflictDetail: 'High power draw conflict with Hall 4 transformer M09', critical: false, gate: null },
+      { id: 'T-3080-03', wbs: '123456.09.02.01.03', name: '1000-Cycle Pouch-Cell Retention Testing', level: 2, startM: 7, durM: 7, plannedPct: 30, earnedPct: 25, conflict: false, critical: false, gate: null },
+      { id: 'T-3080-04', wbs: '123456.09.02.01.04', name: 'Tier-1 Customer Industrial Qualification Dossier', level: 2, startM: 12, durM: 5, plannedPct: 0, earnedPct: 0, conflict: false, critical: false, gate: 'G3 (M16)' }
+    ];
+
+    // --- S-Curve Monthly Profiles (Consolidated and by project) ---
+    const monthlyProfiles = {
+      months: ['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12', 'M13', 'M14', 'M15', 'M16', 'M17', 'M18'],
+      portfolio: {
+        bac: 75.70,
+        bcws: [3.8, 8.4, 14.2, 21.5, 29.8, 38.0, 46.2, 53.6, 59.8, 64.9, 68.7, 71.8, 73.6, 74.8, 75.4, 75.7, 75.7, 75.7],
+        bcwp: [3.6, 8.0, 13.5, 20.1, 28.2, 35.8, 43.5, 50.5],
+        acwp: [3.4, 7.8, 13.2, 19.8, 27.9, 35.6, 43.1, 50.2],
+        forecastCpi: [null, null, null, null, null, null, null, 50.2, 54.8, 59.2, 63.4, 67.2, 70.5, 73.1, 74.6, 75.3, 75.67, 75.67]
+      },
+      ca2045: {
+        bac: 18.50,
+        bcws: [0.8, 1.9, 3.4, 5.2, 7.3, 9.2, 10.9, 12.2, 13.7, 15.1, 16.2, 17.1, 17.8, 18.2, 18.4, 18.5, 18.5, 18.5],
+        bcwp: [0.7, 1.7, 3.1, 4.8, 6.7, 8.4, 10.0, 11.4],
+        acwp: [0.8, 2.0, 3.6, 5.7, 7.9, 9.8, 11.6, 13.1],
+        forecastCpi: [null, null, null, null, null, null, null, 13.1, 14.6, 16.1, 17.5, 18.7, 19.7, 20.4, 20.9, 21.1, 21.26, 21.26]
+      },
+      ca1042: {
+        bac: 42.00,
+        bcws: [2.1, 4.6, 7.8, 11.9, 16.4, 20.8, 25.1, 28.0, 31.4, 34.6, 37.1, 39.1, 40.4, 41.2, 41.7, 42.0, 42.0, 42.0],
+        bcwp: [2.2, 4.8, 8.2, 12.6, 17.4, 22.0, 26.5, 29.5],
+        acwp: [1.9, 4.3, 7.4, 11.3, 15.8, 20.1, 24.3, 27.2],
+        forecastCpi: [null, null, null, null, null, null, null, 27.2, 29.8, 32.1, 34.2, 35.9, 37.2, 38.0, 38.5, 38.73, 38.73, 38.73]
+      },
+      ca3080: {
+        bac: 15.20,
+        bcws: [0.9, 1.9, 3.0, 4.4, 6.1, 8.0, 9.2, 9.8, 11.2, 12.4, 13.4, 14.1, 14.7, 15.0, 15.2, 15.2, null, null],
+        bcwp: [0.7, 1.5, 2.2, 3.7, 5.1, 6.8, 8.5, 9.6],
+        acwp: [0.7, 1.5, 2.2, 3.8, 5.2, 7.0, 8.7, 9.9],
+        forecastCpi: [null, null, null, null, null, null, null, 9.9, 11.1, 12.3, 13.3, 14.2, 14.9, 15.4, 15.68, 15.68, null, null]
+      }
+    };
+
+    let activeChartProject = 'portfolio';
+    let activeForecastMethod = 'cpi';
+    let evmChartInstance = null;
+
+    // --- ERP Transaction Ledger (DuckDB Schema Mock) ---
+    const erpTransactions = [
+      { id: 'TX-2026-0801', date: '2026-08-04', ca: 'CA-2045', wbs: '123456.08.05.04.01', vendor: 'Dr. H. Lind (Lead Metallurgist)', cat: 'Internal R&D Labor', hours: 140, rate: 1150, cappedRate: 530, capStatus: 'CAPPED', acwp: 161000, grantBase: 74200, ias: 'CAPITALIZED', status: 'ERP Booked' },
+      { id: 'TX-2026-0802', date: '2026-08-07', ca: 'CA-2045', wbs: '123456.08.05.04.01', vendor: 'Höganäs Borgestad AS', cat: 'Refractory Ceramic Bricks', hours: 0, rate: 0, cappedRate: 0, capStatus: 'MATERIAL', acwp: 480000, grantBase: 480000, ias: 'CAPITALIZED', status: 'ERP Booked' },
+      { id: 'TX-2026-0803', date: '2026-08-11', ca: 'CA-2045', wbs: '123456.08.05.04.02', vendor: 'Sensorik GmbH', cat: 'High-Temp Fiber Spectrometer', hours: 0, rate: 0, cappedRate: 0, capStatus: 'MATERIAL', acwp: 320000, grantBase: 320000, ias: 'CAPITALIZED', status: 'ERP Booked' },
+      { id: 'TX-2026-0804', date: '2026-08-14', ca: 'CA-2045', wbs: '123456.08.05.04.03', vendor: 'J. Halvorsen (Process Tech)', cat: 'Furnace Operation Labor', hours: 160, rate: 720, cappedRate: 530, capStatus: 'CAPPED', acwp: 115200, grantBase: 84800, ias: 'EXPENSED', status: 'ERP Booked' },
+      { id: 'TX-2026-0805', date: '2026-08-18', ca: 'CA-2045', wbs: '123456.08.05.04.03', vendor: 'Norske Skog Biocarbon AS', cat: 'Certified Wood Briquette Feed', hours: 0, rate: 0, cappedRate: 0, capStatus: 'MATERIAL', acwp: 210000, grantBase: 210000, ias: 'EXPENSED', status: 'ERP Booked' },
+      { id: 'TX-2026-0806', date: '2026-08-22', ca: 'CA-2045', wbs: '123456.08.05.04.02', vendor: 'A. Mørk (Optics Engineer)', cat: 'Laser Pyrometer Specialist', hours: 95, rate: 980, cappedRate: 530, capStatus: 'CAPPED', acwp: 93100, grantBase: 50350, ias: 'CAPITALIZED', status: 'ERP Booked' },
+      
+      { id: 'TX-2026-0807', date: '2026-08-05', ca: 'CA-1042', wbs: '123456.08.06.02.02', vendor: 'M. Vang (Controls Lead)', cat: 'Algorithm Architecture', hours: 160, rate: 1050, cappedRate: 530, capStatus: 'CAPPED', acwp: 168000, grantBase: 84800, ias: 'CAPITALIZED', status: 'ERP Booked' },
+      { id: 'TX-2026-0808', date: '2026-08-09', ca: 'CA-1042', wbs: '123456.08.06.02.03', vendor: 'Siemens Energy AS', cat: 'PLC Edge Controllers & Scada', hours: 0, rate: 0, cappedRate: 0, capStatus: 'MATERIAL', acwp: 740000, grantBase: 740000, ias: 'CAPITALIZED', status: 'ERP Booked' },
+      { id: 'TX-2026-0809', date: '2026-08-15', ca: 'CA-1042', wbs: '123456.08.06.02.02', vendor: 'S. Torgersen (Junior Dev)', cat: 'Python DuckDB Pipeline Eng.', hours: 150, rate: 510, cappedRate: 510, capStatus: 'ELIGIBLE', acwp: 76500, grantBase: 76500, ias: 'CAPITALIZED', status: 'ERP Booked' },
+      { id: 'TX-2026-0810', date: '2026-08-20', ca: 'CA-1042', wbs: '123456.08.06.02.01', vendor: 'Kværner Process Piping AS', cat: 'Steam Boiler Exchanger Flanges', hours: 0, rate: 0, cappedRate: 0, capStatus: 'MATERIAL', acwp: 510000, grantBase: 510000, ias: 'CAPITALIZED', status: 'ERP Booked' },
+
+      { id: 'TX-2026-0811', date: '2026-08-03', ca: 'CA-3080', wbs: '123456.09.02.01.02', vendor: 'E. Sivertsen (Senior Chemist)', cat: 'CVD Reactor Synthesis', hours: 140, rate: 1100, cappedRate: 530, capStatus: 'CAPPED', acwp: 154000, grantBase: 74200, ias: 'CAPITALIZED', status: 'ERP Booked' },
+      { id: 'TX-2026-0812', date: '2026-08-10', ca: 'CA-3080', wbs: '123456.09.02.01.01', vendor: 'Retsch Milling Technology', cat: 'Zirconia Milling Media Grinding', hours: 0, rate: 0, cappedRate: 0, capStatus: 'MATERIAL', acwp: 125000, grantBase: 125000, ias: 'CAPITALIZED', status: 'ERP Booked' },
+      { id: 'TX-2026-0813', date: '2026-08-17', ca: 'CA-3080', wbs: '123456.09.02.01.03', vendor: 'BioCarb Solutions AS', cat: 'Ultra-pure Graphitic Precursor', hours: 0, rate: 0, cappedRate: 0, capStatus: 'MATERIAL', acwp: 180000, grantBase: 180000, ias: 'EXPENSED', status: 'ERP Booked' },
+      { id: 'TX-2026-0814', date: '2026-08-24', ca: 'CA-3080', wbs: '123456.09.02.01.03', vendor: 'K. Bakke (Battery Lab Tech)', cat: 'Pouch Cell Assembly & Cycling', hours: 120, rate: 520, cappedRate: 520, capStatus: 'ELIGIBLE', acwp: 62400, grantBase: 62400, ias: 'EXPENSED', status: 'ERP Booked' }
+    ];
+
+    // --- EU AI Act Art. 12 Blockchain State ---
+    const blockchainLedger = [
+      {
+        index: 1,
+        title: 'Genesis: Portfolio Work Authorization (WAD)',
+        timestamp: '2026-01-05 08:00:00 UTC',
+        prevHash: '0000000000000000000000000000000000000000000000000000000000000000',
+        hash: '0000a4b7f901c38e8941728109bf1502476bce26190a427bc2418e98715891ac',
+        signer: 'System Genesis (Elkem PCO)',
+        payload: 'Initial Baseline BAC=75.70M NOK approved across CA-2045, CA-1042, CA-3080.'
+      },
+      {
+        index: 2,
+        title: 'M07 Fiscal Month-End Closing Signoff',
+        timestamp: '2026-07-31 16:30:15 UTC',
+        prevHash: '0000a4b7f901c38e8941728109bf1502476bce26190a427bc2418e98715891ac',
+        hash: '000078cf5120e54d89a23991ab3412704bbd4179e8ca3109a90941829e9247cc',
+        signer: 'Frank Ellingsen (Controller)',
+        payload: 'Reconciled ACWP=43.10M NOK vs SAP General Ledger. 0 variances.'
+      },
+      {
+        index: 3,
+        title: 'CA-1042 Milestone MS03 Automation Signoff',
+        timestamp: '2026-08-15 11:20:45 UTC',
+        prevHash: '000078cf5120e54d89a23991ab3412704bbd4179e8ca3109a90941829e9247cc',
+        hash: '00003e9198bc43d1a8124508ec39aa5098ffbca4389107cc2504812f8e1293ba',
+        signer: 'M. Vang (CAM) & F. Ellingsen',
+        payload: 'Digital Twin MPC model operational. Early completion certified.'
+      }
+    ];
+
+    let tollboothDecided = false;
+
+    // --- Deterministic Pseudo-SHA-256 for browser fallback ---
+    function computeSha256(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      let hex = Math.abs(hash).toString(16).padStart(8, '0');
+      let fullHex = '0000' + hex;
+      while (fullHex.length < 64) {
+        fullHex += ((hash * (fullHex.length + 1)) & 0xffffffff).toString(16).padStart(8, '0');
+      }
+      return fullHex.slice(0, 64);
+    }
+
+    // --- Render Functions ---
+
+    function selectProject(projectKey, shouldSave = true) {
+      activeProjectKey = projectKey;
+      
+      // Update nav buttons
+      const buttons = document.querySelectorAll('.project-tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      
+      const activeBtn = document.querySelector(`.project-tab-btn[onclick*="${projectKey}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      renderProjectDetail();
+      if (shouldSave) savePersistentState();
+    }
+
+    function switchDimension(dimKey, shouldSave = true) {
+      activeDimension = dimKey;
+      const dimButtons = document.querySelectorAll('.dim-tab-btn');
+      dimButtons.forEach(btn => btn.classList.remove('active'));
+
+      const targetBtn = document.querySelector(`.dim-tab-btn[onclick*="${dimKey}"]`);
+      if (targetBtn) targetBtn.classList.add('active');
+
+      const panes = document.querySelectorAll('.dim-pane');
+      panes.forEach(p => p.classList.remove('active'));
+
+      const targetPane = document.getElementById(`pane-${dimKey}`);
+      if (targetPane) targetPane.classList.add('active');
+      if (shouldSave) savePersistentState();
+    }
+
+    function renderProjectDetail() {
+      const p = portfolioProjects[activeProjectKey];
+      if (!p) return;
+
+      const container = document.getElementById('projectDetailHost');
+      if (!container) return;
+
+      let badgeClass = 'emerald';
+      if (p.status === 'breach') badgeClass = 'ruby';
+      if (p.status === 'monitored') badgeClass = 'amber';
+
+      const formatNOK = (val) => (val / 1000000).toFixed(2) + 'M NOK';
+
+      container.innerHTML = `
+        <div class="project-hero-header">
+          <div class="project-hero-title">
+            <h3>
+              <span>${p.id}</span>
+              <span style="font-weight:400; color:var(--on-surface-variant); font-size:1.05rem;">— ${p.title}</span>
+              <span class="badge-pill ${badgeClass}">${p.statusText}</span>
+            </h3>
+            <div class="project-hero-meta">
+              <span class="meta-item"><i data-lucide="tag" style="width:13px;height:13px;"></i> WBS: <strong>${p.wbs}</strong></span>
+              <span class="meta-item"><i data-lucide="user" style="width:13px;height:13px;"></i> P-CAM Lead: <strong>${p.lead}</strong></span>
+              <span class="meta-item"><i data-lucide="map-pin" style="width:13px;height:13px;"></i> Location: <strong>${p.location}</strong></span>
+            </div>
+          </div>
+
+          <div class="project-stat-strip">
+            <div class="stat-pill">
+              <span class="stat-label">BAC</span>
+              <span class="stat-val mono-num">${formatNOK(p.bac)}</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label">BCWP (EV)</span>
+              <span class="stat-val mono-num" style="color:var(--tertiary);">${formatNOK(p.bcwp)}</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label">ACWP (AC)</span>
+              <span class="stat-val mono-num">${formatNOK(p.acwp)}</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label">CPI</span>
+              <span class="stat-val mono-num" style="color:${p.cpi < 1 ? 'var(--error)' : 'var(--positive)'};">${p.cpi.toFixed(3)}</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label">SPI</span>
+              <span class="stat-val mono-num" style="color:${p.spi < 1 ? 'var(--warning)' : 'var(--positive)'};">${p.spi.toFixed(3)}</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label">EAC (CPI)</span>
+              <span class="stat-val mono-num" style="color:${p.vac < 0 ? 'var(--error)' : 'var(--positive)'};">${formatNOK(p.eac)}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9 Dimensions Horizontal Tabs Bar -->
+        <div class="dimensions-tabs-bar">
+          <button class="dim-tab-btn ${activeDimension === 'beskrivelse' ? 'active' : ''}" onclick="switchDimension('beskrivelse')">
+            <i data-lucide="file-text" style="width:12px;height:12px;"></i> 1. Beskrivelse
+          </button>
+          <button class="dim-tab-btn ${activeDimension === 'formal' ? 'active' : ''}" onclick="switchDimension('formal')">
+            <i data-lucide="target" style="width:12px;height:12px;"></i> 2. Formål
+          </button>
+          <button class="dim-tab-btn ${activeDimension === 'scopeWbs' ? 'active' : ''}" onclick="switchDimension('scopeWbs')">
+            <i data-lucide="git-branch" style="width:12px;height:12px;"></i> 3. Scope &amp; WBS
+          </button>
+          <button class="dim-tab-btn ${activeDimension === 'time' ? 'active' : ''}" onclick="switchDimension('time')">
+            <i data-lucide="calendar" style="width:12px;height:12px;"></i> 4. Time (Stage-Gate)
+          </button>
+          <button class="dim-tab-btn ${activeDimension === 'cost' ? 'active' : ''}" onclick="switchDimension('cost')">
+            <i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> 5. Cost (EIA-748 EVM)
+          </button>
+          <button class="dim-tab-btn ${activeDimension === 'quality' ? 'active' : ''}" onclick="switchDimension('quality')">
+            <i data-lucide="shield-alert" style="width:12px;height:12px;"></i> 6. Quality &amp; Avvik
+          </button>
+          <button class="dim-tab-btn ${activeDimension === 'finance' ? 'active' : ''}" onclick="switchDimension('finance')">
+            <i data-lucide="pie-chart" style="width:12px;height:12px;"></i> 7. Finance (IFRS 15)
+          </button>
+          <button class="dim-tab-btn ${activeDimension === 'funding' ? 'active' : ''}" onclick="switchDimension('funding')">
+            <i data-lucide="landmark" style="width:12px;height:12px;"></i> 8. Funding (Grants)
+          </button>
+          <button class="dim-tab-btn ${activeDimension === 'dataSources' ? 'active' : ''}" onclick="switchDimension('dataSources')">
+            <i data-lucide="database" style="width:12px;height:12px;"></i> 9. Data Sources
+          </button>
+        </div>
+
+        <!-- 9 Dimensions Content Panes -->
+        <div class="dimension-content-body">
+          
+          <!-- Pane 1: Beskrivelse -->
+          <div class="dim-pane ${activeDimension === 'beskrivelse' ? 'active' : ''}" id="pane-beskrivelse">
+            <div class="dim-grid-2">
+              <div class="dim-subcard">
+                <h4><i data-lucide="info" style="width:14px;height:14px;"></i> Technological Architecture &amp; System Overview</h4>
+                <p style="font-size:0.875rem; line-height:1.6; color:var(--on-surface);">${p.dimensions.beskrivelse}</p>
+                <div style="margin-top:var(--space-md); padding:var(--space-sm); background:var(--surface); border:var(--rule); border-radius:var(--rounded); font-size:0.8125rem;">
+                  <strong>Facility Footprint:</strong> Operating within Pilot Hall 4 at Fiskaa Industrial Park with full 3-phase high-voltage transformer coupling and specialized closed off-gas scrubber units.
+                </div>
+              </div>
+              <div class="dim-subcard">
+                <h4><i data-lucide="check-circle-2" style="width:14px;height:14px;"></i> Operational Specifications</h4>
+                <ul style="font-size:0.8125rem; line-height:1.7; padding-left:1.2rem; margin:0;">
+                  <li><strong>Thermal Envelope:</strong> Tested for continuous 1,750°C to 1,820°C high-temperature smelting.</li>
+                  <li><strong>Sensory Instrumentation:</strong> 12 optical pyrometers, 6 gas-chromatograph sniffers, 18 refractory embedded thermocouples.</li>
+                  <li><strong>Raw Materials:</strong> High-purity quartz silica (99.8% SiO2) and sustainably certified bio-pellets.</li>
+                  <li><strong>Electrode Dynamics:</strong> Continuous Søderberg-type automated slip mechanisms.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 2: Formål -->
+          <div class="dim-pane ${activeDimension === 'formal' ? 'active' : ''}" id="pane-formal">
+            <div class="dim-grid-2">
+              <div class="dim-subcard">
+                <h4><i data-lucide="target" style="width:14px;height:14px;"></i> Strategic Purpose &amp; Value Creation</h4>
+                <p style="font-size:0.875rem; line-height:1.6; color:var(--on-surface);">${p.dimensions.formal}</p>
+              </div>
+              <div class="dim-subcard">
+                <h4><i data-lucide="award" style="width:14px;height:14px;"></i> ESG &amp; Sustainability Targets</h4>
+                <div style="display:flex; flex-direction:column; gap:var(--space-sm); font-size:0.8125rem;">
+                  <div style="background:var(--surface); padding:var(--space-sm); border:var(--rule); border-radius:var(--rounded);">
+                    <strong>CO2 Abatement:</strong> Target 100% replacement of fossil coal with biocarbon, mitigating approx. 450,000 tons of Scope 1 CO2 annually when scaled to full industrial operations.
+                  </div>
+                  <div style="background:var(--surface); padding:var(--space-sm); border:var(--rule); border-radius:var(--rounded);">
+                    <strong>Circular Energy Recovery:</strong> Off-gas thermal recovery delivering district heating capacity to Agder region communities.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 3: Scope & WBS -->
+          <div class="dim-pane ${activeDimension === 'scopeWbs' ? 'active' : ''}" id="pane-scopeWbs">
+            <h4>Work Breakdown Structure (WBS Level 2 &amp; 3 Packages)</h4>
+            <table class="evm-spec-table">
+              <thead>
+                <tr>
+                  <th>WBS Node</th>
+                  <th>Work Package Name</th>
+                  <th>Status</th>
+                  <th>Budget (BAC)</th>
+                  <th>Actual Cost (ACWP)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${p.dimensions.scopeWbs.map(w => `
+                  <tr>
+                    <td class="mono-num"><strong>${w.code}</strong></td>
+                    <td>${w.name}</td>
+                    <td><span class="badge-pill">${w.status}</span></td>
+                    <td class="numeric">${w.budget}</td>
+                    <td class="numeric"><strong>${w.actual}</strong></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pane 4: Time (Tidslinje & Stage-Gate) -->
+          <div class="dim-pane ${activeDimension === 'time' ? 'active' : ''}" id="pane-time">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:var(--space-sm);">
+              <div>
+                <strong>Current Stage:</strong> ${p.dimensions.time.stageText}
+              </div>
+              <div>
+                <span class="badge-pill ${p.dimensions.time.floatDays < 0 ? 'ruby' : 'emerald'}">
+                  Float: ${p.dimensions.time.floatDays} Days (${p.dimensions.time.slippage})
+                </span>
+              </div>
+            </div>
+
+            <!-- Stage Gate Track -->
+            <div class="stage-gate-track">
+              <div class="stage-gate-node completed">
+                <div class="gate-title">Gate 1</div>
+                <div class="gate-name">Concept &amp; Feasibility</div>
+                <div class="gate-marker">◆ PASSED</div>
+              </div>
+              <div class="stage-gate-node completed">
+                <div class="gate-title">Gate 2</div>
+                <div class="gate-name">Detailed Design &amp; Spec</div>
+                <div class="gate-marker">◆ PASSED</div>
+              </div>
+              <div class="stage-gate-node current">
+                <div class="gate-title">Gate 3 (Active)</div>
+                <div class="gate-name">Pilot Build &amp; Campaign</div>
+                <div class="gate-marker">◆ IN REVIEW</div>
+              </div>
+              <div class="stage-gate-node">
+                <div class="gate-title">Gate 4</div>
+                <div class="gate-name">Validation &amp; Industrial Handoff</div>
+                <div class="gate-marker" style="color:var(--outline);">◆ SCHEDULED</div>
+              </div>
+            </div>
+
+            <h4 style="margin-top:var(--space-md); font-size:0.875rem;">Milestone Schedule Progression</h4>
+            <table class="evm-spec-table">
+              <thead>
+                <tr>
+                  <th>Milestone</th>
+                  <th>Deliverable Description</th>
+                  <th>Target Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${p.dimensions.time.criticalMilestones.map(m => `
+                  <tr>
+                    <td class="mono-num"><strong>${m.code}</strong></td>
+                    <td>${m.name}</td>
+                    <td class="mono-num">${m.date}</td>
+                    <td><span class="badge-pill ${m.status.includes('Slipped') ? 'ruby' : (m.status === 'Complete' ? 'emerald' : 'amber')}">${m.status}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pane 5: Cost (EIA-748 EVM) -->
+          <div class="dim-pane ${activeDimension === 'cost' ? 'active' : ''}" id="pane-cost">
+            <div class="dim-grid-2">
+              <div class="dim-subcard">
+                <h4><i data-lucide="bar-chart-2" style="width:14px;height:14px;"></i> ANSI/EIA-748 EVM Diagnostic Table</h4>
+                <table class="evm-spec-table">
+                  <tbody>
+                    <tr><td>Budget at Completion (BAC)</td><td class="numeric"><strong>${p.dimensions.cost.bac}</strong></td></tr>
+                    <tr><td>Planned Value (BCWS / PV)</td><td class="numeric">${p.dimensions.cost.bcws}</td></tr>
+                    <tr><td>Earned Value (BCWP / EV)</td><td class="numeric" style="color:var(--tertiary);"><strong>${p.dimensions.cost.bcwp}</strong></td></tr>
+                    <tr><td>Actual Cost (ACWP / AC)</td><td class="numeric">${p.dimensions.cost.acwp}</td></tr>
+                    <tr><td>Cost Variance (CV = EV - AC)</td><td class="numeric" style="color:${p.cv < 0 ? 'var(--error)' : 'var(--positive)'};"><strong>${p.dimensions.cost.cv}</strong></td></tr>
+                    <tr><td>Schedule Variance (SV = EV - PV)</td><td class="numeric" style="color:${p.sv < 0 ? 'var(--warning)' : 'var(--positive)'};">${p.dimensions.cost.sv}</td></tr>
+                    <tr><td>Cost Performance Index (CPI)</td><td class="numeric" style="color:${p.cpi < 1 ? 'var(--error)' : 'var(--positive)'};"><strong>${p.dimensions.cost.cpi}</strong></td></tr>
+                    <tr><td>Schedule Performance Index (SPI)</td><td class="numeric">${p.dimensions.cost.spi}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="dim-subcard">
+                <h4><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Predictive Forecasts &amp; Feasibility Indices</h4>
+                <table class="evm-spec-table">
+                  <tbody>
+                    <tr><td>EAC (CPI Trend Case: BAC / CPI)</td><td class="numeric"><strong>${p.dimensions.cost.eacCpi}</strong></td></tr>
+                    <tr><td>EAC (Composite: AC + (BAC-EV)/(CPI×SPI))</td><td class="numeric">${p.dimensions.cost.eacComposite}</td></tr>
+                    <tr><td>EAC (Budgeted Rate: AC + BAC - EV)</td><td class="numeric">${p.dimensions.cost.eacPlanned}</td></tr>
+                    <tr><td>Variance at Completion (VAC)</td><td class="numeric" style="color:${p.vac < 0 ? 'var(--error)' : 'var(--positive)'};"><strong>${p.dimensions.cost.vac}</strong></td></tr>
+                    <tr><td>TCPI (vs BAC: Required Efficiency)</td><td class="numeric"><span class="badge-pill ruby">${p.dimensions.cost.tcpiBac}</span></td></tr>
+                    <tr><td>TCPI (vs revised EAC Target)</td><td class="numeric"><span class="badge-pill emerald">${p.dimensions.cost.tcpiEac}</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 6: Quality & Avvik -->
+          <div class="dim-pane ${activeDimension === 'quality' ? 'active' : ''}" id="pane-quality">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm);">
+              <h4>Non-Conformance Reports (NCR) &amp; Technical Quality Deviations</h4>
+              <span class="badge-pill amber">QA Score: ${p.dimensions.quality.qaScore}</span>
+            </div>
+            <table class="evm-spec-table">
+              <thead>
+                <tr>
+                  <th>NCR ID</th>
+                  <th>Root Cause &amp; Technical Description</th>
+                  <th>Severity</th>
+                  <th>Corrective Action Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${p.dimensions.quality.deviations.map(d => `
+                  <tr>
+                    <td class="mono-num"><strong>${d.id}</strong></td>
+                    <td>${d.desc}</td>
+                    <td><span class="badge-pill ${d.severity === 'High' ? 'ruby' : 'amber'}">${d.severity}</span></td>
+                    <td><span class="badge-pill emerald">${d.status}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pane 7: Finance (IFRS 15 & Balanseføring) -->
+          <div class="dim-pane ${activeDimension === 'finance' ? 'active' : ''}" id="pane-finance">
+            <div class="dim-grid-2">
+              <div class="dim-subcard">
+                <h4><i data-lucide="file-check" style="width:14px;height:14px;"></i> IFRS 15 Revenue Recognition (Cost-to-Cost Input Method)</h4>
+                <table class="evm-spec-table">
+                  <tbody>
+                    <tr><td>Commercial Contract Value</td><td class="numeric"><strong>${p.dimensions.finance.contractValue}</strong></td></tr>
+                    <tr><td>Percentage of Completion (PoC = ACWP/EAC)</td><td class="numeric mono-num"><strong>${p.dimensions.finance.pocPercentage}</strong></td></tr>
+                    <tr><td>Cumulative Recognized Revenue</td><td class="numeric">${p.dimensions.finance.recognizedRevenue}</td></tr>
+                    <tr><td>Cumulative Invoiced to Date</td><td class="numeric">${p.dimensions.finance.invoicedToDate}</td></tr>
+                    <tr><td>Contract Asset (Unbilled Work in Progress)</td><td class="numeric" style="color:var(--primary); font-weight:600;">${p.dimensions.finance.contractAsset}</td></tr>
+                    <tr><td>Contract Liability (Customer Advances)</td><td class="numeric">${p.dimensions.finance.contractLiability}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="dim-subcard">
+                <h4><i data-lucide="landmark" style="width:14px;height:14px;"></i> IAS 38 / NRS 8 Asset Capitalization</h4>
+                <p style="font-size:0.8125rem; line-height:1.5; color:var(--on-surface);"><strong>Accounting Treatment:</strong> ${p.dimensions.finance.ias38Capitalization}</p>
+                <div style="background:var(--surface); padding:var(--space-sm); border:var(--rule); border-radius:var(--rounded); font-size:0.78rem;">
+                  <strong>IAS 38 Capitalization Criteria Check:</strong> Technical feasibility established via Gate 2 signoff; documented commercial intention to deploy across industrial plants; reliable expenditure accumulation via ERP WBS hierarchy.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 8: Funding (Enova, NFR, SkatteFUNN RF-1053B) -->
+          <div class="dim-pane ${activeDimension === 'funding' ? 'active' : ''}" id="pane-funding">
+            <div class="dim-grid-2">
+              <div class="dim-subcard">
+                <h4><i data-lucide="shield" style="width:14px;height:14px;"></i> Enova &amp; NFR Public Grant Governance</h4>
+                <p style="font-size:0.8125rem; line-height:1.6; margin-bottom:var(--space-sm);">${p.dimensions.funding.enovaGrant}</p>
+                <p style="font-size:0.8125rem; line-height:1.6; margin:0;">${p.dimensions.funding.nfrGrant}</p>
+              </div>
+
+              <div class="dim-subcard">
+                <h4><i data-lucide="calculator" style="width:14px;height:14px;"></i> SkatteFUNN RF-1053B Tax Credit Calculator</h4>
+                <table class="evm-spec-table">
+                  <tbody>
+                    <tr><td>Statutory Rate Ceiling (Forskrift § 16-40)</td><td class="numeric"><span class="badge-pill emerald">530 NOK / hour</span></td></tr>
+                    <tr><td>Annual Employee Hours Ceiling</td><td class="numeric">1,850 hrs / year</td></tr>
+                    <tr><td>Annual Company Cap</td><td class="numeric">25,000,000 NOK</td></tr>
+                    <tr><td>Claimed Qualified Hours YTD</td><td class="numeric mono-num">${p.dimensions.funding.skattefunn.claimedHoursYtd}</td></tr>
+                    <tr><td>Calculated Net Tax Credit (19% Rate)</td><td class="numeric" style="color:var(--positive); font-weight:600;">${p.dimensions.funding.skattefunn.calculatedDeduction}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 9: Data Sources -->
+          <div class="dim-pane ${activeDimension === 'dataSources' ? 'active' : ''}" id="pane-dataSources">
+            <div class="dim-grid-2">
+              <div class="dim-subcard">
+                <h4><i data-lucide="server" style="width:14px;height:14px;"></i> Connected Telemetry &amp; ERP Ledgers</h4>
+                <ul style="font-size:0.8125rem; line-height:1.7; padding-left:1.2rem; margin:0;">
+                  <li><strong>SAP R/3 Ledger:</strong> ${p.dimensions.dataSources.sapSync}</li>
+                  <li><strong>DuckDB OLAP Engine:</strong> ${p.dimensions.dataSources.duckdb}</li>
+                  <li><strong>Timecard System:</strong> ${p.dimensions.dataSources.timecardBatch}</li>
+                </ul>
+              </div>
+
+              <div class="dim-subcard">
+                <h4><i data-lucide="download-cloud" style="width:14px;height:14px;"></i> Data Export &amp; Batch Simulation</h4>
+                <div style="display:flex; flex-direction:column; gap:var(--space-sm); margin-top:var(--space-xs);">
+                  <button class="btn-action-primary" onclick="downloadProjectJson('${activeProjectKey}')">
+                    <i data-lucide="file-json" style="width:14px;height:14px;"></i> Download Project EVM JSON
+                  </button>
+                  <button class="ticker-btn" onclick="simulateDataIngest()">
+                    <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Simulate Ingestion Pipeline &amp; Recheck
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      `;
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // --- Master Gantt Render ---
+    let ganttFilterMode = 'all';
+
+    function filterGantt(mode) {
+      ganttFilterMode = mode;
+      document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById(`filterGantt${mode.charAt(0).toUpperCase() + mode.slice(1)}`);
+      if (btn) btn.classList.add('active');
+      renderGantt();
+    }
+
+    function renderGantt() {
+      const tbody = document.getElementById('ganttTableBody');
+      if (!tbody) return;
+
+      let filtered = ganttData;
+      if (ganttFilterMode === 'conflict') {
+        filtered = ganttData.filter(d => d.conflict);
+      } else if (ganttFilterMode === 'critical') {
+        filtered = ganttData.filter(d => d.critical || d.level === 1);
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        let barColorClass = 'actual-navy';
+        if (item.earnedPct < item.plannedPct - 5) barColorClass = 'actual-ruby';
+        else if (item.earnedPct >= item.plannedPct + 2) barColorClass = 'actual-emerald';
+        else if (item.earnedPct < item.plannedPct) barColorClass = 'actual-amber';
+
+        // 18 months grid: calculate left & width %
+        const leftPct = ((item.startM - 1) / 18) * 100;
+        const widthPct = (item.durM / 18) * 100;
+
+        let conflictBadge = '';
+        if (item.conflict && item.conflictDetail) {
+          conflictBadge = `<span class="conflict-tag-badge" title="${item.conflictDetail}"><i data-lucide="alert-triangle" style="width:10px;height:10px;"></i> Resource Conflict</span>`;
+        }
+
+        let milestoneMarker = '';
+        if (item.gate) {
+          milestoneMarker = `<span class="gantt-milestone-marker" title="${item.gate}">◆</span>`;
+        }
+
+        return `
+          <tr class="gantt-row ${item.conflict ? 'conflict-row' : ''}">
+            <td class="gantt-cell-wbs level-${item.level}">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <span><strong>${item.wbs}</strong> ${item.level === 1 ? '— ' : ''}${item.name}</span>
+                <div>
+                  ${conflictBadge}
+                  ${milestoneMarker}
+                </div>
+              </div>
+            </td>
+            <td colspan="18" class="gantt-timeline-cell">
+              <!-- Baseline Shadow Bar -->
+              <div class="gantt-bar baseline" style="left:${leftPct}%; width:${widthPct}%;"></div>
+              <!-- Actual Progress Bar -->
+              <div class="gantt-bar ${barColorClass}" style="left:${leftPct}%; width:${(widthPct * (item.earnedPct / 100))}%;">
+                ${item.earnedPct}%
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // --- S-Curve Chart.js Integration ---
+    function initSCurveChart() {
+      const ctx = document.getElementById('evmSCurveCanvas');
+      if (!ctx) return;
+
+      const profile = monthlyProfiles[activeChartProject] || monthlyProfiles.portfolio;
+
+      const dataConfig = {
+        labels: monthlyProfiles.months,
+        datasets: [
+          {
+            label: 'Planned Value (BCWS)',
+            data: profile.bcws,
+            borderColor: '#94a3b8',
+            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: false
+          },
+          {
+            label: 'Earned Value (BCWP)',
+            data: profile.bcwp,
+            borderColor: '#0284c7',
+            backgroundColor: 'rgba(2, 132, 199, 0.1)',
+            borderWidth: 3,
+            tension: 0.3,
+            fill: false
+          },
+          {
+            label: 'Actual Cost (ACWP)',
+            data: profile.acwp,
+            borderColor: '#002b49',
+            backgroundColor: 'rgba(0, 43, 73, 0.1)',
+            borderWidth: 3,
+            tension: 0.3,
+            fill: false
+          },
+          {
+            label: 'EAC Forecast Extrapolation',
+            data: profile.forecastCpi,
+            borderColor: '#dc2626',
+            borderDash: [5, 5],
+            borderWidth: 2,
+            tension: 0.2,
+            fill: false
+          }
+        ]
+      };
+
+      if (evmChartInstance) {
+        evmChartInstance.destroy();
+      }
+
+      evmChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: dataConfig,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) label += ': ';
+                  if (context.parsed.y !== null) {
+                    label += context.parsed.y.toFixed(2) + ' M NOK';
+                  }
+                  return label;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: '#f1f5f9' },
+              ticks: { font: { family: 'IBM Plex Mono', size: 11 } }
+            },
+            y: {
+              grid: { color: '#f1f5f9' },
+              ticks: {
+                font: { family: 'IBM Plex Mono', size: 11 },
+                callback: function(value) { return value + 'M'; }
+              },
+              title: {
+                display: true,
+                text: 'Cumulative NOK (Millions)',
+                font: { family: 'IBM Plex Sans', size: 12, weight: 'bold' }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function switchChartProject(projectKey, shouldSave = true) {
+      activeChartProject = projectKey;
+      const buttons = document.querySelectorAll('#chartProjectSelector .chart-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      const activeBtn = document.querySelector(`#chartProjectSelector .chart-btn[onclick*="${projectKey}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+      initSCurveChart();
+      if (shouldSave) savePersistentState();
+    }
+
+    function switchForecastMethod(method, shouldSave = true) {
+      activeForecastMethod = method;
+      const buttons = document.querySelectorAll('#chartMethodSelector .chart-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      const activeBtn = document.querySelector(`#chartMethodSelector .chart-btn[onclick*="${method}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      // Adjust the forecast curve data based on selected formula
+      const profile = monthlyProfiles[activeChartProject] || monthlyProfiles.portfolio;
+      if (method === 'composite') {
+        // slight upward penalty
+        profile.forecastCpi = profile.forecastCpi.map(v => v ? v * 1.03 : null);
+      } else if (method === 'planned') {
+        // slightly optimistic planned rate
+        profile.forecastCpi = profile.forecastCpi.map(v => v ? v * 0.98 : null);
+      }
+      initSCurveChart();
+      if (shouldSave) savePersistentState();
+    }
+
+    // --- ERP Line-Item Table Filter & Render ---
+    function applyErpFilters() {
+      const searchVal = (document.getElementById('erpFilterSearch').value || '').toLowerCase();
+      const caVal = document.getElementById('erpFilterCA').value;
+      const capVal = document.getElementById('erpFilterCap').value;
+      const iasVal = document.getElementById('erpFilterIAS').value;
+
+      const filtered = erpTransactions.filter(item => {
+        // Search filter
+        const matchSearch = item.id.toLowerCase().includes(searchVal) ||
+                            item.vendor.toLowerCase().includes(searchVal) ||
+                            item.cat.toLowerCase().includes(searchVal);
+        // CA filter
+        const matchCA = (caVal === 'ALL') || (item.ca === caVal);
+        // Cap status filter
+        const matchCap = (capVal === 'ALL') || (item.capStatus === capVal);
+        // IAS filter
+        const matchIAS = (iasVal === 'ALL') || (item.ias === iasVal);
+
+        return matchSearch && matchCA && matchCap && matchIAS;
+      });
+
+      renderErpTable(filtered);
+    }
+
+    function renderErpTable(items) {
+      const tbody = document.getElementById('erpTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = items.map(t => {
+        let capBadgeHtml = '<span class="cap-badge material">Material / Direct</span>';
+        if (t.capStatus === 'CAPPED') {
+          capBadgeHtml = `<span class="cap-badge capped"><i data-lucide="alert-circle" style="width:10px;height:10px;"></i> Capped at 530 kr (${t.rate - 530} kr)</span>`;
+        } else if (t.capStatus === 'ELIGIBLE') {
+          capBadgeHtml = `<span class="cap-badge normal"><i data-lucide="check" style="width:10px;height:10px;"></i> Eligible (≤ 530 kr)</span>`;
+        }
+
+        const formatKr = (num) => num.toLocaleString('nb-NO') + ' kr';
+
+        return `
+          <tr>
+            <td class="mono-num"><strong>${t.id}</strong><br><span style="font-size:0.7rem; color:var(--on-surface-subtle);">${t.date}</span></td>
+            <td><span class="badge-pill">${t.ca}</span><br><span class="mono-num" style="font-size:0.72rem;">${t.wbs}</span></td>
+            <td><strong>${t.vendor}</strong></td>
+            <td>${t.cat}</td>
+            <td class="numeric mono-num">${t.hours > 0 ? t.hours : '—'}</td>
+            <td class="numeric mono-num">${t.rate > 0 ? t.rate + ' kr' : '—'}</td>
+            <td>${capBadgeHtml}</td>
+            <td class="numeric mono-num" style="font-weight:600;">${formatKr(t.acwp)}</td>
+            <td class="numeric mono-num" style="color:var(--primary); font-weight:600;">${formatKr(t.grantBase)}</td>
+            <td><span class="badge-pill ${t.ias === 'CAPITALIZED' ? 'emerald' : 'amber'}">${t.ias === 'CAPITALIZED' ? 'IAS 38 Capitalized' : 'Expensed R&D'}</span></td>
+            <td><span class="badge-pill emerald">${t.status}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+      // Subtotals calculation
+      const totalCount = items.length;
+      const totalAcwp = items.reduce((sum, i) => sum + i.acwp, 0);
+      const totalGrant = items.reduce((sum, i) => sum + i.grantBase, 0);
+      const totalTax = totalGrant * 0.19;
+
+      document.getElementById('subtotalCount').textContent = totalCount;
+      document.getElementById('subtotalAcwp').textContent = totalAcwp.toLocaleString('nb-NO') + ' NOK';
+      document.getElementById('subtotalGrantBase').textContent = totalGrant.toLocaleString('nb-NO') + ' NOK';
+      document.getElementById('subtotalTaxCredit').textContent = totalTax.toLocaleString('nb-NO', { maximumFractionDigits: 0 }) + ' NOK';
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // --- Tollbooth Actions & Blockchain Ledger ---
+    function renderBlockchain() {
+      const container = document.getElementById('blockchainContainer');
+      if (!container) return;
+
+      container.innerHTML = blockchainLedger.slice().reverse().map(b => `
+        <div class="crypto-block-card ${b.index === blockchainLedger.length ? 'latest-block' : ''}">
+          <div>
+            <strong>Block #${b.index}</strong>
+            <div style="font-size:0.68rem; color:var(--on-surface-subtle);">${b.timestamp.split(' ')[0]}</div>
+          </div>
+          <div>
+            <div style="font-weight:600; color:var(--on-surface); font-size:0.75rem;">${b.title}</div>
+            <div style="font-size:0.68rem; color:var(--on-surface-variant);">${b.signer}</div>
+          </div>
+          <div>
+            <div style="font-size:0.7rem; color:var(--on-surface-variant);">${b.payload}</div>
+            <div style="font-size:0.68rem; color:var(--on-surface-subtle); display:flex; gap:0.5rem; margin-top:2px;">
+              <span>Prev: <span class="hash-snippet">${b.prevHash.slice(0, 10)}...</span></span>
+              <span>Hash: <span class="hash-snippet">${b.hash.slice(0, 14)}...</span></span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span class="badge-pill emerald"><i data-lucide="shield-check" style="width:10px;height:10px;"></i> Verified EU AI Art.12</span>
+          </div>
+        </div>
+      `).join('');
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function approveTollboothEac() {
+      if (tollboothDecided) {
+        alert('This decision gate has already been signed and committed to the immutable blockchain.');
+        return;
+      }
+
+      const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+      const prevBlock = blockchainLedger[blockchainLedger.length - 1];
+      const payload = 'Controller Frank Ellingsen approved CA-2045 EAC adjustment to 21,264,368 NOK (+2.76M MR draw). Overtime capped.';
+      const newHash = computeSha256(prevBlock.hash + timestamp + payload);
+
+      blockchainLedger.push({
+        index: blockchainLedger.length + 1,
+        title: 'CA-2045 Baseline EAC & MR Draw Approved',
+        timestamp: timestamp,
+        prevHash: prevBlock.hash,
+        hash: newHash,
+        signer: 'Frank Ellingsen (Lead Controller)',
+        payload: payload
+      });
+
+      tollboothDecided = true;
+
+      const badge = document.getElementById('tollboothStatusBadge');
+      if (badge) {
+        badge.className = 'badge-pill emerald';
+        badge.innerHTML = '<i data-lucide="check-check" style="width:12px;height:12px;"></i> Approved & SHA-256 Chained';
+      }
+
+      const btn = document.getElementById('btnApproveEac');
+      if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        btn.textContent = 'Committed (Block #' + blockchainLedger.length + ')';
+      }
+
+      renderBlockchain();
+      savePersistentState();
+      alert('Tollbooth decision confirmed. Cryptographic block #' + blockchainLedger.length + ' appended to EU AI Act Art. 12 audit ledger.');
+    }
+
+    function rejectTollboothEac() {
+      if (tollboothDecided) return;
+      const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+      const prevBlock = blockchainLedger[blockchainLedger.length - 1];
+      const payload = 'Controller Frank Ellingsen REJECTED CA-2045 EAC revision. Demanded revised P-CAM corrective plan without MR drawdown.';
+      const newHash = computeSha256(prevBlock.hash + timestamp + payload);
+
+      blockchainLedger.push({
+        index: blockchainLedger.length + 1,
+        title: 'CA-2045 Baseline Revision REJECTED',
+        timestamp: timestamp,
+        prevHash: prevBlock.hash,
+        hash: newHash,
+        signer: 'Frank Ellingsen (Lead Controller)',
+        payload: payload
+      });
+
+      tollboothDecided = true;
+
+      const badge = document.getElementById('tollboothStatusBadge');
+      if (badge) {
+        badge.className = 'badge-pill ruby';
+        badge.innerHTML = '<i data-lucide="x-circle" style="width:12px;height:12px;"></i> Revision Rejected';
+      }
+
+      renderBlockchain();
+      savePersistentState();
+      alert('Revision rejected. Block appended to audit trail.');
+    }
+
+    function verifyLedgerIntegrity() {
+      let valid = true;
+      for (let i = 1; i < blockchainLedger.length; i++) {
+        if (blockchainLedger[i].prevHash !== blockchainLedger[i - 1].hash) {
+          valid = false;
+          break;
+        }
+      }
+      if (valid) {
+        alert('Cryptographic Verification Success: 0 Anomalies Found. All ' + blockchainLedger.length + ' blocks chained and verified under EU AI Act Art. 12.');
+      } else {
+        alert('Verification Failed: Blockchain ledger mismatch detected.');
+      }
+    }
+
+    function scrollToTollbooth() {
+      const el = document.getElementById('tollbooth-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // --- Export Utilities ---
+    function exportTransactionsCSV() {
+      const headers = ['TxID', 'Date', 'ControlAccount', 'WBS', 'Vendor', 'Category', 'Hours', 'LedgerRate', 'CappedRate', 'ACWP_NOK', 'GrantBase_NOK', 'IAS38_Treatment', 'Status'];
+      const rows = erpTransactions.map(t => [
+        t.id, t.date, t.ca, t.wbs, `"${t.vendor}"`, `"${t.cat}"`, t.hours, t.rate, t.cappedRate, t.acwp, t.grantBase, t.ias, t.status
+      ]);
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'Elkem_ERP_Ledger_Transactions_M08.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function downloadProjectJson(key) {
+      const project = portfolioProjects[key];
+      if (!project) return;
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(project, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `${project.id}_EVM_M08_Dossier.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function exportFullDossier() {
+      const fullDossier = {
+        metadata: {
+          organization: 'Elkem ASA Technology',
+          hub: 'Fiskaa Industrial Park PCO-Hub',
+          leadController: 'Frank Ellingsen',
+          dataDate: '2026-08-31',
+          standards: ['ANSI/EIA-748', 'IFRS 15', 'IAS 38', 'COSO 2013', 'EU AI Act Art. 12']
+        },
+        portfolio: portfolioProjects,
+        ganttSchedule: ganttData,
+        auditBlockchain: blockchainLedger
+      };
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(fullDossier, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `Elkem_Technology_PCO_Full_Dossier_M08.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function simulateDataIngest() {
+      alert('Simulating Parquet Data Ingestion Pipeline from SAP R/3 & DuckDB...\nChecksum: OK (SHA-256 match)\nRecords synced: 14 new transactions ingested into FACT_EVM_LEDGER.');
+    }
+
+    // --- State Persistence Setup ---
+    async function savePersistentState() {
+      if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === 'function') {
+        try {
+          await window.notebookAppApi.setAppState({
+            activeProjectKey,
+            activeDimension,
+            tollboothDecided,
+            blockchainLedger,
+            activeChartProject,
+            activeForecastMethod
+          });
+        } catch (e) {
+          console.warn('Persistent state save skipped:', e);
+        }
+      }
+    }
+
+    async function restorePersistentState() {
+      if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === 'function') {
+        try {
+          const state = await window.notebookAppApi.getAppState();
+          if (state) {
+            if (state.activeProjectKey) selectProject(state.activeProjectKey, false);
+            if (state.activeDimension) switchDimension(state.activeDimension, false);
+            if (state.activeChartProject) switchChartProject(state.activeChartProject, false);
+            if (state.activeForecastMethod) switchForecastMethod(state.activeForecastMethod, false);
+            if (state.tollboothDecided) {
+              tollboothDecided = state.tollboothDecided;
+              if (state.blockchainLedger && state.blockchainLedger.length) {
+                blockchainLedger.length = 0;
+                blockchainLedger.push(...state.blockchainLedger);
+              }
+              const badge = document.getElementById('tollboothStatusBadge');
+              if (badge) {
+                badge.className = 'badge-pill emerald';
+                badge.innerHTML = '<i data-lucide="check-check" style="width:12px;height:12px;"></i> Approved & SHA-256 Chained';
+              }
+              const btn = document.getElementById('btnApproveEac');
+              if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.textContent = 'Committed (Block #' + blockchainLedger.length + ')';
+              }
+              renderBlockchain();
+            }
+          }
+        } catch (e) {
+          console.warn('Persistent state restore skipped:', e);
+        }
+      }
+    }
+
+    // --- App Initialization ---
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderProjectDetail();
+      renderGantt();
+      initSCurveChart();
+      applyErpFilters();
+      renderBlockchain();
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+
+      await restorePersistentState();
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === 'function') {
+        window.notebookAppApi.notifyAppReady();
+      }
+    });
+  </script>
+</body>
+</html>

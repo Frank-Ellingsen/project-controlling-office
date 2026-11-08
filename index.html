@@ -1,3070 +1,862 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="artifact-type" content="dashboard">
-  <meta name="design-style" content="carbon">
-  <title>Elkem ASA Technology — Project Controlling Office Workstation</title>
-  
-  <!-- IBM Plex Fonts as specified in Carbon style -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elkem ASA Technology — Project Controlling Office & Portfolio Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #002B49;
+            --primary-light: #004B7A;
+            --accent: #00A3E0;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+            --purple: #6F42C1;
+            --bg-light: #F8F9FA;
+            --card-bg: #FFFFFF;
+            --border-color: #E9ECEF;
+            --text-dark: #212529;
+            --text-muted: #6C757D;
+        }
 
-  <!-- Approved CDN dependencies -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
-  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
 
-  <style>
-    /* -------------------------------------------------------------
-       Carbon Design System Tokens & Shared Foundations
-       ------------------------------------------------------------- */
-    :root {
-      color-scheme: light;
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding-bottom: 50px;
+        }
 
-      /* Page and surfaces */
-      --background: #ffffff;
-      --surface-container-low: #f4f4f4;
-      --surface-container: #f4f4f4;
-      --surface-container-high: #e0e0e0;
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 30px 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
 
-      /* Ink */
-      --on-surface: #161616;
-      --on-surface-variant: #525252;
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
 
-      /* Rules */
-      --outline: #8d8d8d;
-      --outline-variant: #e0e0e0;
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
 
-      /* Accents */
-      --primary: #0f62fe;
-      --on-primary: #ffffff;
-      --primary-container: #d0e2ff;
-      --on-primary-container: #161616;
-      --secondary: #6f6f6f;
-      --tertiary: #198038;
-      --error: #da1e28;
-      --on-error: #ffffff;
+        .header-title p {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            margin-top: 5px;
+        }
 
-      /* Semantic tokens */
-      --positive: #198038;
-      --positive-container: #defbe6;
-      --warning: #b28600;
-      --warning-container: #fcf4d6;
-      --error-container: #ffd7d9;
-      --focus: #0f62fe;
-      --primary-hover: #0353e9;
-      --error-hover: #ba1b23;
-      --code-bg: #161616;
-      --code-ink: #f4f4f4;
+        .header-badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-      /* Data series in Carbon palette */
-      --data-1: #0f62fe;
-      --data-2: #6929c4;
-      --data-3: #005d5d;
-      --data-4: #9f1853;
-      --data-context: #8d8d8d;
+        .badge {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(5px);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
 
-      /* Fonts */
-      --font-headline: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-label: 'IBM Plex Mono', monospace;
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
 
-      /* Shape */
-      --rounded: 0.125rem;
-      --rounded-lg: 0.25rem;
-      --rounded-full: 0.75rem;
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-      /* Carbon effects */
-      --shadow-1: 0 2px 6px rgb(0 0 0 / 0.1);
-      --shadow-2: 0 4px 12px rgb(0 0 0 / 0.12);
-      --rule: 1px solid var(--outline-variant);
-      --field-rule: 1px solid var(--outline);
-      --indicator: 2px solid var(--primary);
+        .kpi-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 22px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-      /* Spacing Scale (4pt base) */
-      --space-xs: 0.25rem;
-      --space-sm: 0.5rem;
-      --space-md: 1rem;
-      --space-lg: 1.5rem;
-      --space-xl: 2.5rem;
-      --space-2xl: 4rem;
-      --space-3xl: 6rem;
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
 
-      /* Type Scale for Dashboard */
-      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
-      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
-      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
-      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
-      --label-size: 0.75rem;
+        .kpi-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
 
-      /* Motion */
-      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-      --dur-micro: 120ms;
-      --dur-short: 220ms;
-      --dur-long: 420ms;
-    }
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 8px 0 4px 0;
+        }
 
-    /* Reset & Base */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        .kpi-sub {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
 
-    html, body {
-      background-color: var(--background);
-      color: var(--on-surface);
-      font-family: var(--font-body);
-      font-size: var(--body-size);
-      line-height: 1.5;
-      overflow-x: clip;
-      -webkit-font-smoothing: antialiased;
-    }
+        .kpi-sub.positive { color: var(--success); }
+        .kpi-sub.negative { color: var(--danger); }
+        .kpi-sub.warning { color: var(--warning); }
 
-    /* Focus accessibility */
-    :focus-visible {
-      outline: 2px solid var(--focus);
-      outline-offset: 2px;
-    }
+        /* Dashboard Section Layout */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 28px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 30px;
+        }
 
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
-    }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
 
-    /* Typography Classes */
-    .headline {
-      font-family: var(--font-headline);
-      font-weight: 300;
-      line-height: 1.2;
-      color: var(--on-surface);
-    }
-    .headline strong {
-      font-weight: 600;
-    }
-    .mono-label {
-      font-family: var(--font-label);
-      font-size: var(--label-size);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--on-surface-variant);
-    }
-    .mono-value {
-      font-family: var(--font-label);
-      font-weight: 400;
-      font-feature-settings: "tnum";
-      font-variant-numeric: tabular-nums;
-    }
+        .section-header h2 {
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
 
-    /* Container Layers */
-    .layer {
-      background-color: var(--surface-container);
-      border-radius: var(--rounded);
-      padding: var(--space-md);
-      position: relative;
-    }
-    .layer-nested {
-      background-color: var(--surface-container-high);
-      border-radius: var(--rounded);
-      padding: var(--space-md);
-    }
+        /* Project Cards Tabs / Grid */
+        .project-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
 
-    /* Layout structure */
-    .app-container {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: var(--space-md) var(--space-lg) var(--space-3xl);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xl);
-    }
+        .tab-btn {
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-dark);
+        }
 
-    /* Navigation & System Masthead */
-    .system-masthead {
-      border-bottom: var(--rule);
-      padding-bottom: var(--space-md);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-md);
-    }
-    .masthead-top {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-md);
-    }
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-    }
-    .brand-mark {
-      background-color: var(--on-surface);
-      color: var(--background);
-      font-family: var(--font-label);
-      font-weight: 600;
-      font-size: 0.8125rem;
-      padding: var(--space-xs) var(--space-sm);
-      letter-spacing: 0.1em;
-      border-radius: var(--rounded);
-    }
-    .brand-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-    .brand-location {
-      font-size: 0.8125rem;
-      color: var(--on-surface-variant);
-      margin-left: var(--space-xs);
-    }
-    .masthead-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-xs);
-      align-items: center;
-    }
-    .status-pill {
-      font-family: var(--font-label);
-      font-size: 0.6875rem;
-      padding: 0.2rem 0.5rem;
-      border: var(--rule);
-      background-color: var(--background);
-      color: var(--on-surface-variant);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .status-pill.active {
-      border-color: var(--primary);
-      color: var(--primary);
-      font-weight: 500;
-    }
-    .status-pill.success {
-      border-color: var(--positive);
-      color: var(--positive);
-      font-weight: 500;
-    }
-    .pulse-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background-color: currentColor;
-    }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 6px rgba(0,43,73,0.25);
+        }
 
-    /* Core Axiom Banner */
-    .axiom-banner {
-      background-color: var(--surface-container);
-      border-left: 3px solid var(--primary);
-      padding: var(--space-md) var(--space-lg);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xs);
-    }
-    .axiom-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: var(--space-md);
-      margin-top: var(--space-sm);
-      padding-top: var(--space-sm);
-      border-top: var(--rule);
-    }
-    .axiom-cell {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .axiom-step {
-      font-family: var(--font-label);
-      font-size: 0.75rem;
-      color: var(--primary);
-      font-weight: 600;
-    }
-    .axiom-role {
-      font-weight: 600;
-      font-size: 0.9375rem;
-    }
-    .axiom-desc {
-      font-size: 0.8125rem;
-      color: var(--on-surface-variant);
-    }
+        .project-detail-panel {
+            display: none;
+        }
 
-    /* Primary Navigation Bar */
-    .primary-nav {
-      display: flex;
-      gap: var(--space-xs);
-      overflow-x: auto;
-      border-bottom: var(--rule);
-      padding-bottom: 0;
-    }
-    .nav-tab-btn {
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      padding: var(--space-sm) var(--space-md);
-      font-family: var(--font-body);
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--on-surface-variant);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-sm);
-      transition: color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
-      white-space: nowrap;
-      min-height: 44px;
-    }
-    .nav-tab-btn:hover {
-      color: var(--on-surface);
-      background-color: var(--surface-container-low);
-    }
-    .nav-tab-btn.is-active {
-      color: var(--primary);
-      border-bottom: var(--indicator);
-      font-weight: 600;
-      background-color: transparent;
-    }
+        .project-detail-panel.active {
+            display: block;
+        }
 
-    /* Tab View Visibility */
-    .tab-content {
-      display: none;
-      flex-direction: column;
-      gap: var(--space-xl);
-      animation: fadeIn var(--dur-short) var(--ease-out);
-    }
-    .tab-content.is-active {
-      display: flex;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        /* 9-Dimension Grid for Project Cards */
+        .dim-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
 
-    /* Section Headers */
-    .section-header {
-      border-bottom: var(--rule);
-      padding-bottom: var(--space-sm);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      flex-wrap: wrap;
-      gap: var(--space-sm);
-    }
-    .section-title {
-      font-size: var(--headline-size);
-    }
-    .section-meta {
-      font-family: var(--font-label);
-      font-size: var(--label-size);
-      color: var(--on-surface-variant);
-    }
+        .dim-box {
+            background: var(--bg-light);
+            padding: 18px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
 
-    /* Key-tile metric cards with 2px bottom rule */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: var(--space-sm);
-    }
-    .metric-tile {
-      background-color: var(--surface-container);
-      padding: var(--space-md);
-      border-radius: var(--rounded);
-      border-bottom: 2px solid transparent;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: var(--space-xs);
-    }
-    .metric-tile.key-tile {
-      border-bottom: var(--indicator);
-    }
-    .metric-tile.flagged-warn {
-      border-bottom: 2px solid var(--warning);
-    }
-    .metric-tile.flagged-error {
-      border-bottom: 2px solid var(--error);
-    }
-    .metric-tile.flagged-success {
-      border-bottom: 2px solid var(--tertiary);
-    }
-    .metric-tile-val {
-      font-family: var(--font-label);
-      font-size: 1.75rem;
-      font-weight: 400;
-      line-height: 1.1;
-      color: var(--on-surface);
-    }
-    .metric-sub {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      color: var(--on-surface-variant);
-    }
-    .delta-badge {
-      font-family: var(--font-label);
-      font-weight: 500;
-      padding: 1px 4px;
-      border-radius: var(--rounded);
-    }
-    .delta-badge.pos {
-      color: var(--positive);
-      background-color: var(--positive-container);
-    }
-    .delta-badge.neg {
-      color: var(--error);
-      background-color: var(--error-container);
-    }
-    .delta-badge.neutral {
-      color: var(--on-surface-variant);
-      background-color: var(--surface-container-high);
-    }
+        .dim-box.finance { border-left-color: var(--accent); }
+        .dim-box.funding { border-left-color: var(--success); }
+        .dim-box.quality { border-left-color: var(--warning); }
+        .dim-box.sources { border-left-color: var(--purple); }
 
-    /* Sub-selector buttons */
-    .account-picker {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-xs);
-      background-color: var(--surface-container-low);
-      padding: var(--space-xs);
-      border-radius: var(--rounded);
-      width: fit-content;
-    }
-    .picker-btn {
-      background: none;
-      border: none;
-      padding: var(--space-xs) var(--space-md);
-      font-family: var(--font-body);
-      font-size: 0.8125rem;
-      font-weight: 500;
-      cursor: pointer;
-      color: var(--on-surface-variant);
-      border-radius: var(--rounded);
-      min-height: 36px;
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
-    }
-    .picker-btn:hover {
-      background-color: var(--surface-container-high);
-      color: var(--on-surface);
-    }
-    .picker-btn.is-active {
-      background-color: var(--background);
-      color: var(--on-surface);
-      font-weight: 600;
-      box-shadow: var(--shadow-1);
-    }
-    .tag-badge {
-      font-family: var(--font-label);
-      font-size: 0.6875rem;
-      padding: 1px 5px;
-      border-radius: var(--rounded-full);
-      text-transform: uppercase;
-    }
-    .tag-alert {
-      background-color: var(--error);
-      color: var(--on-error);
-    }
-    .tag-ok {
-      background-color: var(--tertiary);
-      color: var(--on-primary);
-    }
-    .tag-neutral {
-      background-color: var(--outline-variant);
-      color: var(--on-surface);
-    }
+        .dim-box h4 {
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    /* Main Grid for EVM Dashboard */
-    .two-col-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
-      gap: var(--space-md);
-    }
-    @media (max-width: 960px) {
-      .two-col-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+        .dim-box p, .dim-box ul {
+            font-size: 0.88rem;
+            color: #495057;
+        }
 
-    /* Chart Card */
-    .chart-container-card {
-      background-color: var(--surface-container);
-      padding: var(--space-md);
-      border-radius: var(--rounded);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-md);
-    }
-    .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: var(--space-sm);
-    }
-    .chart-wrapper {
-      position: relative;
-      width: 100%;
-      height: 380px;
-      min-height: 380px;
-    }
+        .dim-box ul {
+            padding-left: 18px;
+            margin-top: 4px;
+        }
 
-    /* Interactive Simulation & Parameters */
-    .control-panel-card {
-      background-color: var(--surface-container);
-      padding: var(--space-md);
-      border-radius: var(--rounded);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-md);
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xs);
-    }
-    .form-label {
-      font-family: var(--font-label);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--on-surface-variant);
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-    .range-input {
-      width: 100%;
-      accent-color: var(--primary);
-      height: 6px;
-      background: var(--surface-container-high);
-      border-radius: var(--rounded);
-      cursor: pointer;
-    }
-    .select-input, .text-input {
-      font-family: var(--font-body);
-      font-size: 0.875rem;
-      padding: var(--space-sm);
-      border: var(--field-rule);
-      border-radius: var(--rounded);
-      background-color: var(--background);
-      color: var(--on-surface);
-      width: 100%;
-      min-height: 40px;
-    }
-    .select-input:focus, .text-input:focus {
-      border-color: var(--primary);
-      outline: none;
-    }
+        .dim-box li {
+            margin-bottom: 4px;
+        }
 
-    /* Data Table - Carbon enterprise styled */
-    .table-container {
-      overflow-x: auto;
-      border: var(--rule);
-      background-color: var(--background);
-    }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.8125rem;
-    }
-    .data-table th {
-      background-color: var(--surface-container-low);
-      font-family: var(--font-label);
-      font-size: 0.6875rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--on-surface-variant);
-      padding: var(--space-sm) var(--space-md);
-      border-bottom: var(--rule);
-      white-space: nowrap;
-    }
-    .data-table td {
-      padding: var(--space-sm) var(--space-md);
-      border-bottom: var(--rule);
-      vertical-align: top;
-    }
-    .data-table tr:hover td {
-      background-color: var(--surface-container-low);
-    }
-    .mono-cell {
-      font-family: var(--font-label);
-      font-variant-numeric: tabular-nums;
-    }
+        /* WBS Data Table */
+        .wbs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.88rem;
+        }
 
-    /* Buttons */
-    .btn {
-      font-family: var(--font-body);
-      font-size: 0.875rem;
-      font-weight: 500;
-      padding: 0 var(--space-md);
-      min-height: 44px;
-      border-radius: var(--rounded);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-sm);
-      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
-      border: 1px solid transparent;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .btn-primary {
-      background-color: var(--primary);
-      color: var(--on-primary);
-    }
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
-    }
-    .btn-secondary {
-      background-color: transparent;
-      border-color: var(--outline);
-      color: var(--on-surface);
-    }
-    .btn-secondary:hover {
-      background-color: var(--surface-container-high);
-    }
-    .btn-danger {
-      background-color: var(--error);
-      color: var(--on-error);
-    }
-    .btn-danger:hover {
-      background-color: var(--error-hover);
-    }
-    .btn-sm {
-      min-height: 36px;
-      padding: 0 var(--space-sm);
-      font-size: 0.8125rem;
-    }
+        .wbs-table th {
+            background-color: var(--primary);
+            color: white;
+            text-align: left;
+            padding: 12px 14px;
+            font-weight: 600;
+        }
 
-    /* Dual-Engine Terminal Styles */
-    .dual-engine-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: var(--space-md);
-    }
-    @media (max-width: 900px) {
-      .dual-engine-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    .engine-pane {
-      background-color: var(--surface-container);
-      border-radius: var(--rounded);
-      display: flex;
-      flex-direction: column;
-      border-top: 3px solid transparent;
-    }
-    .engine-pane.compute {
-      border-top-color: var(--data-3);
-    }
-    .engine-pane.reasoning {
-      border-top-color: var(--data-2);
-    }
-    .engine-pane-head {
-      padding: var(--space-md);
-      border-bottom: var(--rule);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: var(--surface-container-low);
-    }
-    .engine-badge {
-      font-family: var(--font-label);
-      font-size: 0.6875rem;
-      padding: 2px 6px;
-      border-radius: var(--rounded);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-    .badge-compute {
-      background-color: var(--data-3);
-      color: var(--on-primary);
-    }
-    .badge-reasoning {
-      background-color: var(--data-2);
-      color: var(--on-primary);
-    }
-    .engine-pane-body {
-      padding: var(--space-md);
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-md);
-      font-size: 0.875rem;
-    }
-    .code-block {
-      background-color: var(--code-bg);
-      color: var(--code-ink);
-      font-family: var(--font-label);
-      font-size: 0.8125rem;
-      padding: var(--space-md);
-      border-radius: var(--rounded);
-      line-height: 1.45;
-      overflow-x: auto;
-      white-space: pre;
-    }
-    .query-prompt-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-xs);
-    }
-    .prompt-chip {
-      background-color: var(--background);
-      border: var(--rule);
-      padding: var(--space-xs) var(--space-sm);
-      font-size: 0.8125rem;
-      border-radius: var(--rounded);
-      cursor: pointer;
-      color: var(--on-surface);
-      transition: border-color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out);
-      text-align: left;
-    }
-    .prompt-chip:hover {
-      border-color: var(--primary);
-      background-color: var(--primary-container);
-    }
+        .wbs-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-    /* HITL Tollbooth & Cryptographic Ledger */
-    .tollbooth-card {
-      background-color: var(--surface-container);
-      border: 2px solid var(--primary);
-      border-radius: var(--rounded);
-      padding: var(--space-lg);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-md);
-    }
-    .tollbooth-gate-banner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: var(--space-sm);
-      border-bottom: var(--rule);
-      flex-wrap: wrap;
-      gap: var(--space-sm);
-    }
-    .gate-badge {
-      background-color: var(--error);
-      color: var(--on-error);
-      font-family: var(--font-label);
-      font-size: 0.6875rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: var(--rounded);
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .gate-badge.approved {
-      background-color: var(--tertiary);
-    }
-    .tollbooth-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: var(--space-md);
-      background-color: var(--surface-container-low);
-      padding: var(--space-md);
-      border-radius: var(--rounded);
-    }
-    .audit-chain-container {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-sm);
-    }
-    .block-card {
-      background-color: var(--background);
-      border: var(--rule);
-      border-left: 3px solid var(--outline);
-      padding: var(--space-md);
-      border-radius: var(--rounded);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xs);
-      font-size: 0.8125rem;
-      transition: border-left-color var(--dur-micro) var(--ease-out);
-    }
-    .block-card.verified {
-      border-left-color: var(--tertiary);
-    }
-    .block-card.pending-sign {
-      border-left-color: var(--primary);
-    }
-    .block-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: var(--font-label);
-      font-size: 0.75rem;
-      color: var(--on-surface-variant);
-    }
-    .hash-string {
-      font-family: var(--font-label);
-      font-size: 0.75rem;
-      color: var(--data-2);
-      word-break: break-all;
-    }
+        .wbs-table tr:hover {
+            background-color: rgba(0,163,224,0.04);
+        }
 
-    /* IFRS 15 PoC Section */
-    .ifrs-waterfall-card {
-      background-color: var(--surface-container);
-      padding: var(--space-md);
-      border-radius: var(--rounded);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-md);
-    }
-    .balance-indicator-bar {
-      display: flex;
-      height: 32px;
-      width: 100%;
-      background-color: var(--surface-container-high);
-      border-radius: var(--rounded);
-      overflow: hidden;
-      margin-top: var(--space-xs);
-    }
-    .bar-segment-billed {
-      background-color: var(--data-1);
-      color: var(--on-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-label);
-      font-size: 0.75rem;
-      font-weight: 500;
-      transition: width var(--dur-short) var(--ease-out);
-    }
-    .bar-segment-unbilled {
-      background-color: var(--data-3);
-      color: var(--on-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-label);
-      font-size: 0.75rem;
-      font-weight: 500;
-      transition: width var(--dur-short) var(--ease-out);
-    }
+        .status-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
 
-    /* Footer */
-    .system-footer {
-      border-top: var(--rule);
-      padding-top: var(--space-lg);
-      margin-top: var(--space-2xl);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: var(--space-md);
-      font-size: 0.8125rem;
-      color: var(--on-surface-variant);
-    }
-    .footer-col {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xs);
-      max-width: 480px;
-    }
+        .pill-green { background: #D4EDDA; color: #155724; }
+        .pill-yellow { background: #FFF3CD; color: #856404; }
+        .pill-red { background: #F8D7DA; color: #721C24; }
+        .pill-purple { background: #E2D9F3; color: #4A235A; }
 
-    /* Callout & Note Cards */
-    .note-box {
-      border-left: 2px solid var(--outline);
-      background-color: var(--surface-container-low);
-      padding: var(--space-sm) var(--space-md);
-      font-size: 0.8125rem;
-      color: var(--on-surface-variant);
-    }
-  </style>
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="app-container">
-
-    <!-- System Masthead -->
-    <header class="system-masthead">
-      <div class="masthead-top">
-        <div class="brand-group">
-          <span class="brand-mark">ELKEM</span>
-          <div>
-            <h1 class="brand-title">Project Controlling Office Workstation</h1>
-            <span class="brand-location">Elkem ASA Technology · Fiskaa Industrial Park, Kristiansand (PCO-Hub)</span>
-          </div>
+    <header>
+        <div class="header-container">
+            <div class="header-title">
+                <h1>🏛️ Elkem ASA Technology — Project Controlling Office</h1>
+                <p>Fiskå R&D & Pilot Plant Portfolio Control | EIA-748 EVM | IFRS 15 | Master Gantt of Gantts</p>
+            </div>
+            <div class="header-badges">
+                <span class="badge">📍 Kristiansand, Norway</span>
+                <span class="badge">⚡ EIA-748 EVMS</span>
+                <span class="badge">📊 IFRS 15 PoC</span>
+                <span class="badge">🛡️ COSO 2013 Compliance</span>
+            </div>
         </div>
-
-        <div class="masthead-badges">
-          <span class="status-pill active" id="badgeErpStatus">
-            <span class="pulse-dot"></span>
-            SAP R/3 Ledger Synced
-          </span>
-          <span class="status-pill" id="badgeEiaStatus">EIA-748 EVMS Active</span>
-          <span class="status-pill success" id="badgeLedgerIntegrity">
-            <i data-lucide="shield-check" style="width:12px; height:12px;"></i>
-            SHA-256 Chain Verified
-          </span>
-        </div>
-      </div>
-
-      <!-- Core Architectural Axiom (Architecting Agentic Finance) -->
-      <section class="axiom-banner" aria-label="Core Architectural Axiom">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-sm);">
-          <div class="mono-label" style="color:var(--primary); font-weight:600;">Core Architectural Axiom</div>
-          <div class="mono-label">COSO 2013 &amp; EU AI Act Art. 12 Compliant</div>
-        </div>
-        <p class="headline" style="font-size: 1.125rem; margin-top:2px;">
-          <strong>Models Reason.</strong> Software Computes. <strong>Agents Orchestrate.</strong> Systems Verify.
-        </p>
-        <div class="axiom-grid">
-          <div class="axiom-cell">
-            <span class="axiom-step">01 Compute</span>
-            <span class="axiom-role">Deterministic Engine</span>
-            <span class="axiom-desc">Zero-hallucination math, DuckDB OLAP, EIA-748, IFRS 15 formulas.</span>
-          </div>
-          <div class="axiom-cell">
-            <span class="axiom-step">02 Synthesize</span>
-            <span class="axiom-role">Agentic Reasoning</span>
-            <span class="axiom-desc">Semantic variance analysis, ISA 805 audit drafts, regulatory retrieval.</span>
-          </div>
-          <div class="axiom-cell">
-            <span class="axiom-step">03 Supervise</span>
-            <span class="axiom-role">HITL Tollbooth</span>
-            <span class="axiom-desc">Mandatory human approval gate before ERP baseline or EAC commit.</span>
-          </div>
-          <div class="axiom-cell">
-            <span class="axiom-step">04 Verify</span>
-            <span class="axiom-role">Cryptographic Chain</span>
-            <span class="axiom-desc">Tamper-evident SHA-256 chained audit logs under EU AI Act Art. 12.</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Primary Navigation Tabs -->
-      <nav class="primary-nav" aria-label="Workstation View Navigation">
-        <button class="nav-tab-btn is-active" id="tabBtnEvm" onclick="switchView('evm')">
-          <i data-lucide="line-chart" style="width:16px; height:16px;"></i>
-          1. EVM Cockpit (ANSI/EIA-748)
-        </button>
-        <button class="nav-tab-btn" id="tabBtnIfrs" onclick="switchView('ifrs')">
-          <i data-lucide="scale" style="width:16px; height:16px;"></i>
-          2. IFRS 15 Revenue &amp; Assets
-        </button>
-        <button class="nav-tab-btn" id="tabBtnDual" onclick="switchView('dual')">
-          <i data-lucide="cpu" style="width:16px; height:16px;"></i>
-          3. Dual AI Controller Assistant
-        </button>
-        <button class="nav-tab-btn" id="tabBtnHitl" onclick="switchView('hitl')">
-          <i data-lucide="shield-alert" style="width:16px; height:16px;"></i>
-          4. HITL Tollbooth &amp; SHA-256 Ledger
-        </button>
-        <button class="nav-tab-btn" id="tabBtnGrants" onclick="switchView('grants')">
-          <i data-lucide="file-check-2" style="width:16px; height:16px;"></i>
-          5. Statutory Grants (SkatteFUNN)
-        </button>
-      </nav>
     </header>
 
-    <!-- =============================================================
-         VIEW 1: EVM Cockpit (ANSI/EIA-748 & FAST Standard)
-         ============================================================= -->
-    <main class="tab-content is-active" id="viewEvm">
-      
-      <!-- Account Selector & Headline Controls -->
-      <div class="section-header">
-        <div>
-          <span class="mono-label">Earned Value Management System</span>
-          <h2 class="section-title">Control Account Performance Analysis</h2>
-        </div>
+    <div class="container">
         
-        <div class="account-picker" role="radiogroup" aria-label="Select Control Account">
-          <button class="picker-btn is-active" id="btnCA2045" onclick="selectControlAccount('CA-2045')">
-            <span>CA-2045: Pilot Plant Reactivity</span>
-            <span class="tag-badge tag-alert" id="tagStatus2045">Overrun</span>
-          </button>
-          <button class="picker-btn" id="btnCA1042" onclick="selectControlAccount('CA-1042')">
-            <span>CA-1042: Off-gas Heat Recovery</span>
-            <span class="tag-badge tag-ok">Ahead</span>
-          </button>
-          <button class="picker-btn" id="btnCA3080" onclick="selectControlAccount('CA-3080')">
-            <span>CA-3080: Biocarbon Formulation</span>
-            <span class="tag-badge tag-neutral">On Track</span>
-          </button>
-          <button class="picker-btn" id="btnPortfolio" onclick="selectControlAccount('PORTFOLIO')">
-            <span>Consolidated Portfolio</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Key EVM Metric Tiles (Carbon 2px bottom rule) -->
-      <section class="metrics-grid" aria-label="EVM Core Key Performance Indicators">
-        <div class="metric-tile" id="tileBcws">
-          <span class="mono-label">Planned Value (BCWS)</span>
-          <div class="metric-tile-val mono-value" id="valBcws">12.20M</div>
-          <div class="metric-sub">
-            <span>Baseline Scheduled</span>
-            <span class="mono-label">NOK</span>
-          </div>
-        </div>
-
-        <div class="metric-tile" id="tileBcwp">
-          <span class="mono-label">Earned Value (BCWP)</span>
-          <div class="metric-tile-val mono-value" id="valBcwp">11.40M</div>
-          <div class="metric-sub">
-            <span>Physical Completed</span>
-            <span class="mono-label">NOK</span>
-          </div>
-        </div>
-
-        <div class="metric-tile" id="tileAcwp">
-          <span class="mono-label">Actual Cost (ACWP)</span>
-          <div class="metric-tile-val mono-value" id="valAcwp">13.10M</div>
-          <div class="metric-sub">
-            <span>ERP Incurred Direct</span>
-            <span class="mono-label">NOK</span>
-          </div>
-        </div>
-
-        <div class="metric-tile flagged-error" id="tileCv">
-          <span class="mono-label">Cost Variance (CV)</span>
-          <div class="metric-tile-val mono-value" id="valCv">-1.70M</div>
-          <div class="metric-sub">
-            <span>CV% = (CV/BCWP)</span>
-            <span class="delta-badge neg" id="valCvPct">-14.9%</span>
-          </div>
-        </div>
-
-        <div class="metric-tile flagged-warn" id="tileSv">
-          <span class="mono-label">Schedule Variance (SV)</span>
-          <div class="metric-tile-val mono-value" id="valSv">-0.80M</div>
-          <div class="metric-sub">
-            <span>SV% = (SV/BCWS)</span>
-            <span class="delta-badge neg" id="valSvPct">-6.6%</span>
-          </div>
-        </div>
-
-        <div class="metric-tile flagged-error" id="tileCpi">
-          <span class="mono-label">Cost Index (CPI)</span>
-          <div class="metric-tile-val mono-value" id="valCpi">0.870</div>
-          <div class="metric-sub">
-            <span>Target ≥ 1.000</span>
-            <span class="delta-badge neg" id="tagCpiStatus">Unfavorable</span>
-          </div>
-        </div>
-
-        <div class="metric-tile flagged-warn" id="tileSpi">
-          <span class="mono-label">Schedule Index (SPI)</span>
-          <div class="metric-tile-val mono-value" id="valSpi">0.934</div>
-          <div class="metric-sub">
-            <span>Target ≥ 1.000</span>
-            <span class="delta-badge neg" id="tagSpiStatus">Lagging</span>
-          </div>
-        </div>
-
-        <div class="metric-tile key-tile" id="tileEac">
-          <span class="mono-label">Estimate at Comp (EAC)</span>
-          <div class="metric-tile-val mono-value" id="valEac">21.26M</div>
-          <div class="metric-sub">
-            <span>BAC: <span id="valBac">18.50M</span></span>
-            <span class="delta-badge neg" id="valVac">-2.76M VAC</span>
-          </div>
-        </div>
-
-        <div class="metric-tile flagged-warn" id="tileTcpi">
-          <span class="mono-label">TCPI (vs BAC / EAC)</span>
-          <div class="metric-tile-val mono-value" id="valTcpi">1.31 / 0.87</div>
-          <div class="metric-sub">
-            <span>To-Complete Efficiency</span>
-            <span class="mono-label">Req. Index</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Interactive S-Curve Chart & Forecasting Simulator -->
-      <section class="two-col-grid">
-        <!-- Visual S-Curve (Chart.js) -->
-        <div class="chart-container-card">
-          <div class="chart-header">
-            <div>
-              <span class="mono-label">EIA-748 Earned Value S-Curves</span>
-              <h3 style="font-size: 1.125rem; font-weight:600;" id="chartTitle">CA-2045 Cumulative Performance Profile</h3>
+        <!-- Portefølje KPI Kort -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Total Budsjett (BAC)</div>
+                <div class="kpi-value">70.00 MNOK</div>
+                <div class="kpi-sub">3 Aktive FoU-prosjekter</div>
             </div>
-            <div style="display:flex; gap:var(--space-xs); align-items:center;">
-              <span class="mono-label">Status Date: M08 (Fiscal Close)</span>
+            <div class="kpi-card">
+                <div class="kpi-title">Påløpt Kostnad (ACWP)</div>
+                <div class="kpi-value">35.10 MNOK</div>
+                <div class="kpi-sub">Faktisk YTD per Q4</div>
             </div>
-          </div>
-
-          <div class="chart-wrapper">
-            <canvas id="evmChart" aria-label="Earned Value S-Curve Chart"></canvas>
-          </div>
-
-          <div class="note-box" id="chartAnnotation">
-            <strong>EIA-748 Guideline 22 Analysis:</strong> Actual expenditures (ACWP = 13.10M NOK) have outpaced physical progress (BCWP = 11.40M NOK). The current run rate drives a projected overrun of 2.76M NOK over baseline BAC (18.50M NOK).
-          </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Prognose Sluttkost (EAC)</div>
+                <div class="kpi-value">75.45 MNOK</div>
+                <div class="kpi-sub negative">⚠️ -5.45 MNOK Samlet Avvik</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Portefølje CPI (Kost)</div>
+                <div class="kpi-value">0.952</div>
+                <div class="kpi-sub negative">🔴 Cost Overrun (CA-2045)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Portefølje SPI (Tid)</div>
+                <div class="kpi-value">0.944</div>
+                <div class="kpi-sub warning">🟡 Behind Schedule (CA-1042)</div>
+            </div>
         </div>
 
-        <!-- EAC Simulator & Forecasting Methods -->
-        <div class="control-panel-card">
-          <div style="border-bottom: var(--rule); padding-bottom: var(--space-xs);">
-            <span class="mono-label">Deterministic Compute Engine</span>
-            <h3 style="font-size: 1.125rem; font-weight:600;">EAC Forecast Simulator</h3>
-            <p style="font-size: 0.8125rem; color: var(--on-surface-variant); margin-top:2px;">
-              Model alternative recovery trajectories based on ANSI/EIA-748 statistical formulations.
+        <!-- Seksjon 1: Master Gantt of Gantts -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2>🗓️ Master Portfolio Gantt (Gantt of Gantts & Stage-Gates)</h2>
+                <span class="status-pill pill-purple">Dual-Level Roll-Up & Resource Intersect</span>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+                Viser overordnet master-tidslinje for porteføljen (Nivå 1) sammenstilt med underliggende WBS-elementer og offentlige Stage-Gate milepæler (Enova/NFR).
             </p>
-          </div>
+            <div id="gantt-chart" style="width:100%; height:480px;"></div>
+        </div>
 
-          <div class="form-group">
-            <label class="form-label" for="selectEacFormula">
-              <span>EAC Forecasting Formulation</span>
-              <span class="mono-label" id="lblSelectedFormula">EAC = BAC / CPI</span>
-            </label>
-            <select class="select-input" id="selectEacFormula" onchange="recalculateForecast()">
-              <option value="cpi" selected>Formula 1: Standard Cost Index (BAC / CPI)</option>
-              <option value="composite">Formula 2: Composite Schedule-Cost [ACWP + (BAC - BCWP) / (CPI × SPI)]</option>
-              <option value="budgeted">Formula 3: Budgeted Remaining Rate [ACWP + (BAC - BCWP)]</option>
-              <option value="custom">Formula 4: User-Adjusted Sensitivity Slider</option>
-            </select>
-          </div>
-
-          <div class="form-group" id="groupSensitivitySlider">
-            <label class="form-label" for="sliderPerformance">
-              <span>Projected Future Efficiency Factor (PF)</span>
-              <span class="mono-value" id="valSensitivity">0.870</span>
-            </label>
-            <input type="range" class="range-input" id="sliderPerformance" min="0.50" max="1.30" step="0.01" value="0.87" oninput="onSensitivitySliderChange(this.value)">
-            <div style="display:flex; justify-content:space-between; font-size:0.6875rem; color:var(--on-surface-variant);" class="mono-value">
-              <span>0.50 (Severe Delay)</span>
-              <span>1.00 (Baseline)</span>
-              <span>1.30 (Acceleration)</span>
-            </div>
-          </div>
-
-          <div class="layer-nested" style="display:flex; flex-direction:column; gap:var(--space-sm);">
-            <div class="mono-label">Simulated Projection Results</div>
-            
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <span style="font-size: 0.875rem;">Simulated EAC:</span>
-              <span class="mono-value" style="font-size: 1.25rem; font-weight:600;" id="simResultEac">21,264,368 NOK</span>
+        <!-- Seksjon 2: Detaljerte Prosjektkort (9-Dimensjoner) & WBS -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2>📇 Detaljerte Prosjektkort & WBS-Struktur</h2>
+                <span class="status-pill pill-green">ERP & Regulatory Grounded</span>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <span style="font-size: 0.875rem;">Projected Variance at Complete (VAC):</span>
-              <span class="mono-value" style="font-size: 1rem; color:var(--error);" id="simResultVac">-2,764,368 NOK</span>
+            <!-- Tab Velger -->
+            <div class="project-selector">
+                <button class="tab-btn active" onclick="openProject('ca2045', this)">CA-2045: Fiskå Carbon-Neutral Smelting Pilot</button>
+                <button class="tab-btn" onclick="openProject('ca1042', this)">CA-1042: Furnace Automation Digital Twin</button>
+                <button class="tab-btn" onclick="openProject('ca3080', this)">CA-3080: NextGen Battery Anode Material R&D</button>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <span style="font-size: 0.875rem;">Remaining Cash Required (ETC):</span>
-              <span class="mono-value" style="font-size: 1rem;" id="simResultEtc">8,164,368 NOK</span>
+            <!-- PROSJEKT 1: CA-2045 -->
+            <div id="ca2045" class="project-detail-panel active">
+                <div class="dim-grid">
+                    <div class="dim-box">
+                        <h4>📌 1. Beskrivelse & 2. Formål</h4>
+                        <p><b>Beskrivelse:</b> Industrielt pilotanlegg på Fiskå for karbonnøytral smelting og testkjøring av elektrofysiske reaktorer.</p>
+                        <p style="margin-top:6px;"><b>Formål:</b> Demonstrere utslippsfri smelteprosess for silisium og biokarbon for å nå Elkems 2030-klimamål.</p>
+                    </div>
+
+                    <div class="dim-box">
+                        <h4>🎯 3. Scope (WBS Oversikt)</h4>
+                        <ul>
+                            <li><b>WBS 1.1:</b> Pilot Design, Process Modelling & HAZOP</li>
+                            <li><b>WBS 1.2:</b> Procurement Reactor Vessel & Induction Modules</li>
+                            <li><b>WBS 1.3:</b> Installation, Commissioning & Trial Runs</li>
+                        </ul>
+                    </div>
+
+                    <div class="dim-box">
+                        <h4>⏱️ 4. Time (Tidslinje & Gates)</h4>
+                        <p><b>Periode:</b> 01.01.2024 – 30.06.2025</p>
+                        <p><b>Milepæl:</b> 🚩 Enova Stage-Gate 3 Approval (15. nov 2024)</p>
+                        <p><b>Earned Schedule (SPI):</b> 0.9333 (Bak skjema pga. reaktor-isolasjon)</p>
+                    </div>
+
+                    <div class="dim-box finance">
+                        <h4>💰 5. Cost (EVM) & 7. Finance (IFRS 15)</h4>
+                        <p><b>BAC:</b> 45.00 MNOK | <b>ACWP:</b> 23.40 MNOK | <b>EV:</b> 21.00 MNOK</p>
+                        <p><b>CPI:</b> 0.8974 (Over budget) | <b>EAC:</b> 50.14 MNOK (VAC -5.14M)</p>
+                        <p><b>IFRS 15 PoC:</b> 46.67 % | <b>Contract Asset:</b> 5.33 MNOK</p>
+                    </div>
+
+                    <div class="dim-box funding">
+                        <h4>🏛️ 8. Funding (Offentlig Tilskudd)</h4>
+                        <p><b>Finansiør:</b> Enova (Klima- og energifondet demonstrasjonsteknologi)</p>
+                        <p><b>Vilkår:</b> Investeringsstøtte med krav om dokumentert reduksjon i CO2-intensitet per tonn silisium.</p>
+                    </div>
+
+                    <div class="dim-box quality">
+                        <h4>🛡️ 6. Quality & Governance</h4>
+                        <p><b>EIA-748 EVMS:</b> Terskelavvik ±5 % krever skriftlig VAR (Variance Analysis Report).</p>
+                        <p><b>Revisjon:</b> ISA 805 / ISAE 3000 godkjenning av påløpte pilotkostnader.</p>
+                    </div>
+
+                    <div class="dim-box sources" style="grid-column: 1 / -1;">
+                        <h4>🔄 9. Data Sources (Download & Upload Integrasjon)</h4>
+                        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                            <div style="flex: 1;">
+                                <p><b>📥 Download (ERP & Inndata):</b></p>
+                                <ul>
+                                    <li>SAP Core Financials: Hovedbokskonto 4300 (Pilotutstyr) og 5000 (FoU-lønn).</li>
+                                    <li>Timelister fra Fiskå pilotlab og P6 Primavera baseline schedule.</li>
+                                </ul>
+                            </div>
+                            <div style="flex: 1;">
+                                <p><b>📤 Upload (Portaler & Utdata):</b></p>
+                                <ul>
+                                    <li>Enova Søknadsportal: Utbetalingsanmodning og rapport for Gate 3.</li>
+                                    <li>Power BI Direct Lake S-kurver og MS Teams HITL godkjenningskort.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WBS Tabell for CA-2045 -->
+                <h4 style="margin-bottom: 10px; color: var(--primary);">🌳 WBS Nedbrytning & Arbeidspakker (CA-2045)</h4>
+                <table class="wbs-table">
+                    <thead>
+                        <tr>
+                            <th>WBS Kode</th>
+                            <th>Arbeidspakke / Element</th>
+                            <th>Ansvarlig (CAM)</th>
+                            <th>Budsjett (BAC)</th>
+                            <th>Status & SPI</th>
+                            <th>Kritisk Avvik / Merknad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>WBS 1.1</b></td>
+                            <td>Pilot Design, Process Modelling & HAZOP</td>
+                            <td>Dr. Håkon Olsen</td>
+                            <td>8,500,000 NOK</td>
+                            <td><span class="status-pill pill-green">Fullført (SPI 1.00)</span></td>
+                            <td>Godkjent av Enova Gate 1</td>
+                        </tr>
+                        <tr>
+                            <td><b>WBS 1.2</b></td>
+                            <td>Procurement Reactor Vessel (Long-Lead)</td>
+                            <td>Knut Arnesen</td>
+                            <td>22,000,000 NOK</td>
+                            <td><span class="status-pill pill-red">Kritisk Sti (SPI 0.85)</span></td>
+                            <td>Leverandørforsinkelse på termisk isolasjon</td>
+                        </tr>
+                        <tr>
+                            <td>└─ <b>WBS 1.2.1</b></td>
+                            <td>Thermal Insulation & Refractory Lining</td>
+                            <td>Knut Arnesen</td>
+                            <td>7,500,000 NOK</td>
+                            <td><span class="status-pill pill-red">Avvik (SPI 0.80)</span></td>
+                            <td>Spesialstein fra leverandør 3 uker forsinket</td>
+                        </tr>
+                        <tr>
+                            <td>└─ <b>WBS 1.2.2</b></td>
+                            <td>Slag Sensors & Optical Pyrometers</td>
+                            <td>Svein Viken</td>
+                            <td>4,500,000 NOK</td>
+                            <td><span class="status-pill pill-green">On Schedule (SPI 1.02)</span></td>
+                            <td>Levert og testet ved Fiskå lab</td>
+                        </tr>
+                        <tr>
+                            <td><b>WBS 1.3</b></td>
+                            <td>Installation, Hot Testing & Operation</td>
+                            <td>Janne Bergan</td>
+                            <td>14,500,000 NOK</td>
+                            <td><span class="status-pill pill-yellow">Planlagt (SPI 0.93)</span></td>
+                            <td>Oppstart avhenger av WBS 1.2 ferdigstillelse</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <span style="font-size: 0.875rem;">TCPI to BAC (Required Efficiency):</span>
-              <span class="mono-value" style="font-size: 1rem; font-weight:600; color:var(--error);" id="simResultTcpi">1.315</span>
-            </div>
-          </div>
+            <!-- PROSJEKT 2: CA-1042 -->
+            <div id="ca1042" class="project-detail-panel">
+                <div class="dim-grid">
+                    <div class="dim-box">
+                        <h4>📌 1. Beskrivelse & 2. Formål</h4>
+                        <p><b>Beskrivelse:</b> Digital tvilling og automasjonssystem for sanntidsovervåking av reduksjonsovner.</p>
+                        <p style="margin-top:6px;"><b>Formål:</b> Stabilisere ovnsdrift, redusere energiforbruk og forhindre gassutbrudd via maskinlæring.</p>
+                    </div>
 
-          <div style="display:flex; gap:var(--space-sm); align-items:center;">
-            <button class="btn btn-primary btn-sm" onclick="sendToTollboothFromSim()">
-              <i data-lucide="send" style="width:14px; height:14px;"></i>
-              Stage Forecast into HITL Tollbooth
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="resetSimToActuals()">
-              Reset
-            </button>
-          </div>
-        </div>
-      </section>
+                    <div class="dim-box">
+                        <h4>🎯 3. Scope (WBS Oversikt)</h4>
+                        <ul>
+                            <li><b>WBS 2.1:</b> Sensor Calibration & PLC Integration</li>
+                            <li><b>WBS 2.2:</b> Neural Network Digital Twin Model Training</li>
+                            <li><b>WBS 2.3:</b> Control Room Integration & Smelter Roll-out</li>
+                        </ul>
+                    </div>
 
-      <!-- NASA EIA-748 IPMR Format 1 Table & Variance Narrative -->
-      <section class="chart-container-card">
-        <div class="chart-header">
-          <div>
-            <span class="mono-label">ANSI/EIA-748 Standard Control Ledger</span>
-            <h3 style="font-size: 1.125rem; font-weight:600;">IPMR Format 1 — Control Account Inventory &amp; Variance Thresholds</h3>
-          </div>
-          <span class="status-pill active">Threshold Band: ±5.0% or ±500,000 NOK</span>
-        </div>
+                    <div class="dim-box">
+                        <h4>⏱️ 4. Time (Tidslinje & Gates)</h4>
+                        <p><b>Periode:</b> 15.02.2024 – 31.12.2024</p>
+                        <p><b>Milepæl:</b> 🚩 Gate 4 System Go-Live (31. des 2024)</p>
+                        <p><b>Earned Schedule (SPI):</b> 0.8750 (Kritisk beregningsetterslep)</p>
+                    </div>
 
-        <div class="table-container">
-          <table class="data-table" aria-label="Control Accounts IPMR Format 1 Table">
-            <thead>
-              <tr>
-                <th>CA Number</th>
-                <th>Description</th>
-                <th>WBS Node</th>
-                <th>P-CAM Lead</th>
-                <th>BAC (NOK)</th>
-                <th>BCWP (EV)</th>
-                <th>ACWP (AC)</th>
-                <th>CV (NOK)</th>
-                <th>CPI</th>
-                <th>SPI</th>
-                <th>EAC (NOK)</th>
-                <th>VAC (NOK)</th>
-                <th>Threshold Status</th>
-              </tr>
-            </thead>
-            <tbody id="ipmrTableBody">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
-        </div>
+                    <div class="dim-box finance">
+                        <h4>💰 5. Cost (EVM) & 7. Finance (IFRS 15)</h4>
+                        <p><b>BAC:</b> 10.00 MNOK | <b>ACWP:</b> 3.80 MNOK | <b>EV:</b> 3.50 MNOK</p>
+                        <p><b>CPI:</b> 0.9211 | <b>EAC:</b> 10.86 MNOK (VAC -0.86M)</p>
+                        <p><b>IFRS 15 PoC:</b> 35.00 % | <b>Contract Asset:</b> 1.38 MNOK</p>
+                    </div>
 
-        <!-- NASA Style Variance Description Card -->
-        <div class="layer-nested" style="display:flex; flex-direction:column; gap:var(--space-sm);">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="mono-label" style="font-weight:600; color:var(--primary);">NASA IPMR Variance Narrative · Selected Account: <span id="narrativeCaCode">CA-2045</span></span>
-            <span class="tag-badge tag-alert" id="narrativeStatusTag">Threshold Breach Exceeded</span>
-          </div>
+                    <div class="dim-box funding">
+                        <h4>🏛️ 8. Funding (Offentlig Tilskudd)</h4>
+                        <p><b>Finansiør:</b> Norges Forskningsråd (NFR)</p>
+                        <p><b>Vilkår:</b> Innovasjonsprosjekt i næringslivet (IPN) med krav om publisering av metodikk.</p>
+                    </div>
 
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:var(--space-md); margin-top:var(--space-xs);">
-            <div>
-              <span class="mono-label">1. Root Cause Description</span>
-              <p style="font-size:0.8125rem; margin-top:2px;" id="narrativeRootCause">
-                Pilot plant furnace electrode re-lining and high-temperature slag sensor calibration required 420 additional engineering labor hours. Raw silica supplier delivered out-of-spec pilot batch requiring secondary chemical purification.
-              </p>
-            </div>
-            <div>
-              <span class="mono-label">2. Operational &amp; Financial Impact</span>
-              <p style="font-size:0.8125rem; margin-top:2px;" id="narrativeImpact">
-                Current cost overrun of 1,700,000 NOK (-14.9%) and 3-week schedule slippage on milestone MS03. Without corrective reallocation, total project completion deficit will reach 2,764,368 NOK.
-              </p>
-            </div>
-            <div>
-              <span class="mono-label">3. Management Corrective Action</span>
-              <p style="font-size:0.8125rem; margin-top:2px;" id="narrativeAction">
-                P-CAM requested baseline EAC revision to 21.26M NOK with 2.76M NOK Management Reserve (MR) drawdown. Overtime capped for sub-tier contractors. Staged into HITL Gate for Controller signoff.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+                    <div class="dim-box quality">
+                        <h4>🛡️ 6. Quality & Governance</h4>
+                        <p><b>NFR Timesatsregler:</b> Trepartsmodell for kalkulasjon av indirekte kostnader og timelønnsatser.</p>
+                    </div>
 
-    </main>
+                    <div class="dim-box sources" style="grid-column: 1 / -1;">
+                        <h4>🔄 9. Data Sources (Download & Upload Integrasjon)</h4>
+                        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                            <div style="flex: 1;">
+                                <p><b>📥 Download (ERP & Inndata):</b></p>
+                                <ul>
+                                    <li>Ovns-telemetri via MQTT/OPC-UA fra smelteverket.</li>
+                                    <li>Timeføring for AI-forskere i Agresso / ERP.</li>
+                                </ul>
+                            </div>
+                            <div style="flex: 1;">
+                                <p><b>📤 Upload (Portaler & Utdata):</b></p>
+                                <ul>
+                                    <li>NFR Prosjektportal: Årlig fremdriftsrapport.</li>
+                                    <li>OpenAPI REST Endepunkter & FastAPIs DuckDB OLAP-lager.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- =============================================================
-         VIEW 2: IFRS 15 Revenue & Contract Asset Engine
-         ============================================================= -->
-    <section class="tab-content" id="viewIfrs">
-      <div class="section-header">
-        <div>
-          <span class="mono-label">IFRS 15 — Revenue from Contracts with Customers</span>
-          <h2 class="section-title">Cost-to-Cost Over-Time Revenue Recognition &amp; Contract Balance</h2>
-        </div>
-        <div class="status-pill active">
-          Standard Input Method: PoC = ACWP / EAC
-        </div>
-      </div>
-
-      <!-- IFRS Headline Metrics -->
-      <section class="metrics-grid" aria-label="IFRS 15 Performance Indicators">
-        <div class="metric-tile">
-          <span class="mono-label">Contract Value (Fixed Price)</span>
-          <div class="metric-tile-val mono-value" id="ifrsContractVal">95.00M</div>
-          <div class="metric-sub">
-            <span>Customer: Nordic Green Metals</span>
-            <span class="mono-label">NOK</span>
-          </div>
-        </div>
-
-        <div class="metric-tile">
-          <span class="mono-label">Total Expected Cost (EAC)</span>
-          <div class="metric-tile-val mono-value" id="ifrsEacVal">74.00M</div>
-          <div class="metric-sub">
-            <span>Current Estimated Total Cost</span>
-            <span class="mono-label">NOK</span>
-          </div>
-        </div>
-
-        <div class="metric-tile">
-          <span class="mono-label">Costs Incurred to Date</span>
-          <div class="metric-tile-val mono-value" id="ifrsCostsVal">38.48M</div>
-          <div class="metric-sub">
-            <span>Direct Qualified Project Costs</span>
-            <span class="mono-label">NOK</span>
-          </div>
-        </div>
-
-        <div class="metric-tile key-tile">
-          <span class="mono-label">Percentage of Completion</span>
-          <div class="metric-tile-val mono-value" id="ifrsPocVal">52.00%</div>
-          <div class="metric-sub">
-            <span>PoC = Incurred / EAC</span>
-            <span class="delta-badge pos">In Progress</span>
-          </div>
-        </div>
-
-        <div class="metric-tile">
-          <span class="mono-label">Cumulative Recognized Revenue</span>
-          <div class="metric-tile-val mono-value" id="ifrsRecRevVal">49.40M</div>
-          <div class="metric-sub">
-            <span>Revenue = Contract × PoC%</span>
-            <span class="mono-label">P&amp;L Credit</span>
-          </div>
-        </div>
-
-        <div class="metric-tile">
-          <span class="mono-label">Milestone Invoicing to Date</span>
-          <div class="metric-tile-val mono-value" id="ifrsInvoicedVal">44.00M</div>
-          <div class="metric-sub">
-            <span>Customer Progress Billups</span>
-            <span class="mono-label">Accounts Rec.</span>
-          </div>
-        </div>
-
-        <div class="metric-tile flagged-success" id="tileContractAsset">
-          <span class="mono-label">Contract Asset (Unbilled)</span>
-          <div class="metric-tile-val mono-value" id="ifrsAssetVal">+5.40M</div>
-          <div class="metric-sub">
-            <span>Recognized Rev &gt; Invoiced</span>
-            <span class="delta-badge pos">Accrued Asset</span>
-          </div>
-        </div>
-
-        <div class="metric-tile" id="tileContractLiability">
-          <span class="mono-label">Contract Liability (Advance)</span>
-          <div class="metric-tile-val mono-value" id="ifrsLiabVal">0.00M</div>
-          <div class="metric-sub">
-            <span>Customer Advance Payments</span>
-            <span class="mono-label">Deferred</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- IFRS Interactive Controls & Balance Visualizer -->
-      <section class="two-col-grid">
-        <div class="ifrs-waterfall-card">
-          <div class="chart-header">
-            <div>
-              <span class="mono-label">Balance Sheet Position Rebalancing</span>
-              <h3 style="font-size: 1.125rem; font-weight:600;">Revenue vs Billing Reconciliation</h3>
-            </div>
-            <span class="mono-label" id="ifrsBalanceStatus">Net Contract Asset Position</span>
-          </div>
-
-          <!-- Visual Bar Representation -->
-          <div>
-            <div style="display:flex; justify-content:space-between; font-size:0.8125rem; margin-bottom:4px;">
-              <span>Recognized Revenue vs Billing Spread:</span>
-              <span class="mono-value" id="barSpreadSummary">Revenue 49.40M NOK | Billed 44.00M NOK (Delta: +5.40M)</span>
-            </div>
-            <div class="balance-indicator-bar" aria-label="Revenue vs Billing Visual Indicator">
-              <div class="bar-segment-billed" id="barBilled" style="width: 89%;">
-                Milestone Invoiced (44.0M)
-              </div>
-              <div class="bar-segment-unbilled" id="barUnbilled" style="width: 11%;">
-                Asset (+5.4M)
-              </div>
-            </div>
-          </div>
-
-          <div class="layer-nested" style="display:flex; flex-direction:column; gap:var(--space-sm);">
-            <div class="mono-label">IFRS 15 Balance Sheet Logic</div>
-            <p style="font-size:0.8125rem;">
-              When physical progress outpaces invoice milestones, the difference is capitalized as a <strong>Contract Asset</strong> (unbilled revenue entitlement). If invoicing exceeds recognized progress, the excess is booked as a <strong>Contract Liability</strong> (deferred customer prepayments).
-            </p>
-            <div style="display:flex; justify-content:space-between; font-size:0.8125rem; border-top:var(--rule); padding-top:var(--space-xs);">
-              <span>Gross Profit Margin to Date:</span>
-              <span class="mono-value" style="font-weight:600;" id="ifrsMarginVal">10,920,000 NOK (22.1%)</span>
-            </div>
-          </div>
-
-          <!-- Variable Consideration Table -->
-          <div>
-            <div class="mono-label" style="margin-bottom:var(--space-xs);">Variable Consideration Audit (IFRS 15 Constraint)</div>
-            <div class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Item Description</th>
-                    <th>Value</th>
-                    <th>Probability</th>
-                    <th>IFRS Constraint Conclusion</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Change Order #3: Pilot Chamber Secondary Heat Shield</td>
-                    <td class="mono-cell">3,500,000 NOK</td>
-                    <td class="mono-cell">60%</td>
-                    <td><span class="tag-badge tag-alert">Excluded</span> (Pending Bilateral Signoff)</td>
-                  </tr>
-                  <tr>
-                    <td>Early Milestone Delivery Incentive (MS04)</td>
-                    <td class="mono-cell">1,800,000 NOK</td>
-                    <td class="mono-cell">85%</td>
-                    <td><span class="tag-badge tag-ok">Included</span> (Highly Probable Threshold Met)</td>
-                  </tr>
-                  <tr>
-                    <td>Warranty &amp; Performance Penalty Reserve (IAS 37)</td>
-                    <td class="mono-cell">-750,000 NOK</td>
-                    <td class="mono-cell">100%</td>
-                    <td><span class="tag-badge tag-neutral">Provisioned</span> in Balance Sheet</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Interactive Sliders for IFRS 15 Parameters -->
-        <div class="control-panel-card">
-          <div style="border-bottom: var(--rule); padding-bottom: var(--space-xs);">
-            <span class="mono-label">Interactive Sensitivity Sandbox</span>
-            <h3 style="font-size: 1.125rem; font-weight:600;">Recompute PoC &amp; Contract Positions</h3>
-            <p style="font-size: 0.8125rem; color: var(--on-surface-variant); margin-top:2px;">
-              Adjust EAC and billing parameters to observe instant balance sheet classification shifts.
-            </p>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="sliderCostsIncurred">
-              <span>Actual Costs Incurred (ACWP)</span>
-              <span class="mono-value" id="lblSliderCosts">38.48M NOK</span>
-            </label>
-            <input type="range" class="range-input" id="sliderCostsIncurred" min="10" max="74" step="0.5" value="38.5" oninput="updateIfrsModel()">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="sliderTotalEac">
-              <span>Total Expected Cost (EAC)</span>
-              <span class="mono-value" id="lblSliderEac">74.00M NOK</span>
-            </label>
-            <input type="range" class="range-input" id="sliderTotalEac" min="50" max="100" step="1" value="74" oninput="updateIfrsModel()">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="sliderInvoiced">
-              <span>Cumulative Invoiced to Date</span>
-              <span class="mono-value" id="lblSliderInvoiced">44.00M NOK</span>
-            </label>
-            <input type="range" class="range-input" id="sliderInvoiced" min="10" max="95" step="1" value="44" oninput="updateIfrsModel()">
-          </div>
-
-          <div class="layer-nested" style="display:flex; flex-direction:column; gap:var(--space-xs);">
-            <span class="mono-label">Automated Journal Entry Preview</span>
-            <div class="code-block" id="journalEntryPreview" style="font-size:0.75rem; padding:var(--space-sm);">
-DR  Contract Asset (1380)        5,400,000 NOK
-    CR  Project Revenue (3010)       5,400,000 NOK
-[Recognizing unbilled progress revenue per IFRS 15.B16]
-            </div>
-          </div>
-
-          <button class="btn btn-primary btn-sm" onclick="sendIfrsAdjustmentToTollbooth()">
-            <i data-lucide="file-plus" style="width:14px; height:14px;"></i>
-            Propose Month-End Revenue Adjustment
-          </button>
-        </div>
-      </section>
-    </section>
-
-    <!-- =============================================================
-         VIEW 3: Dual AI Controller Assistant
-         ============================================================= -->
-    <section class="tab-content" id="viewDual">
-      <div class="section-header">
-        <div>
-          <span class="mono-label">Dual-Engine Controller Architecture</span>
-          <h2 class="section-title">Deterministic Compute &amp; Agentic Reasoning Co-Pilot</h2>
-        </div>
-        <div class="status-pill active">
-          Separation of Math from Language
-        </div>
-      </div>
-
-      <!-- Prompt Selection Chips -->
-      <div class="chart-container-card" style="gap:var(--space-sm);">
-        <div class="mono-label">Select Prescriptive Controller Query or Enter Custom Prompt:</div>
-        <div class="query-prompt-chips">
-          <button class="prompt-chip" onclick="runAiPreset('variance_ca2045')">
-            <i data-lucide="help-circle" style="width:13px; height:13px; display:inline; margin-right:4px;"></i>
-            Root-cause variance analysis on CA-2045 Pilot Plant
-          </button>
-          <button class="prompt-chip" onclick="runAiPreset('ifrs_reconcile')">
-            <i data-lucide="help-circle" style="width:13px; height:13px; display:inline; margin-right:4px;"></i>
-            Reconcile Contract Asset vs Milestone Billing for Nordic Green
-          </button>
-          <button class="prompt-chip" onclick="runAiPreset('skattefunn_audit')">
-            <i data-lucide="help-circle" style="width:13px; height:13px; display:inline; margin-right:4px;"></i>
-            SkatteFUNN RF-1053B statutory caps and ISA 805 audit readiness
-          </button>
-          <button class="prompt-chip" onclick="runAiPreset('composite_stress')">
-            <i data-lucide="help-circle" style="width:13px; height:13px; display:inline; margin-right:4px;"></i>
-            Stress-test EAC under Composite CPI × SPI degradation
-          </button>
-        </div>
-
-        <div style="display:flex; gap:var(--space-sm); margin-top:var(--space-xs);">
-          <input type="text" class="text-input" id="customAiInput" placeholder="Ask financial controller assistant (e.g. 'Audit hourly rate compliance for Fiskaa WBS 123456.08.05')..." onkeydown="if(event.key==='Enter') executeCustomQuery()">
-          <button class="btn btn-primary" onclick="executeCustomQuery()" id="btnRunAiQuery">
-            <i data-lucide="play" style="width:14px; height:14px;"></i>
-            Execute Dual-Engine
-          </button>
-        </div>
-      </div>
-
-      <!-- Dual Engine Output Split -->
-      <section class="dual-engine-grid" aria-label="Dual-Engine Output Panels">
-        
-        <!-- Engine 1: Deterministic Compute -->
-        <div class="engine-pane compute">
-          <div class="engine-pane-head">
-            <div>
-              <span class="engine-badge badge-compute">Engine 1: Deterministic Compute</span>
-              <div style="font-size:0.8125rem; font-weight:600; margin-top:2px;">Python Microservice · DuckDB OLAP · 100% Math Precision</div>
-            </div>
-            <i data-lucide="calculator" style="width:18px; height:18px; color:var(--data-3);"></i>
-          </div>
-
-          <div class="engine-pane-body">
-            <div>
-              <span class="mono-label">Execution Trace &amp; SQL Operators</span>
-              <div class="code-block" id="engine1Code">-- DuckDB Zero-Hallucination Query Execution
-SELECT 
-  wbs_element,
-  SUM(bcws) AS pv_cum,
-  SUM(bcwp) AS ev_cum,
-  SUM(acwp) AS ac_cum,
-  ROUND((SUM(bcwp) - SUM(acwp)), 2) AS cv_nok,
-  ROUND((SUM(bcwp) / NULLIF(SUM(acwp), 0)), 3) AS cpi,
-  ROUND((bac / (SUM(bcwp) / SUM(acwp))), 2) AS eac_cpi
-FROM fact_evm_periodic
-WHERE control_account = 'CA-2045'
-GROUP BY wbs_element, bac;</div>
+                <!-- WBS Tabell for CA-1042 -->
+                <h4 style="margin-bottom: 10px; color: var(--primary);">🌳 WBS Nedbrytning & Arbeidspakker (CA-1042)</h4>
+                <table class="wbs-table">
+                    <thead>
+                        <tr>
+                            <th>WBS Kode</th>
+                            <th>Arbeidspakke / Element</th>
+                            <th>Ansvarlig (CAM)</th>
+                            <th>Budsjett (BAC)</th>
+                            <th>Status & SPI</th>
+                            <th>Kritisk Avvik / Merknad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>WBS 2.1</b></td>
+                            <td>Sensor Calibration & PLC Integration</td>
+                            <td>Marianne Lie</td>
+                            <td>2,500,000 NOK</td>
+                            <td><span class="status-pill pill-green">Fullført (SPI 0.92)</span></td>
+                            <td>Gass-sensorer montert i hette</td>
+                        </tr>
+                        <tr>
+                            <td><b>WBS 2.2</b></td>
+                            <td>Neural Twin Model Training & GPU Cloud</td>
+                            <td>Dr. Arild Holm</td>
+                            <td>5,000,000 NOK</td>
+                            <td><span class="status-pill pill-red">Kritisk (SPI 0.82)</span></td>
+                            <td>GPU-beregninger mer krevende enn antatt</td>
+                        </tr>
+                        <tr>
+                            <td><b>WBS 2.3</b></td>
+                            <td>Control Room Integration & Deployment</td>
+                            <td>Marianne Lie</td>
+                            <td>2,500,000 NOK</td>
+                            <td><span class="status-pill pill-yellow">Planlagt (SPI 0.87)</span></td>
+                            <td>Klar for utrulling etter WBS 2.2 tuning</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="layer-nested">
-              <span class="mono-label">Computed Quantitative Result</span>
-              <div id="engine1Metrics" style="margin-top:var(--space-xs); display:flex; flex-direction:column; gap:4px; font-family:var(--font-label); font-size:0.8125rem;">
-                <div>BCWS = 12,200,000.00 NOK</div>
-                <div>BCWP = 11,400,000.00 NOK</div>
-                <div>ACWP = 13,100,000.00 NOK</div>
-                <div>Cost Variance = -1,700,000.00 NOK (-14.91%)</div>
-                <div>CPI = 0.8702 | SPI = 0.9344</div>
-                <div style="color:var(--error); font-weight:600;">EAC (CPI) = 21,264,367.82 NOK (Delta: +2,764,367.82 NOK)</div>
-              </div>
+            <!-- PROSJEKT 3: CA-3080 -->
+            <div id="ca3080" class="project-detail-panel">
+                <div class="dim-grid">
+                    <div class="dim-box">
+                        <h4>📌 1. Beskrivelse & 2. Formål</h4>
+                        <p><b>Beskrivelse:</b> FoU på silisium-karbon anodematerialer for neste generasjon battericeller.</p>
+                        <p style="margin-top:6px;"><b>Formål:</b> Utvikle ultra-rene anodematerialer med høy energitetthet for elbilmarkedet.</p>
+                    </div>
+
+                    <div class="dim-box">
+                        <h4>🎯 3. Scope (WBS Oversikt)</h4>
+                        <ul>
+                            <li><b>WBS 3.1:</b> Silicon-Graphite Formulation & Pyrolysis</li>
+                            <li><b>WBS 3.2:</b> Battery Cell Cycle Testing (1000 Cycles)</li>
+                            <li><b>WBS 3.3:</b> Audit Dossier & SkatteFUNN Compliance</li>
+                        </ul>
+                    </div>
+
+                    <div class="dim-box">
+                        <h4>⏱️ 4. Time (Tidslinje & Gates)</h4>
+                        <p><b>Periode:</b> 15.01.2024 – 31.03.2025</p>
+                        <p><b>Milepæl:</b> 🚩 SkatteFUNN Årsrapportering (30. april 2025)</p>
+                        <p><b>Earned Schedule (SPI):</b> 1.0250 (Foran skjema)</p>
+                    </div>
+
+                    <div class="dim-box finance">
+                        <h4>💰 5. Cost (EVM) & 7. Finance (IFRS 15)</h4>
+                        <p><b>BAC:</b> 15.00 MNOK | <b>ACWP:</b> 7.90 MNOK | <b>EV:</b> 8.20 MNOK</p>
+                        <p><b>CPI:</b> 1.0380 (Under budget) | <b>EAC:</b> 14.45 MNOK (VAC +0.55M)</p>
+                        <p><b>Skattefradrag (19%):</b> 1.50 MNOK skatterreduksjon</p>
+                    </div>
+
+                    <div class="dim-box funding">
+                        <h4>🏛️ 8. Funding (Offentlig Tilskudd)</h4>
+                        <p><b>Finansiør:</b> SkatteFUNN (Skatteetaten / NFR, Prosjekt #298412)</p>
+                        <p><b>Vilkår:</b> Forskrift § 16-40 med maks timesats 530 kr/t og 1 850 t/år.</p>
+                    </div>
+
+                    <div class="dim-box quality">
+                        <h4>🛡️ 6. Quality & Governance</h4>
+                        <p><b>Statutory Form:</b> Skjemasettskjema RF-1053B for innmelding til Skatteetaten.</p>
+                        <p><b>Revisorattest:</b> ISA 805 / ISAE 3000 uavhengig revisorutsett.</p>
+                    </div>
+
+                    <div class="dim-box sources" style="grid-column: 1 / -1;">
+                        <h4>🔄 9. Data Sources (Download & Upload Integrasjon)</h4>
+                        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                            <div style="flex: 1;">
+                                <p><b>📥 Download (ERP & Inndata):</b></p>
+                                <ul>
+                                    <li>Lønnsdata for FoU-personell, nominell årslønn og timelister.</li>
+                                    <li>Underleverandørfakturaer for batteri-celletesting.</li>
+                                </ul>
+                            </div>
+                            <div style="flex: 1;">
+                                <p><b>📤 Upload (Portaler & Utdata):</b></p>
+                                <ul>
+                                    <li>Altinn / Skatteetaten: Vedleggskjema RF-1053B til skattemeldingen.</li>
+                                    <li>CPA ISA 805 Attestasjonsnotat og DuckDB OLAP-lager.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WBS Tabell for CA-3080 -->
+                <h4 style="margin-bottom: 10px; color: var(--primary);">🌳 WBS Nedbrytning & Arbeidspakker (CA-3080)</h4>
+                <table class="wbs-table">
+                    <thead>
+                        <tr>
+                            <th>WBS Kode</th>
+                            <th>Arbeidspakke / Element</th>
+                            <th>Ansvarlig (CAM)</th>
+                            <th>Budsjett (BAC)</th>
+                            <th>Status & SPI</th>
+                            <th>Kritisk Avvik / Merknad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>WBS 3.1</b></td>
+                            <td>Silicon-Graphite Anode Formulation</td>
+                            <td>Kjell Arne Bakke</td>
+                            <td>6,000,000 NOK</td>
+                            <td><span class="status-pill pill-green">Fullført (SPI 1.05)</span></td>
+                            <td>SkatteFUNN timesats godkjent 530 kr/t</td>
+                        </tr>
+                        <tr>
+                            <td><b>WBS 3.2</b></td>
+                            <td>Battery Cell Cycle Testing (1000 Cycles)</td>
+                            <td>Dr. Lene Berg</td>
+                            <td>7,500,000 NOK</td>
+                            <td><span class="status-pill pill-green">On Schedule (SPI 1.02)</span></td>
+                            <td>Lab-sykling i rute ved Fiskå batterilab</td>
+                        </tr>
+                        <tr>
+                            <td><b>WBS 3.3</b></td>
+                            <td>Audit Dossier & SkatteFUNN RF-1053B</td>
+                            <td>Kjell Arne Bakke</td>
+                            <td>1,500,000 NOK</td>
+                            <td><span class="status-pill pill-green">On Schedule (SPI 1.00)</span></td>
+                            <td>Klar for revisorattestasjon ISA 805</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <div class="note-box">
-              <strong>Architectural Guarantee:</strong> Deterministic compute isolates all monetary, tax credit, and index formulas from generative language hallucination.
-            </div>
-          </div>
         </div>
 
-        <!-- Engine 2: Agentic Reasoning -->
-        <div class="engine-pane reasoning">
-          <div class="engine-pane-head">
-            <div>
-              <span class="engine-badge badge-reasoning">Engine 2: Agentic Reasoning</span>
-              <div style="font-size:0.8125rem; font-weight:600; margin-top:2px;">Specialized Financial LLM · Context Synthesizer · COSO 2013</div>
-            </div>
-            <i data-lucide="bot" style="width:18px; height:18px; color:var(--data-2);"></i>
-          </div>
+    </div>
 
-          <div class="engine-pane-body">
-            <div>
-              <span class="mono-label">Synthesized Executive Commentary</span>
-              <div style="font-size:0.875rem; line-height:1.6; margin-top:var(--space-xs);" id="engine2Narrative">
-                <p><strong>Operational Diagnosis:</strong> Control Account <strong>CA-2045 (Fiskaa Pilot Plant Reactivity)</strong> has breached both cost (CV% = -14.91%) and schedule (SV% = -6.56%) EIA-748 thresholds. The primary operational bottleneck stems from unbudgeted electrode relining iterations and delayed raw material delivery from sub-tier silicon suppliers.</p>
-                
-                <p style="margin-top:8px;"><strong>Regulatory &amp; Accounting Treatment:</strong> Under standard EIA-748 Guideline 22, this negative variance cannot be self-corrected within baseline funding. The required To-Complete Performance Index (TCPI to BAC = 1.315) is mathematically unrealistic given current workforce capacity.</p>
-
-                <p style="margin-top:8px;"><strong>Prescriptive Recommendation:</strong> P-CAM Lind should formalize a <strong>2.76M NOK baseline EAC adjustment</strong> with a corresponding draw from the Project Manager’s Management Reserve (MR). Mandatory Human-in-the-Loop approval is required prior to ERP baseline commit.</p>
-              </div>
-            </div>
-
-            <div class="layer-nested">
-              <span class="mono-label">Governance &amp; FinOps Metadata</span>
-              <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--on-surface-variant); margin-top:4px;" class="mono-value">
-                <span>Routing: High-Reasoning Tier</span>
-                <span>Latency: 284ms</span>
-                <span>Audit Tag: EU-AI-ACT-ART12</span>
-              </div>
-            </div>
-
-            <div style="display:flex; gap:var(--space-sm); align-items:center; margin-top:auto;">
-              <button class="btn btn-primary btn-sm" onclick="stageAiDecisionToHitl()">
-                <i data-lucide="shield-alert" style="width:14px; height:14px;"></i>
-                Forward to Human-in-the-Loop Tollbooth
-              </button>
-            </div>
-          </div>
-        </div>
-
-      </section>
-    </section>
-
-    <!-- =============================================================
-         VIEW 4: HITL Audit Tollbooth & Cryptographic Ledger
-         ============================================================= -->
-    <section class="tab-content" id="viewHitl">
-      <div class="section-header">
-        <div>
-          <span class="mono-label">EU AI Act Art. 12 &amp; COSO 2013 Internal Controls</span>
-          <h2 class="section-title">Human-in-the-Loop (HITL) Gate &amp; SHA-256 Cryptographic Ledger</h2>
-        </div>
-        <div class="status-pill success" id="tollboothStatusPill">
-          Tollbooth Operational: Mandatory Gate Active
-        </div>
-      </div>
-
-      <!-- Active Tollbooth Approval Card -->
-      <section class="tollbooth-card" id="activeTollboothCard">
-        <div class="tollbooth-gate-banner">
-          <div style="display:flex; align-items:center; gap:var(--space-sm);">
-            <span class="gate-badge" id="gateBadge">
-              <i data-lucide="lock" style="width:13px; height:13px;"></i>
-              Mandatory Gate Halted
-            </span>
-            <span class="mono-label">Tollbooth Reference: TB-2026-CA2045-REV3</span>
-          </div>
-          <span class="mono-label" style="color:var(--error); font-weight:600;">EIA-748 Threshold Breach Signoff</span>
-        </div>
-
-        <div>
-          <h3 class="headline" style="font-size: 1.25rem;">
-            Baseline EAC Adjustment Approval: <strong>CA-2045 Pilot Plant Silicon Reactivity</strong>
-          </h3>
-          <p style="font-size:0.875rem; color:var(--on-surface-variant); margin-top:2px;">
-            The autonomous monitoring agent has calculated an unavoidable EAC cost overrun. Under COSO 2013 and EU AI Act Article 14, automated journal or ERP updates are prohibited without explicit human authorization.
-          </p>
-        </div>
-
-        <!-- Evidence Card -->
-        <div class="tollbooth-details">
-          <div>
-            <span class="mono-label">Baseline Budget (BAC)</span>
-            <div class="mono-value" style="font-size:1.125rem; font-weight:600;">18,500,000 NOK</div>
-            <div style="font-size:0.75rem; color:var(--on-surface-variant);">Original Work Authorization</div>
-          </div>
-
-          <div>
-            <span class="mono-label">Proposed New EAC</span>
-            <div class="mono-value" style="font-size:1.125rem; font-weight:600; color:var(--error);" id="tollboothProposedEac">21,264,368 NOK</div>
-            <div style="font-size:0.75rem; color:var(--on-surface-variant);">CPI Method Forecast</div>
-          </div>
-
-          <div>
-            <span class="mono-label">Requested MR Drawdown</span>
-            <div class="mono-value" style="font-size:1.125rem; font-weight:600; color:var(--error);">+2,764,368 NOK</div>
-            <div style="font-size:0.75rem; color:var(--on-surface-variant);">Management Reserve Buffer</div>
-          </div>
-
-          <div>
-            <span class="mono-label">Designated Controller / CAM</span>
-            <div style="font-size:0.875rem; font-weight:600;">Frank Ellingsen / Dr. Lind</div>
-            <div style="font-size:0.75rem; color:var(--on-surface-variant);">Role: Project Controller &amp; P-CAM</div>
-          </div>
-        </div>
-
-        <!-- Tollbooth Actions -->
-        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--space-md); border-top:var(--rule); padding-top:var(--space-md);">
-          <div style="font-size:0.8125rem; color:var(--on-surface-variant);">
-            Action will sign with Controller Private Key and append an immutable SHA-256 block.
-          </div>
-
-          <div style="display:flex; gap:var(--space-sm); align-items:center;">
-            <button class="btn btn-secondary btn-sm" onclick="rejectTollboothProposal()" id="btnRejectTollbooth">
-              <i data-lucide="x" style="width:14px; height:14px;"></i>
-              Reject Proposal
-            </button>
-            <button class="btn btn-primary" onclick="approveAndCommitTollbooth()" id="btnApproveTollbooth">
-              <i data-lucide="check-check" style="width:16px; height:16px;"></i>
-              Approve &amp; Commit with SHA-256 Hash
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Cryptographic Blockchain Audit Ledger -->
-      <section class="chart-container-card">
-        <div class="chart-header">
-          <div>
-            <span class="mono-label">EU AI Act Article 12 Cryptographic Verification</span>
-            <h3 style="font-size: 1.125rem; font-weight:600;">Continuous Audit Trail &amp; SHA-256 Hash Chaining</h3>
-          </div>
-
-          <div style="display:flex; gap:var(--space-sm); align-items:center;">
-            <button class="btn btn-secondary btn-sm" onclick="verifyCryptographicChain()" id="btnVerifyChain">
-              <i data-lucide="shield-check" style="width:14px; height:14px;"></i>
-              Verify Ledger Integrity (0 Anomalies)
-            </button>
-          </div>
-        </div>
-
-        <div class="note-box" id="ledgerStatusNotice">
-          <strong>Cryptographic Integrity Verified:</strong> 3 chained audit blocks validated using native Web Crypto API (<span class="mono-value">SHA-256</span>). No retro-active tampering detected.
-        </div>
-
-        <!-- Chained Blocks -->
-        <div class="audit-chain-container" id="auditChainContainer">
-          <!-- Dynamically populated blocks -->
-        </div>
-
-        <!-- Add Manual Audit Event -->
-        <div class="layer-nested" style="display:flex; flex-direction:column; gap:var(--space-sm); margin-top:var(--space-sm);">
-          <span class="mono-label">Append Verified Controller Action to Audit Chain</span>
-          <div style="display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; gap:var(--space-sm);">
-            <input type="text" class="text-input" id="inputAuditAuthor" value="Frank Ellingsen (Controller)" placeholder="Controller Name">
-            <input type="text" class="text-input" id="inputAuditAction" placeholder="Describe controlling action (e.g., 'Validated ISA 805 hourly timesheet compliance for Enova grant')...">
-            <button class="btn btn-secondary" onclick="appendManualAuditBlock()">
-              <i data-lucide="plus-circle" style="width:14px; height:14px;"></i>
-              Append Block
-            </button>
-          </div>
-        </div>
-      </section>
-    </section>
-
-    <!-- =============================================================
-         VIEW 5: Statutory Grant Compliance (SkatteFUNN RF-1053B)
-         ============================================================= -->
-    <section class="tab-content" id="viewGrants">
-      <div class="section-header">
-        <div>
-          <span class="mono-label">Norwegian Tax Administration (Skatteetaten) &amp; Enova</span>
-          <h2 class="section-title">SkatteFUNN RF-1053B R&amp;D Grant Engine &amp; ISA 805 Pre-Audit</h2>
-        </div>
-        <div class="status-pill active">
-          2025/2026 Statutory Rate: 530 NOK / hr · Max 1,850 hrs/yr
-        </div>
-      </div>
-
-      <!-- Statutory Metric Grid -->
-      <section class="metrics-grid" aria-label="SkatteFUNN Statutory Indicators">
-        <div class="metric-tile">
-          <span class="mono-label">Statutory Rate Cap</span>
-          <div class="metric-tile-val mono-value">530 NOK</div>
-          <div class="metric-sub">
-            <span>Standard Max / Hour</span>
-            <span class="mono-label">Forskrift § 16-40</span>
-          </div>
-        </div>
-
-        <div class="metric-tile">
-          <span class="mono-label">Max Annual Hours / Person</span>
-          <div class="metric-tile-val mono-value">1,850 hrs</div>
-          <div class="metric-sub">
-            <span>Per Employee Ceiling</span>
-            <span class="mono-label">Statutory Cap</span>
-          </div>
-        </div>
-
-        <div class="metric-tile">
-          <span class="mono-label">Annual Cost Ceiling</span>
-          <div class="metric-tile-val mono-value">25.00M</div>
-          <div class="metric-sub">
-            <span>Max Project Cost</span>
-            <span class="mono-label">NOK</span>
-          </div>
-        </div>
-
-        <div class="metric-tile key-tile">
-          <span class="mono-label">Tax Credit Value (19%)</span>
-          <div class="metric-tile-val mono-value" id="valTaxCredit">4,750,000</div>
-          <div class="metric-sub">
-            <span>Net Tax Relief</span>
-            <span class="delta-badge pos" id="lblCreditPct">19% Rebate</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Grant Calculator & Timesheet Capping Simulator -->
-      <section class="two-col-grid">
-        <div class="chart-container-card">
-          <div class="chart-header">
-            <div>
-              <span class="mono-label">RF-1053B Tax Credit Calculator</span>
-              <h3 style="font-size: 1.125rem; font-weight:600;">Interactive R&amp;D Expense Formulation</h3>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="grantInternalHours">
-              <span>Internal R&amp;D Engineering Hours:</span>
-              <span class="mono-value" id="lblGrantHours">28,500 hrs</span>
-            </label>
-            <input type="range" class="range-input" id="grantInternalHours" min="1000" max="45000" step="500" value="28500" oninput="calculateGrantModel()">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="grantHourlyCost">
-              <span>Actual Incurred Internal Labor Cost / hr (ERP):</span>
-              <span class="mono-value" id="lblGrantCost">680 NOK / hr</span>
-            </label>
-            <input type="range" class="range-input" id="grantHourlyCost" min="400" max="1200" step="10" value="680" oninput="calculateGrantModel()">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="grantExternalSpend">
-              <span>External Research Institution / Subcontractor Costs:</span>
-              <span class="mono-value" id="lblGrantExternal">6,500,000 NOK</span>
-            </label>
-            <input type="range" class="range-input" id="grantExternalSpend" min="0" max="20000000" step="250000" value="6500000" oninput="calculateGrantModel()">
-          </div>
-
-          <div class="layer-nested" style="display:flex; flex-direction:column; gap:var(--space-sm);">
-            <div class="mono-label">Statutory Capping Breakdown</div>
-            
-            <div style="display:flex; justify-content:space-between; font-size:0.875rem;">
-              <span>ERP Gross Labor Cost:</span>
-              <span class="mono-value" id="resGrossLabor">19,380,000 NOK</span>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; font-size:0.875rem; color:var(--error);">
-              <span>Disallowed Excess above 530 NOK/hr:</span>
-              <span class="mono-value" id="resDisallowedLabor">-4,275,000 NOK</span>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; font-size:0.875rem; font-weight:600; border-top:var(--rule); padding-top:4px;">
-              <span>Eligible Internal Labor Base:</span>
-              <span class="mono-value" id="resEligibleLabor">15,105,000 NOK</span>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; font-size:0.875rem;">
-              <span>Total Qualified Basis (Capped at 25M):</span>
-              <span class="mono-value" id="resTotalBasis">21,605,000 NOK</span>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; font-size:1.125rem; font-weight:600; color:var(--tertiary); border-top:var(--rule); padding-top:6px;">
-              <span>Estimated SkatteFUNN Tax Credit (19%):</span>
-              <span class="mono-value" id="resNetCredit">4,104,950 NOK</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pre-Audit Compliance Checklist -->
-        <div class="control-panel-card">
-          <div style="border-bottom: var(--rule); padding-bottom: var(--space-xs);">
-            <span class="mono-label">ISA 805 / ISAE 3000 Readiness</span>
-            <h3 style="font-size: 1.125rem; font-weight:600;">Auditor Verification Checklist</h3>
-            <p style="font-size: 0.8125rem; color: var(--on-surface-variant); margin-top:2px;">
-              Prerequisites required for external CPA certification (Revisjonsberetning).
-            </p>
-          </div>
-
-          <div style="display:flex; flex-direction:column; gap:var(--space-sm); font-size:0.8125rem;">
-            <label style="display:flex; gap:var(--space-sm); align-items:flex-start; cursor:pointer;">
-              <input type="checkbox" checked style="accent-color:var(--primary); margin-top:3px;" onchange="updateAuditReadiness()">
-              <span><strong>Contemporaneous Time Tracking:</strong> Daily timecards stamped with task descriptions and WBS codes (no post-period retroactive allocations).</span>
-            </label>
-
-            <label style="display:flex; gap:var(--space-sm); align-items:flex-start; cursor:pointer;">
-              <input type="checkbox" checked style="accent-color:var(--primary); margin-top:3px;" onchange="updateAuditReadiness()">
-              <span><strong>Sick Leave / Employer Period Exclusion:</strong> Lønnsutgifter knyttet til sykemeldte i arbeidsgiverperioden utelatt (Informasjonsskriv 3/2018).</span>
-            </label>
-
-            <label style="display:flex; gap:var(--space-sm); align-items:flex-start; cursor:pointer;">
-              <input type="checkbox" checked style="accent-color:var(--primary); margin-top:3px;" onchange="updateAuditReadiness()">
-              <span><strong>Maximum 1,850 Hours Capping:</strong> No individual researcher exceeding 1,850 hours across all Elkem ASA projects in calendar year.</span>
-            </label>
-
-            <label style="display:flex; gap:var(--space-sm); align-items:flex-start; cursor:pointer;">
-              <input type="checkbox" checked style="accent-color:var(--primary); margin-top:3px;" onchange="updateAuditReadiness()">
-              <span><strong>External Subcontractor Invoices:</strong> Third-party invoices authenticated and reconcilable directly with Core Financial SAP ledger.</span>
-            </label>
-
-            <label style="display:flex; gap:var(--space-sm); align-items:flex-start; cursor:pointer;">
-              <input type="checkbox" checked style="accent-color:var(--primary); margin-top:3px;" onchange="updateAuditReadiness()">
-              <span><strong>Formal Research Council (NFR) Approval:</strong> Valid SkatteFUNN project decree number and active milestone gates.</span>
-            </label>
-          </div>
-
-          <div class="layer-nested" style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div class="mono-label">Audit Readiness Score</div>
-              <div style="font-size:1.125rem; font-weight:600; color:var(--tertiary);" id="auditScoreVal">100% — Ready for Signoff</div>
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="exportAuditDossier()">
-              <i data-lucide="download" style="width:14px; height:14px;"></i>
-              Export ISA 805 Dossier
-            </button>
-          </div>
-        </div>
-      </section>
-    </section>
-
-    <!-- System Footer -->
-    <footer class="system-footer">
-      <div class="footer-col">
-        <strong style="color:var(--on-surface);">Elkem ASA Technology — Project Controlling Office</strong>
-        <p>Enterprise framework for ANSI/EIA-748 Earned Value Management, IFRS 15 Revenue Control, and Human-in-the-Loop Agentic Governance.</p>
-        <span class="mono-label">Author: Frank Ellingsen · Financial Controller &amp; Project Controller</span>
-      </div>
-
-      <div class="footer-col">
-        <strong style="color:var(--on-surface);">Governance Standards</strong>
-        <p>COSO 2013 Internal Controls · EU AI Act Article 12 (High-Risk Automated Audit Logging) &amp; Article 14 (Human Oversight) · FAST Standard 02 · Norwegian Tax Act § 16-40.</p>
-      </div>
-
-      <div class="footer-col">
-        <strong style="color:var(--on-surface);">System Telemetry</strong>
-        <p class="mono-value" style="font-size:0.75rem;">
-          Database: DuckDB OLAP Embedded<br>
-          Integrity: SHA-256 Hash Chained<br>
-          Host: GitHub Pages / Elkem Controlling Office
-        </p>
-      </div>
+    <footer>
+        Elkem ASA Technology Controlling Office | Fiskå Industripark, Kristiansand | Powered by DuckDB OLAP & EIA-748 EVMS Engine
     </footer>
 
-  </div>
+    <script>
+        // Tab switching logic
+        function openProject(projectId, btnElement) {
+            const panels = document.querySelectorAll('.project-detail-panel');
+            panels.forEach(p => p.classList.remove('active'));
 
-  <!-- Required NotebookAppApi Shim Contract -->
-  <api-shim></api-shim>
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => b.classList.remove('active'));
 
-  <!-- Application Logic -->
-  <script>
-    /* -------------------------------------------------------------
-       Data Structures: Control Accounts & Project Baselines
-       ------------------------------------------------------------- */
-    const CONTROL_ACCOUNTS = {
-      'CA-2045': {
-        code: `CA-2045`,
-        name: `Pilot Plant Reactivity`,
-        desc: `Pilot Plant Silicon Reactivity Optimization & Advanced Furnace Automation (Fiskaa)`,
-        wbs: `123456.08.05.04`,
-        cam: `Dr. H. Lind`,
-        bac: 18500000,
-        bcws: 12200000,
-        bcwp: 11400000,
-        acwp: 13100000,
-        timeline: [`M01`, `M02`, `M03`, `M04`, `M05`, `M06`, `M07`, `M08`, `M09`, `M10`, `M11`, `M12`],
-        bcwsCurve: [1200000, 2600000, 4200000, 6000000, 8000000, 10100000, 11200000, 12200000, 14000000, 15800000, 17200000, 18500000],
-        bcwpCurve: [1100000, 2400000, 3900000, 5600000, 7400000, 9200000, 10400000, 11400000, null, null, null, null],
-        acwpCurve: [1150000, 2550000, 4300000, 6400000, 8500000, 10700000, 12000000, 13100000, null, null, null, null],
-        rootCause: `Pilot plant furnace electrode re-lining and high-temperature slag sensor calibration required 420 additional engineering labor hours. Raw silica supplier delivered out-of-spec pilot batch requiring secondary chemical purification.`,
-        impact: `Current cost overrun of 1,700,000 NOK (-14.9%) and 3-week schedule slippage on milestone MS03. Without corrective reallocation, total project completion deficit will reach 2,764,368 NOK.`,
-        action: `P-CAM requested baseline EAC revision to 21.26M NOK with 2.76M NOK Management Reserve (MR) drawdown. Overtime capped for sub-tier contractors. Staged into HITL Gate for Controller signoff.`
-      },
-      'CA-1042': {
-        code: `CA-1042`,
-        name: `Off-gas Heat Recovery`,
-        desc: `Submerged Arc Furnace Carbon Capture & Off-gas Thermal Recovery`,
-        wbs: `123456.08.06.02`,
-        cam: `M. Vang`,
-        bac: 42000000,
-        bcws: 28000000,
-        bcwp: 29500000,
-        acwp: 27200000,
-        timeline: [`M01`, `M02`, `M03`, `M04`, `M05`, `M06`, `M07`, `M08`, `M09`, `M10`, `M11`, `M12`],
-        bcwsCurve: [3000000, 6500000, 10500000, 15000000, 19500000, 23500000, 26000000, 28000000, 32000000, 36000000, 39500000, 42000000],
-        bcwpCurve: [3200000, 7000000, 11200000, 16000000, 20800000, 25100000, 27600000, 29500000, null, null, null, null],
-        acwpCurve: [2900000, 6300000, 10100000, 14600000, 19000000, 23000000, 25400000, 27200000, null, null, null, null],
-        rootCause: `High installation efficiency achieved by engineering contractor consortium during heat exchanger pre-assembly. Prefabrication off-site reduced on-site installation man-hours by 18%.`,
-        impact: `Positive cost variance of +2,300,000 NOK (+8.46%) and favorable schedule velocity (+1,500,000 NOK ahead). Projected variance at completion (VAC) indicates 3.29M NOK surplus.`,
-        action: `Maintain current shift allocation. Reallocate 1.0M NOK of forecasted surplus towards pilot auxiliary ducting reinforcements.`
-      },
-      'CA-3080': {
-        code: `CA-3080`,
-        name: `Biocarbon Formulation`,
-        desc: `Biocarbon Pelletizing & Anode Materials Formulation (R&D Pilot)`,
-        wbs: `123456.09.02.01`,
-        cam: `E. Sivertsen`,
-        bac: 15200000,
-        bcws: 9800000,
-        bcwp: 9600000,
-        acwp: 9900000,
-        timeline: [`M01`, `M02`, `M03`, `M04`, `M05`, `M06`, `M07`, `M08`, `M09`, `M10`, `M11`, `M12`],
-        bcwsCurve: [1000000, 2200000, 3500000, 5000000, 6600000, 8100000, 9000000, 9800000, 11300000, 12800000, 14100000, 15200000],
-        bcwpCurve: [980000, 2150000, 3420000, 4880000, 6450000, 7920000, 8820000, 9600000, null, null, null, null],
-        acwpCurve: [1020000, 2240000, 3580000, 5100000, 6720000, 8250000, 9150000, 9900000, null, null, null, null],
-        rootCause: `Binder chemical tests required slight formulation adjustments. Pilot equipment wear-and-tear slightly higher than initial bench tests.`,
-        impact: `Minor cost variance of -300,000 NOK (-3.13%) and schedule variance of -200,000 NOK (-2.04%), well within the ±5.0% tolerance band.`,
-        action: `Continue standard bi-weekly monitoring. Current trajectory remains manageable without management reserve intervention.`
-      }
-    };
-
-    /* Application Persistent State Structure */
-    let appState = {
-      activeView: 'evm',
-      selectedAccount: 'CA-2045',
-      eacMethod: 'cpi',
-      sensitivityFactor: 0.87,
-      ifrsCostsIncurred: 38.5,
-      ifrsTotalEac: 74.0,
-      ifrsInvoiced: 44.0,
-      tollboothApproved: false,
-      tollboothStatus: 'Mandatory Gate Halted',
-      auditLedger: [
-        {
-          index: 1,
-          timestamp: `2026-11-06 08:30:14 CET`,
-          user: `System Genesis Daemon`,
-          action: `GENESIS_BLOCK: Initialized EIA-748 Baseline & COSO 2013 Ledger for Elkem Technology Fiskaa.`,
-          prevHash: `0000000000000000000000000000000000000000000000000000000000000000`,
-          hash: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
-        },
-        {
-          index: 2,
-          timestamp: `2026-11-07 14:15:22 CET`,
-          user: `Frank Ellingsen (Controller)`,
-          action: `CONFIRM_BASELINE: Approved annual WBS 123456 budget targets following bilateral CAM review.`,
-          prevHash: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`,
-          hash: `7b9a528186256f082e6d5bf73e6a263158c56ebc69f212260ff0a442e6d62a34`
-        },
-        {
-          index: 3,
-          timestamp: `2026-11-08 09:12:00 CET`,
-          user: `Automated EIA-748 Agent`,
-          action: `FLAG_BREACH: Threshold violation triggered on CA-2045 (CV% = -14.91%). Staged to HITL Gate.`,
-          prevHash: `7b9a528186256f082e6d5bf73e6a263158c56ebc69f212260ff0a442e6d62a34`,
-          hash: `c16828c460d3663673c683b516104bc293d0bb69527ecb872b7334de6a47a740`
+            document.getElementById(projectId).classList.add('active');
+            btnElement.classList.add('active');
         }
-      ]
-    };
 
-    let evmChartInstance = null;
+        // Render Plotly Gantt Chart
+        const ganttData = [
+            // Master Level 1
+            {
+                task: "<b>[CA-2045] Fiskå Carbon-Neutral Smelting</b>",
+                start: "2024-01-01",
+                end: "2025-06-30",
+                level: "Master",
+                status: "Master Project",
+                details: "BAC: 45M | SPI: 0.933 | Enova"
+            },
+            {
+                task: "<b>[CA-1042] Furnace Automation Digital Twin</b>",
+                start: "2024-02-15",
+                end: "2024-12-31",
+                level: "Master",
+                status: "Master Project",
+                details: "BAC: 10M | SPI: 0.875 | NFR"
+            },
+            {
+                task: "<b>[CA-3080] NextGen Battery Anode R&D</b>",
+                start: "2024-01-15",
+                end: "2025-03-31",
+                level: "Master",
+                status: "Master Project",
+                details: "BAC: 15M | SPI: 1.025 | SkatteFUNN"
+            },
 
-    /* -------------------------------------------------------------
-       View Navigation
-       ------------------------------------------------------------- */
-    function switchView(viewName) {
-      const views = ['evm', 'ifrs', 'dual', 'hitl', 'grants'];
-      views.forEach(v => {
-        const btn = document.getElementById(`tabBtn${v.charAt(0).toUpperCase() + v.slice(1)}`);
-        const content = document.getElementById(`view${v.charAt(0).toUpperCase() + v.slice(1)}`);
-        if (btn) btn.classList.remove('is-active');
-        if (content) content.classList.remove('is-active');
-      });
+            // Level 2 WBS Sub-tasks
+            {
+                task: "  └─ WBS 1.1 Pilot Design & HAZOP Study",
+                start: "2024-01-01",
+                end: "2024-04-30",
+                level: "WBS",
+                status: "Completed (🟢)",
+                details: "Fullført u/avvik"
+            },
+            {
+                task: "  └─ WBS 1.2 Procurement Reactor Vessel",
+                start: "2024-04-01",
+                end: "2024-11-15",
+                level: "WBS",
+                status: "Critical Path (🔴)",
+                details: "Leverandørforsinkelse reaktor isolasjon"
+            },
+            {
+                task: "  └─ 🚩 Gate 3 Approval (Enova Milestone)",
+                start: "2024-11-15",
+                end: "2024-11-20",
+                level: "WBS",
+                status: "Stage-Gate (◆)",
+                details: "Kritisk for 2. tilskuddsutbetaling"
+            },
+            {
+                task: "  └─ WBS 1.3 Hot Testing & Operation",
+                start: "2024-11-20",
+                end: "2025-06-30",
+                level: "WBS",
+                status: "Planned",
+                details: "Fiskå pilotanlegg oppstart"
+            },
+            {
+                task: "  └─ WBS 2.1 Sensor & PLC Integration",
+                start: "2024-02-15",
+                end: "2024-06-30",
+                level: "WBS",
+                status: "Completed (🟢)",
+                details: "Ovnstester Kristiansand"
+            },
+            {
+                task: "  └─ WBS 2.2 Neural Twin GPU Training",
+                start: "2024-06-01",
+                end: "2024-10-31",
+                level: "WBS",
+                status: "Critical Path (🔴)",
+                details: "GPU-beregninger krevende"
+            },
+            {
+                task: "  └─ 🚩 Gate 4 System Go-Live",
+                start: "2024-12-01",
+                end: "2024-12-31",
+                level: "WBS",
+                status: "Stage-Gate (◆)",
+                details: "Driftstest i smelteverk"
+            },
+            {
+                task: "  └─ WBS 3.1 Anode Formulation",
+                start: "2024-01-15",
+                end: "2024-07-31",
+                level: "WBS",
+                status: "Completed (🟢)",
+                details: "SkatteFUNN timesats godkjent"
+            },
+            {
+                task: "  └─ WBS 3.2 Cell Cycle Testing",
+                start: "2024-07-01",
+                end: "2025-03-31",
+                level: "WBS",
+                status: "On Schedule (🟢)",
+                details: "Lab-testing pågår"
+            }
+        ];
 
-      const activeBtn = document.getElementById(`tabBtn${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`);
-      const activeContent = document.getElementById(`view${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`);
-      if (activeBtn) activeBtn.classList.add('is-active');
-      if (activeContent) activeContent.classList.add('is-active');
-
-      appState.activeView = viewName;
-      saveState();
-
-      if (viewName === 'evm' && evmChartInstance) {
-        setTimeout(() => evmChartInstance.resize(), 50);
-      }
-      if (window.lucide) {
-        window.lucide.createIcons();
-      }
-    }
-
-    /* -------------------------------------------------------------
-       EVM Calculations & Dashboard Updates
-       ------------------------------------------------------------- */
-    function selectControlAccount(acctKey) {
-      appState.selectedAccount = acctKey;
-
-      const btn2045 = document.getElementById('btnCA2045');
-      const btn1042 = document.getElementById('btnCA1042');
-      const btn3080 = document.getElementById('btnCA3080');
-      const btnPort = document.getElementById('btnPortfolio');
-
-      if (btn2045) btn2045.classList.remove('is-active');
-      if (btn1042) btn1042.classList.remove('is-active');
-      if (btn3080) btn3080.classList.remove('is-active');
-      if (btnPort) btnPort.classList.remove('is-active');
-
-      if (acctKey === 'CA-2045' && btn2045) btn2045.classList.add('is-active');
-      if (acctKey === 'CA-1042' && btn1042) btn1042.classList.add('is-active');
-      if (acctKey === 'CA-3080' && btn3080) btn3080.classList.add('is-active');
-      if (acctKey === 'PORTFOLIO' && btnPort) btnPort.classList.add('is-active');
-
-      renderAccountData(acctKey);
-      saveState();
-    }
-
-    function renderAccountData(acctKey) {
-      let data;
-      if (acctKey === 'PORTFOLIO') {
-        const c1 = CONTROL_ACCOUNTS['CA-2045'];
-        const c2 = CONTROL_ACCOUNTS['CA-1042'];
-        const c3 = CONTROL_ACCOUNTS['CA-3080'];
-        data = {
-          code: `PORTFOLIO`,
-          name: `Consolidated Technology Portfolio`,
-          desc: `Aggregated Performance for all Elkem Technology Control Accounts`,
-          wbs: `123456.08 / .09`,
-          cam: `F. Ellingsen / PCO Team`,
-          bac: c1.bac + c2.bac + c3.bac,
-          bcws: c1.bcws + c2.bcws + c3.bcws,
-          bcwp: c1.bcwp + c2.bcwp + c3.bcwp,
-          acwp: c1.acwp + c2.acwp + c3.acwp,
-          timeline: c1.timeline,
-          bcwsCurve: c1.bcwsCurve.map((v, i) => v + c2.bcwsCurve[i] + c3.bcwsCurve[i]),
-          bcwpCurve: c1.bcwpCurve.map((v, i) => (v !== null ? v + c2.bcwpCurve[i] + c3.bcwpCurve[i] : null)),
-          acwpCurve: c1.acwpCurve.map((v, i) => (v !== null ? v + c2.acwpCurve[i] + c3.acwpCurve[i] : null)),
-          rootCause: `Consolidated variance across pilot operations, thermal energy recovery, and biocarbon formulations. Positive variance in heat recovery (CA-1042) offsets 58% of pilot plant overruns (CA-2045).`,
-          impact: `Portfolio net cost overrun stands at 300,000 NOK with net schedule gain of 500,000 NOK. Overall portfolio CPI is 0.994 and SPI is 1.010.`,
-          action: `Redistribute contingency reserve between subproject 08 and 09 to preserve aggregate margin targets.`
+        const colorMap = {
+            "Master Project": "#002B49",
+            "Completed (🟢)": "#28A745",
+            "On Schedule (🟢)": "#20C997",
+            "Critical Path (🔴)": "#DC3545",
+            "Stage-Gate (◆)": "#6F42C1",
+            "Planned": "#6C757D"
         };
-      } else {
-        data = CONTROL_ACCOUNTS[acctKey];
-      }
 
-      if (!data) return;
-
-      const cv = data.bcwp - data.acwp;
-      const sv = data.bcwp - data.bcws;
-      const cpi = data.acwp > 0 ? (data.bcwp / data.acwp) : 1;
-      const spi = data.bcws > 0 ? (data.bcwp / data.bcws) : 1;
-
-      // EAC CPI formula
-      const eacCpi = cpi > 0 ? (data.bac / cpi) : data.bac;
-      const vacCpi = data.bac - eacCpi;
-
-      // TCPI formulas
-      const tcpiBac = (data.bac - data.acwp) > 0 ? ((data.bac - data.bcwp) / (data.bac - data.acwp)) : 1.0;
-      const tcpiEac = (eacCpi - data.acwp) > 0 ? ((data.bac - data.bcwp) / (eacCpi - data.acwp)) : 1.0;
-
-      // Update Metric Tiles
-      const valBcws = document.getElementById('valBcws');
-      const valBcwp = document.getElementById('valBcwp');
-      const valAcwp = document.getElementById('valAcwp');
-      const valCv = document.getElementById('valCv');
-      const valCvPct = document.getElementById('valCvPct');
-      const valSv = document.getElementById('valSv');
-      const valSvPct = document.getElementById('valSvPct');
-      const valCpi = document.getElementById('valCpi');
-      const valSpi = document.getElementById('valSpi');
-      const valEac = document.getElementById('valEac');
-      const valBac = document.getElementById('valBac');
-      const valVac = document.getElementById('valVac');
-      const valTcpi = document.getElementById('valTcpi');
-      const tagCpiStatus = document.getElementById('tagCpiStatus');
-      const tagSpiStatus = document.getElementById('tagSpiStatus');
-
-      if (valBcws) valBcws.textContent = `${(data.bcws / 1e6).toFixed(2)}M`;
-      if (valBcwp) valBcwp.textContent = `${(data.bcwp / 1e6).toFixed(2)}M`;
-      if (valAcwp) valAcwp.textContent = `${(data.acwp / 1e6).toFixed(2)}M`;
-
-      if (valCv) {
-        valCv.textContent = `${cv >= 0 ? '+' : ''}${(cv / 1e6).toFixed(2)}M`;
-      }
-      if (valCvPct) {
-        const cvPct = data.bcwp > 0 ? ((cv / data.bcwp) * 100).toFixed(1) : '0.0';
-        valCvPct.textContent = `${cv >= 0 ? '+' : ''}${cvPct}%`;
-        valCvPct.className = cv >= 0 ? 'delta-badge pos' : 'delta-badge neg';
-      }
-
-      if (valSv) {
-        valSv.textContent = `${sv >= 0 ? '+' : ''}${(sv / 1e6).toFixed(2)}M`;
-      }
-      if (valSvPct) {
-        const svPct = data.bcws > 0 ? ((sv / data.bcws) * 100).toFixed(1) : '0.0';
-        valSvPct.textContent = `${sv >= 0 ? '+' : ''}${svPct}%`;
-        valSvPct.className = sv >= 0 ? 'delta-badge pos' : 'delta-badge neg';
-      }
-
-      if (valCpi) valCpi.textContent = cpi.toFixed(3);
-      if (valSpi) valSpi.textContent = spi.toFixed(3);
-
-      if (tagCpiStatus) {
-        tagCpiStatus.textContent = cpi >= 1.0 ? 'Favorable' : 'Unfavorable';
-        tagCpiStatus.className = cpi >= 1.0 ? 'delta-badge pos' : 'delta-badge neg';
-      }
-      if (tagSpiStatus) {
-        tagSpiStatus.textContent = spi >= 1.0 ? 'Ahead' : 'Lagging';
-        tagSpiStatus.className = spi >= 1.0 ? 'delta-badge pos' : 'delta-badge neg';
-      }
-
-      if (valEac) valEac.textContent = `${(eacCpi / 1e6).toFixed(2)}M`;
-      if (valBac) valBac.textContent = `${(data.bac / 1e6).toFixed(2)}M`;
-      if (valVac) {
-        valVac.textContent = `${vacCpi >= 0 ? '+' : ''}${(vacCpi / 1e6).toFixed(2)}M VAC`;
-        valVac.className = vacCpi >= 0 ? 'delta-badge pos' : 'delta-badge neg';
-      }
-
-      if (valTcpi) {
-        valTcpi.textContent = `${tcpiBac.toFixed(2)} / ${tcpiEac.toFixed(2)}`;
-      }
-
-      // Update Chart and Narratives
-      const chartTitle = document.getElementById('chartTitle');
-      if (chartTitle) chartTitle.textContent = `${data.code}: ${data.name} — EIA-748 S-Curve Profile`;
-
-      const narrativeCaCode = document.getElementById('narrativeCaCode');
-      const narrativeRootCause = document.getElementById('narrativeRootCause');
-      const narrativeImpact = document.getElementById('narrativeImpact');
-      const narrativeAction = document.getElementById('narrativeAction');
-
-      if (narrativeCaCode) narrativeCaCode.textContent = `${data.code} (${data.wbs})`;
-      if (narrativeRootCause) narrativeRootCause.textContent = data.rootCause;
-      if (narrativeImpact) narrativeImpact.textContent = data.impact;
-      if (narrativeAction) narrativeAction.textContent = data.action;
-
-      // Update Sensitivity Slider Base
-      const slider = document.getElementById('sliderPerformance');
-      const valSensitivity = document.getElementById('valSensitivity');
-      if (slider) {
-        slider.value = cpi.toFixed(2);
-        if (valSensitivity) valSensitivity.textContent = cpi.toFixed(3);
-      }
-
-      recalculateForecast();
-      renderChart(data, eacCpi);
-    }
-
-    /* -------------------------------------------------------------
-       EAC Forecasting Formulas (EIA-748 Standard)
-       ------------------------------------------------------------- */
-    function recalculateForecast() {
-      const select = document.getElementById('selectEacFormula');
-      const lblFormula = document.getElementById('lblSelectedFormula');
-      const method = select ? select.value : 'cpi';
-      appState.eacMethod = method;
-
-      const acctKey = appState.selectedAccount;
-      let data = acctKey === 'PORTFOLIO' ? CONTROL_ACCOUNTS['CA-2045'] : CONTROL_ACCOUNTS[acctKey];
-      if (acctKey === 'PORTFOLIO') {
-        const c1 = CONTROL_ACCOUNTS['CA-2045'];
-        const c2 = CONTROL_ACCOUNTS['CA-1042'];
-        const c3 = CONTROL_ACCOUNTS['CA-3080'];
-        data = {
-          bac: c1.bac + c2.bac + c3.bac,
-          bcws: c1.bcws + c2.bcws + c3.bcws,
-          bcwp: c1.bcwp + c2.bcwp + c3.bcwp,
-          acwp: c1.acwp + c2.acwp + c3.acwp
-        };
-      }
-
-      const cpi = data.acwp > 0 ? (data.bcwp / data.acwp) : 1;
-      const spi = data.bcws > 0 ? (data.bcwp / data.bcws) : 1;
-      let calculatedEac = 0;
-
-      if (method === 'cpi') {
-        calculatedEac = data.bac / cpi;
-        if (lblFormula) lblFormula.textContent = `EAC = BAC / CPI`;
-      } else if (method === 'composite') {
-        const denominator = cpi * spi;
-        calculatedEac = data.acwp + ((data.bac - data.bcwp) / (denominator > 0 ? denominator : 1));
-        if (lblFormula) lblFormula.textContent = `EAC = ACWP + [(BAC - BCWP) / (CPI × SPI)]`;
-      } else if (method === 'budgeted') {
-        calculatedEac = data.acwp + (data.bac - data.bcwp);
-        if (lblFormula) lblFormula.textContent = `EAC = ACWP + (BAC - BCWP)`;
-      } else if (method === 'custom') {
-        const slider = document.getElementById('sliderPerformance');
-        const factor = slider ? parseFloat(slider.value) : cpi;
-        calculatedEac = data.acwp + ((data.bac - data.bcwp) / (factor > 0 ? factor : 1));
-        if (lblFormula) lblFormula.textContent = `EAC = ACWP + [(BAC - BCWP) / Custom_PF]`;
-      }
-
-      const calculatedVac = data.bac - calculatedEac;
-      const calculatedEtc = Math.max(0, calculatedEac - data.acwp);
-      const tcpiBac = (data.bac - data.acwp) > 0 ? ((data.bac - data.bcwp) / (data.bac - data.acwp)) : 1.0;
-
-      const simResultEac = document.getElementById('simResultEac');
-      const simResultVac = document.getElementById('simResultVac');
-      const simResultEtc = document.getElementById('simResultEtc');
-      const simResultTcpi = document.getElementById('simResultTcpi');
-
-      if (simResultEac) simResultEac.textContent = `${Math.round(calculatedEac).toLocaleString('en-US')} NOK`;
-      if (simResultVac) {
-        simResultVac.textContent = `${calculatedVac >= 0 ? '+' : ''}${Math.round(calculatedVac).toLocaleString('en-US')} NOK`;
-        simResultVac.style.color = calculatedVac >= 0 ? 'var(--tertiary)' : 'var(--error)';
-      }
-      if (simResultEtc) simResultEtc.textContent = `${Math.round(calculatedEtc).toLocaleString('en-US')} NOK`;
-      if (simResultTcpi) {
-        simResultTcpi.textContent = tcpiBac.toFixed(3);
-        simResultTcpi.style.color = tcpiBac > 1.10 ? 'var(--error)' : 'var(--on-surface)';
-      }
-    }
-
-    function onSensitivitySliderChange(val) {
-      const valSensitivity = document.getElementById('valSensitivity');
-      if (valSensitivity) valSensitivity.textContent = parseFloat(val).toFixed(3);
-
-      const select = document.getElementById('selectEacFormula');
-      if (select && select.value !== 'custom') {
-        select.value = 'custom';
-      }
-      recalculateForecast();
-    }
-
-    function resetSimToActuals() {
-      const select = document.getElementById('selectEacFormula');
-      if (select) select.value = 'cpi';
-      selectControlAccount(appState.selectedAccount);
-    }
-
-    function sendToTollboothFromSim() {
-      const simResultEac = document.getElementById('simResultEac');
-      const tollboothProposedEac = document.getElementById('tollboothProposedEac');
-      if (simResultEac && tollboothProposedEac) {
-        tollboothProposedEac.textContent = simResultEac.textContent;
-      }
-      switchView('hitl');
-    }
-
-    /* -------------------------------------------------------------
-       Chart.js S-Curve Rendering
-       ------------------------------------------------------------- */
-    function renderChart(data, forecastEac) {
-      const canvas = document.getElementById('evmChart');
-      if (!canvas) return;
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      if (evmChartInstance) {
-        evmChartInstance.destroy();
-      }
-
-      function getCssVar(varName, fallback) {
-        const val = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-        return val || fallback;
-      }
-
-      const colPrimary = getCssVar('--primary', '#0f62fe');
-      const colTertiary = getCssVar('--tertiary', '#198038');
-      const colError = getCssVar('--error', '#da1e28');
-      const colData2 = getCssVar('--data-2', '#6929c4');
-      const colOnSurface = getCssVar('--on-surface', '#161616');
-      const colVariant = getCssVar('--on-surface-variant', '#525252');
-      const colOutlineVariant = getCssVar('--outline-variant', '#e0e0e0');
-
-      // Build Projected EAC curve from Month 8 to Month 12
-      const projectedCurve = [null, null, null, null, null, null, null, data.acwp];
-      const remainingMonths = 4; // M09 to M12
-      const delta = (forecastEac - data.acwp) / remainingMonths;
-      for (let i = 1; i <= remainingMonths; i++) {
-        projectedCurve.push(Math.round(data.acwp + delta * i));
-      }
-
-      evmChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: data.timeline,
-          datasets: [
-            {
-              label: 'Planned Value (BCWS Baseline)',
-              data: data.bcwsCurve,
-              borderColor: colPrimary,
-              backgroundColor: 'rgba(15, 98, 254, 0.05)',
-              borderWidth: 2,
-              pointRadius: 3,
-              pointBackgroundColor: colPrimary,
-              tension: 0.2
-            },
-            {
-              label: 'Earned Value (BCWP Progress)',
-              data: data.bcwpCurve,
-              borderColor: colTertiary,
-              backgroundColor: 'transparent',
-              borderWidth: 2.5,
-              pointRadius: 4,
-              pointBackgroundColor: colTertiary,
-              tension: 0.2
-            },
-            {
-              label: 'Actual Cost (ACWP Incurred)',
-              data: data.acwpCurve,
-              borderColor: colError,
-              backgroundColor: 'transparent',
-              borderWidth: 2.5,
-              pointRadius: 4,
-              pointBackgroundColor: colError,
-              tension: 0.2
-            },
-            {
-              label: 'EAC Projection (Forecast)',
-              data: projectedCurve,
-              borderColor: colData2,
-              borderDash: [5, 5],
-              backgroundColor: 'transparent',
-              borderWidth: 2,
-              pointRadius: 3,
-              pointBackgroundColor: colData2,
-              tension: 0.2
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: {
-            mode: 'index',
-            intersect: false
-          },
-          plugins: {
-            legend: {
-              position: 'top',
-              labels: {
-                boxWidth: 12,
-                font: {
-                  family: `'IBM Plex Mono', monospace`,
-                  size: 11
-                },
-                color: colOnSurface
-              }
-            },
-            tooltip: {
-              backgroundColor: colOnSurface,
-              titleFont: { family: `'IBM Plex Mono', monospace`, size: 12 },
-              bodyFont: { family: `'IBM Plex Mono', monospace`, size: 11 },
-              callbacks: {
-                label: function(context) {
-                  const val = context.parsed.y;
-                  if (val === null || val === undefined) return '';
-                  return `${context.dataset.label}: ${(val / 1e6).toFixed(2)}M NOK`;
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { color: colOutlineVariant },
-              ticks: {
-                font: { family: `'IBM Plex Mono', monospace`, size: 11 },
-                color: colVariant
-              }
-            },
-            y: {
-              grid: { color: colOutlineVariant },
-              ticks: {
-                font: { family: `'IBM Plex Mono', monospace`, size: 11 },
-                color: colVariant,
-                callback: function(val) {
-                  return `${(val / 1e6).toFixed(1)}M`;
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    /* -------------------------------------------------------------
-       IPMR Format 1 Table Generator
-       ------------------------------------------------------------- */
-    function populateIpmrTable() {
-      const tbody = document.getElementById('ipmrTableBody');
-      if (!tbody) return;
-
-      const keys = ['CA-2045', 'CA-1042', 'CA-3080'];
-      let html = '';
-
-      keys.forEach(k => {
-        const item = CONTROL_ACCOUNTS[k];
-        const cv = item.bcwp - item.acwp;
-        const cpi = item.bcwp / item.acwp;
-        const spi = item.bcwp / item.bcws;
-        const eac = item.bac / cpi;
-        const vac = item.bac - eac;
-        const isBreached = Math.abs((cv / item.bcwp) * 100) > 10.0;
-
-        html += `
-          <tr style="cursor:pointer;" onclick="selectControlAccount('${k}')">
-            <td><strong>${item.code}</strong></td>
-            <td>${item.name}</td>
-            <td class="mono-cell">${item.wbs}</td>
-            <td>${item.cam}</td>
-            <td class="mono-cell">${(item.bac / 1e6).toFixed(2)}M</td>
-            <td class="mono-cell">${(item.bcwp / 1e6).toFixed(2)}M</td>
-            <td class="mono-cell">${(item.acwp / 1e6).toFixed(2)}M</td>
-            <td class="mono-cell" style="color:${cv >= 0 ? 'var(--positive)' : 'var(--error)'};">
-              ${cv >= 0 ? '+' : ''}${(cv / 1e6).toFixed(2)}M
-            </td>
-            <td class="mono-cell" style="font-weight:600; color:${cpi >= 1 ? 'var(--positive)' : 'var(--error)'};">
-              ${cpi.toFixed(3)}
-            </td>
-            <td class="mono-cell" style="color:${spi >= 1 ? 'var(--positive)' : 'var(--error)'};">
-              ${spi.toFixed(3)}
-            </td>
-            <td class="mono-cell">${(eac / 1e6).toFixed(2)}M</td>
-            <td class="mono-cell" style="color:${vac >= 0 ? 'var(--positive)' : 'var(--error)'};">
-              ${vac >= 0 ? '+' : ''}${(vac / 1e6).toFixed(2)}M
-            </td>
-            <td>
-              <span class="tag-badge ${isBreached ? 'tag-alert' : (cpi >= 1 ? 'tag-ok' : 'tag-neutral')}">
-                ${isBreached ? 'Threshold Breach' : (cpi >= 1 ? 'Compliant' : 'Monitored')}
-              </span>
-            </td>
-          </tr>
-        `;
-      });
-
-      tbody.innerHTML = html;
-    }
-
-    /* -------------------------------------------------------------
-       IFRS 15 Model Logic & Dynamic Balance Rebalance
-       ------------------------------------------------------------- */
-    function updateIfrsModel() {
-      const sliderCosts = document.getElementById('sliderCostsIncurred');
-      const sliderEac = document.getElementById('sliderTotalEac');
-      const sliderInv = document.getElementById('sliderInvoiced');
-
-      if (!sliderCosts || !sliderEac || !sliderInv) return;
-
-      const costs = parseFloat(sliderCosts.value);
-      const eac = parseFloat(sliderEac.value);
-      const invoiced = parseFloat(sliderInv.value);
-
-      appState.ifrsCostsIncurred = costs;
-      appState.ifrsTotalEac = eac;
-      appState.ifrsInvoiced = invoiced;
-
-      const contractVal = 95.0; // Fixed Contract Value
-
-      // PoC calculation
-      const poc = Math.min(1.0, costs / (eac > 0 ? eac : 1));
-      const recognizedRevenue = contractVal * poc;
-      const deltaBalance = recognizedRevenue - invoiced;
-
-      // Update Slider Label Displays
-      const lblSliderCosts = document.getElementById('lblSliderCosts');
-      const lblSliderEac = document.getElementById('lblSliderEac');
-      const lblSliderInvoiced = document.getElementById('lblSliderInvoiced');
-
-      if (lblSliderCosts) lblSliderCosts.textContent = `${costs.toFixed(2)}M NOK`;
-      if (lblSliderEac) lblSliderEac.textContent = `${eac.toFixed(2)}M NOK`;
-      if (lblSliderInvoiced) lblSliderInvoiced.textContent = `${invoiced.toFixed(2)}M NOK`;
-
-      // Update Key Tiles
-      const ifrsEacVal = document.getElementById('ifrsEacVal');
-      const ifrsCostsVal = document.getElementById('ifrsCostsVal');
-      const ifrsPocVal = document.getElementById('ifrsPocVal');
-      const ifrsRecRevVal = document.getElementById('ifrsRecRevVal');
-      const ifrsInvoicedVal = document.getElementById('ifrsInvoicedVal');
-      const ifrsAssetVal = document.getElementById('ifrsAssetVal');
-      const ifrsLiabVal = document.getElementById('ifrsLiabVal');
-      const ifrsMarginVal = document.getElementById('ifrsMarginVal');
-
-      if (ifrsEacVal) ifrsEacVal.textContent = `${eac.toFixed(2)}M`;
-      if (ifrsCostsVal) ifrsCostsVal.textContent = `${costs.toFixed(2)}M`;
-      if (ifrsPocVal) ifrsPocVal.textContent = `${(poc * 100).toFixed(2)}%`;
-      if (ifrsRecRevVal) ifrsRecRevVal.textContent = `${recognizedRevenue.toFixed(2)}M`;
-      if (ifrsInvoicedVal) ifrsInvoicedVal.textContent = `${invoiced.toFixed(2)}M`;
-
-      const grossMargin = recognizedRevenue - costs;
-      const grossMarginPct = recognizedRevenue > 0 ? ((grossMargin / recognizedRevenue) * 100).toFixed(1) : '0.0';
-      if (ifrsMarginVal) {
-        ifrsMarginVal.textContent = `${(grossMargin * 1e6).toLocaleString('en-US', {maximumFractionDigits:0})} NOK (${grossMarginPct}%)`;
-      }
-
-      // Balance Sheet Asset vs Liability Rebalancing
-      const tileAsset = document.getElementById('tileContractAsset');
-      const tileLiab = document.getElementById('tileContractLiability');
-      const ifrsBalanceStatus = document.getElementById('ifrsBalanceStatus');
-      const barSpreadSummary = document.getElementById('barSpreadSummary');
-      const barBilled = document.getElementById('barBilled');
-      const barUnbilled = document.getElementById('barUnbilled');
-      const journalEntryPreview = document.getElementById('journalEntryPreview');
-
-      if (deltaBalance >= 0) {
-        // Contract Asset position
-        if (ifrsAssetVal) ifrsAssetVal.textContent = `+${deltaBalance.toFixed(2)}M`;
-        if (ifrsLiabVal) ifrsLiabVal.textContent = `0.00M`;
-        if (tileAsset) tileAsset.className = 'metric-tile flagged-success';
-        if (tileLiab) tileLiab.className = 'metric-tile';
-        if (ifrsBalanceStatus) ifrsBalanceStatus.textContent = `Net Contract Asset: +${deltaBalance.toFixed(2)}M NOK`;
-
-        const totalWidth = recognizedRevenue > 0 ? recognizedRevenue : 1;
-        const billedPct = Math.min(100, Math.round((invoiced / totalWidth) * 100));
-        const unbilledPct = Math.max(0, 100 - billedPct);
-
-        if (barBilled) {
-          barBilled.style.width = `${billedPct}%`;
-          barBilled.textContent = `Milestone Invoiced (${invoiced.toFixed(1)}M)`;
-        }
-        if (barUnbilled) {
-          barUnbilled.style.width = `${unbilledPct}%`;
-          barUnbilled.style.display = unbilledPct > 2 ? 'flex' : 'none';
-          barUnbilled.textContent = `Asset (+${deltaBalance.toFixed(1)}M)`;
-          barUnbilled.style.backgroundColor = 'var(--data-3)';
-        }
-
-        if (journalEntryPreview) {
-          journalEntryPreview.textContent = `DR  Contract Asset (GL 1380)        ${Math.round(deltaBalance * 1e6).toLocaleString('en-US')} NOK\n    CR  Project Revenue (GL 3010)       ${Math.round(deltaBalance * 1e6).toLocaleString('en-US')} NOK\n[Recognizing unbilled progress revenue entitlement per IFRS 15.B16]`;
-        }
-      } else {
-        // Contract Liability position (Deferred Billing)
-        const liability = Math.abs(deltaBalance);
-        if (ifrsAssetVal) ifrsAssetVal.textContent = `0.00M`;
-        if (ifrsLiabVal) ifrsLiabVal.textContent = `-${liability.toFixed(2)}M`;
-        if (tileAsset) tileAsset.className = 'metric-tile';
-        if (tileLiab) tileLiab.className = 'metric-tile flagged-warn';
-        if (ifrsBalanceStatus) ifrsBalanceStatus.textContent = `Net Contract Liability: -${liability.toFixed(2)}M NOK`;
-
-        if (barBilled) {
-          barBilled.style.width = `100%`;
-          barBilled.textContent = `Invoiced (${invoiced.toFixed(1)}M NOK exceeds recognized ${recognizedRevenue.toFixed(1)}M NOK)`;
-        }
-        if (barUnbilled) {
-          barUnbilled.style.display = 'none';
-        }
-
-        if (journalEntryPreview) {
-          journalEntryPreview.textContent = `DR  Accounts Receivable (GL 1500)   ${Math.round(invoiced * 1e6).toLocaleString('en-US')} NOK\n    CR  Contract Liability (GL 2950)    ${Math.round(liability * 1e6).toLocaleString('en-US')} NOK\n    CR  Project Revenue (GL 3010)       ${Math.round(recognizedRevenue * 1e6).toLocaleString('en-US')} NOK\n[Deferred revenue on billing exceeding physical progress per IFRS 15]`;
-        }
-      }
-
-      if (barSpreadSummary) {
-        barSpreadSummary.textContent = `Recognized ${recognizedRevenue.toFixed(2)}M NOK | Billed ${invoiced.toFixed(2)}M NOK (Delta: ${deltaBalance >= 0 ? '+' : ''}${deltaBalance.toFixed(2)}M)`;
-      }
-
-      saveState();
-    }
-
-    function sendIfrsAdjustmentToTollbooth() {
-      switchView('hitl');
-    }
-
-    /* -------------------------------------------------------------
-       Dual-Engine AI Controller Query Engine
-       ------------------------------------------------------------- */
-    const AI_PRESETS = {
-      variance_ca2045: {
-        query: `Root-cause variance analysis on CA-2045 Pilot Plant`,
-        sql: `-- DuckDB Query: EIA-748 Variance Decomposition
-SELECT 
-  wbs_element,
-  bac,
-  ROUND(bcwp - acwp, 2) AS cv_nok,
-  ROUND(((bcwp - acwp) / bcwp) * 100, 2) AS cv_pct,
-  ROUND(bcwp - bcws, 2) AS sv_nok,
-  ROUND(bac / (bcwp / acwp), 2) AS eac_cpi
-FROM fact_evm_periodic 
-WHERE control_account = 'CA-2045';`,
-        metrics: `BCWS = 12,200,000 NOK | BCWP = 11,400,000 NOK | ACWP = 13,100,000 NOK\nCost Variance (CV) = -1,700,000 NOK (-14.91%)\nSchedule Variance (SV) = -800,000 NOK (-6.56%)\nEAC (CPI) = 21,264,368 NOK (VAC Deficit: -2,764,368 NOK)`,
-        narrative: `<p><strong>Operational Diagnosis:</strong> Control Account <strong>CA-2045 (Fiskaa Pilot Plant Reactivity)</strong> has breached both cost (CV% = -14.91%) and schedule (SV% = -6.56%) EIA-748 thresholds. The primary operational bottleneck stems from unbudgeted electrode relining iterations and delayed raw material delivery from sub-tier silicon suppliers.</p><p style="margin-top:8px;"><strong>Regulatory &amp; Accounting Treatment:</strong> Under standard EIA-748 Guideline 22, this negative variance cannot be self-corrected within baseline funding. The required To-Complete Performance Index (TCPI to BAC = 1.315) is mathematically unrealistic given current workforce capacity.</p><p style="margin-top:8px;"><strong>Prescriptive Recommendation:</strong> P-CAM Lind should formalize a <strong>2.76M NOK baseline EAC adjustment</strong> with a corresponding draw from the Project Manager’s Management Reserve (MR). Mandatory Human-in-the-Loop approval is required prior to ERP baseline commit.</p>`
-      },
-      ifrs_reconcile: {
-        query: `Reconcile Contract Asset vs Milestone Billing for Nordic Green`,
-        sql: `-- DuckDB Query: IFRS 15 Balance Sheet Position
-SELECT 
-  contract_id,
-  contract_value,
-  eac_total,
-  costs_incurred,
-  ROUND((costs_incurred / eac_total), 4) AS poc_pct,
-  ROUND(contract_value * (costs_incurred / eac_total), 2) AS recognized_revenue,
-  invoiced_to_date,
-  ROUND((contract_value * (costs_incurred / eac_total)) - invoiced_to_date, 2) AS net_contract_asset
-FROM fact_ifrs15_ledger
-WHERE project_code = 'ELK-FISKAA-08';`,
-        metrics: `Contract Value = 95,000,000 NOK | EAC = 74,000,000 NOK | Costs = 38,480,000 NOK\nPercentage of Completion (PoC) = 52.00%\nRecognized Revenue = 49,400,000 NOK | Milestone Invoiced = 44,000,000 NOK\nContract Asset (Unbilled Revenue) = +5,400,000 NOK`,
-        narrative: `<p><strong>IFRS 15 Revenue Audit:</strong> Physical delivery progress on the Fiskaa Decarbonization Joint Project entitles Elkem to recognize cumulative revenue of <strong>49.40M NOK</strong> under the over-time input method (cost-to-cost).</p><p style="margin-top:8px;"><strong>Balance Sheet Rebalancing:</strong> Milestone billings total 44.00M NOK. Because earned performance outpaces invoicing, a <strong>Contract Asset of 5.40M NOK</strong> must be carried on the balance sheet under Current Assets (GL 1380). Change Order #3 (3.50M NOK) remains excluded from transaction price under the variable consideration constraint until bilateral signature.</p>`
-      },
-      skattefunn_audit: {
-        query: `SkatteFUNN RF-1053B statutory caps and ISA 805 audit readiness`,
-        sql: `-- DuckDB Query: Statutory Capping Enforcement
-SELECT 
-  employee_id,
-  SUM(hours_logged) AS raw_hours,
-  LEAST(SUM(hours_logged), 1850) AS capped_hours,
-  hourly_rate_erp,
-  LEAST(hourly_rate_erp, 530) AS capped_rate,
-  ROUND(LEAST(SUM(hours_logged), 1850) * LEAST(hourly_rate_erp, 530), 2) AS eligible_basis
-FROM fact_r_and_d_timesheets
-GROUP BY employee_id, hourly_rate_erp;`,
-        metrics: `Gross R&D Hours = 28,500 hrs | Disallowed Rate Excess = 4,275,000 NOK\nEligible Internal Labor Base = 15,105,000 NOK\nTotal Project Basis (Capped at 25M) = 21,605,000 NOK\nNet SkatteFUNN Tax Credit (19%) = 4,104,950 NOK`,
-        narrative: `<p><strong>Statutory Pre-Audit Findings:</strong> Timesheet analysis for the Fiskaa R&D portfolio demonstrates compliance with the <strong>530 NOK/hour statutory ceiling</strong> (Forskrift § 16-40). All internal labor rates exceeding 530 NOK/hr have been systematically excised from the grant claim basis.</p><p style="margin-top:8px;"><strong>Audit Readiness (ISAE 3000 / ISA 805):</strong> Sick leave in the employer period has been filtered per Informasjonsskriv 3/2018. The electronic audit trail satisfies independent auditor requirements for formal certification.</p>`
-      },
-      composite_stress: {
-        query: `Stress-test EAC under Composite CPI × SPI degradation`,
-        sql: `-- DuckDB Query: Worst-Case Composite Formulation
-SELECT 
-  control_account,
-  cpi,
-  spi,
-  cpi * spi AS schedule_cost_index,
-  ROUND(acwp + ((bac - bcwp) / (cpi * spi)), 2) AS eac_composite,
-  ROUND(bac - (acwp + ((bac - bcwp) / (cpi * spi))), 2) AS vac_composite
-FROM fact_evm_periodic
-WHERE control_account = 'CA-2045';`,
-        metrics: `Current CPI = 0.870 | Current SPI = 0.934\nComposite Index (CPI × SPI) = 0.813\nComposite EAC = 21,836,368 NOK\nComposite VAC Deficit = -3,336,368 NOK (Additional 572k NOK degradation)`,
-        narrative: `<p><strong>EAC Sensitivity Stress Test:</strong> If schedule slippage continues to correlate directly with labor burn, the composite index (0.813) projects total completion costs of <strong>21.84M NOK</strong>, expanding the budget deficit to 3.34M NOK.</p><p style="margin-top:8px;"><strong>Preventive Mitigation:</strong> De-couple slag sensor testing from furnace critical path activities. Transfer 2 senior automation engineers from CA-1042 to compress remaining activity durations.</p>`
-      }
-    };
-
-    function runAiPreset(presetKey) {
-      const data = AI_PRESETS[presetKey];
-      if (!data) return;
-
-      const codeEl = document.getElementById('engine1Code');
-      const metricsEl = document.getElementById('engine1Metrics');
-      const narrativeEl = document.getElementById('engine2Narrative');
-      const inputEl = document.getElementById('customAiInput');
-
-      if (inputEl) inputEl.value = data.query;
-      if (codeEl) codeEl.textContent = data.sql;
-      if (metricsEl) metricsEl.textContent = data.metrics;
-      if (narrativeEl) narrativeEl.innerHTML = data.narrative;
-    }
-
-    function executeCustomQuery() {
-      const inputEl = document.getElementById('customAiInput');
-      const prompt = inputEl ? inputEl.value.trim() : '';
-      if (!prompt) return;
-
-      const codeEl = document.getElementById('engine1Code');
-      const metricsEl = document.getElementById('engine1Metrics');
-      const narrativeEl = document.getElementById('engine2Narrative');
-
-      if (codeEl) {
-        codeEl.textContent = `-- Dynamic DuckDB OLAP Execution for: "${prompt}"\nSELECT \n  account_code,\n  metric_type,\n  raw_value,\n  ROUND(calculated_delta, 2) AS verified_output\nFROM elkem_project_controlling_db\nWHERE query_intent = 'CONTROLLER_VALIDATE'\nLIMIT 5;`;
-      }
-      if (metricsEl) {
-        metricsEl.textContent = `Executed 3 SQL table joins over 14,200 project ledger entries.\nPrecision: 100% Deterministic (Zero LLM Math Hallucination)\nStatus: Compliant with ANSI/EIA-748 standard.`;
-      }
-      if (narrativeEl) {
-        narrativeEl.innerHTML = `<p><strong>Agentic Analysis for "${prompt}":</strong></p><p style="margin-top:6px;">The dual-engine architecture evaluated your query across current project controlling ledgers. Mathematical calculations were solved exclusively by Engine 1 Python/DuckDB microservice. All active control accounts conform to baseline parameters with exception of CA-2045 which is flagged in the HITL Tollbooth.</p>`;
-      }
-    }
-
-    function stageAiDecisionToHitl() {
-      switchView('hitl');
-    }
-
-    /* -------------------------------------------------------------
-       HITL Audit Tollbooth & Cryptographic SHA-256 Ledger
-       ------------------------------------------------------------- */
-    async function calculateSha256(text) {
-      if (window.crypto && window.crypto.subtle) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(text);
-        const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      } else {
-        // Fallback simple checksum if Web Crypto is unavailable
-        let hash = 0;
-        for (let i = 0; i < text.length; i++) {
-          const char = text.charCodeAt(i);
-          hash = ((hash << 5) - hash) + char;
-          hash |= 0;
-        }
-        return Math.abs(hash).toString(16).padStart(64, '0');
-      }
-    }
-
-    function renderAuditChain() {
-      const container = document.getElementById('auditChainContainer');
-      if (!container) return;
-
-      let html = '';
-      appState.auditLedger.forEach(block => {
-        html += `
-          <div class="block-card ${block.status === 'pending' ? 'pending-sign' : 'verified'}" id="block-${block.index}">
-            <div class="block-header">
-              <span><strong>BLOCK #${block.index}</strong> · ${block.user}</span>
-              <span class="mono-value">${block.timestamp}</span>
-            </div>
-            <div style="font-size:0.875rem; color:var(--on-surface); margin:4px 0;">
-              ${block.action}
-            </div>
-            <div style="display:flex; flex-direction:column; gap:2px; margin-top:4px;">
-              <span class="mono-label" style="font-size:0.6875rem;">Previous Block Hash (Pointer):</span>
-              <span class="hash-string">${block.prevHash}</span>
-              <span class="mono-label" style="font-size:0.6875rem; margin-top:2px;">Block SHA-256 Signature:</span>
-              <span class="hash-string" style="color:var(--primary); font-weight:600;">${block.hash}</span>
-            </div>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html;
-    }
-
-    async function approveAndCommitTollbooth() {
-      const btnApprove = document.getElementById('btnApproveTollbooth');
-      const badge = document.getElementById('gateBadge');
-      const card = document.getElementById('activeTollboothCard');
-      const proposedEacEl = document.getElementById('tollboothProposedEac');
-
-      const proposedEac = proposedEacEl ? proposedEacEl.textContent : '21,264,368 NOK';
-
-      if (btnApprove) {
-        btnApprove.disabled = true;
-        btnApprove.textContent = 'Signing SHA-256...';
-      }
-
-      const prevBlock = appState.auditLedger[appState.auditLedger.length - 1];
-      const newIndex = prevBlock.index + 1;
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' CET';
-      const actionText = `HITL_APPROVAL: Approved CA-2045 Baseline EAC revision to ${proposedEac} with 2,764,368 NOK Management Reserve drawdown. Digitally signed by Frank Ellingsen.`;
-
-      const payload = `${newIndex}|${now}|Frank Ellingsen (Project Controller)|${actionText}|${prevBlock.hash}`;
-      const newHash = await calculateSha256(payload);
-
-      appState.auditLedger.push({
-        index: newIndex,
-        timestamp: now,
-        user: `Frank Ellingsen (Project Controller)`,
-        action: actionText,
-        prevHash: prevBlock.hash,
-        hash: newHash,
-        status: 'verified'
-      });
-
-      appState.tollboothApproved = true;
-      appState.tollboothStatus = 'Baseline Approved & Committed';
-
-      // Update UI
-      if (badge) {
-        badge.className = 'gate-badge approved';
-        badge.innerHTML = `<i data-lucide="check" style="width:13px; height:13px;"></i> Approved &amp; Signed`;
-      }
-      if (card) {
-        card.style.borderColor = 'var(--tertiary)';
-      }
-      if (btnApprove) {
-        btnApprove.textContent = 'Committed to ERP';
-      }
-
-      renderAuditChain();
-      saveState();
-
-      if (window.lucide) window.lucide.createIcons();
-    }
-
-    function rejectTollboothProposal() {
-      const card = document.getElementById('activeTollboothCard');
-      const badge = document.getElementById('gateBadge');
-      if (badge) {
-        badge.className = 'gate-badge';
-        badge.innerHTML = `<i data-lucide="x" style="width:13px; height:13px;"></i> Proposal Rejected`;
-      }
-      if (card) {
-        card.style.borderColor = 'var(--error)';
-      }
-    }
-
-    async function appendManualAuditBlock() {
-      const authorInput = document.getElementById('inputAuditAuthor');
-      const actionInput = document.getElementById('inputAuditAction');
-
-      const author = authorInput ? authorInput.value.trim() : 'Project Controller';
-      const action = actionInput ? actionInput.value.trim() : '';
-
-      if (!action) return;
-
-      const prevBlock = appState.auditLedger[appState.auditLedger.length - 1];
-      const newIndex = prevBlock.index + 1;
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' CET';
-
-      const payload = `${newIndex}|${now}|${author}|${action}|${prevBlock.hash}`;
-      const newHash = await calculateSha256(payload);
-
-      appState.auditLedger.push({
-        index: newIndex,
-        timestamp: now,
-        user: author,
-        action: action,
-        prevHash: prevBlock.hash,
-        hash: newHash,
-        status: 'verified'
-      });
-
-      if (actionInput) actionInput.value = '';
-      renderAuditChain();
-      saveState();
-    }
-
-    async function verifyCryptographicChain() {
-      const btn = document.getElementById('btnVerifyChain');
-      const notice = document.getElementById('ledgerStatusNotice');
-      if (btn) btn.textContent = 'Recalculating SHA-256...';
-
-      let chainValid = true;
-      for (let i = 1; i < appState.auditLedger.length; i++) {
-        const current = appState.auditLedger[i];
-        const prev = appState.auditLedger[i - 1];
-        if (current.prevHash !== prev.hash) {
-          chainValid = false;
-          break;
-        }
-      }
-
-      if (chainValid) {
-        if (notice) {
-          notice.className = 'note-box';
-          notice.style.borderLeftColor = 'var(--tertiary)';
-          notice.innerHTML = `<strong>Cryptographic Ledger Verified:</strong> All ${appState.auditLedger.length} chained blocks authenticated. SHA-256 hash pointers 100% sequential. Zero anomalies or retro-active edits detected (Compliant with EU AI Act Art. 12 &amp; COSO 2013).`;
-        }
-      } else {
-        if (notice) {
-          notice.className = 'note-box';
-          notice.style.borderLeftColor = 'var(--error)';
-          notice.innerHTML = `<strong>Tampering Detected:</strong> Hash pointer mismatch in audit ledger. Immediate investigation required.`;
-        }
-      }
-
-      if (btn) btn.textContent = 'Verify Ledger Integrity (0 Anomalies)';
-    }
-
-    /* -------------------------------------------------------------
-       SkatteFUNN RF-1053B Grant Calculator Logic
-       ------------------------------------------------------------- */
-    function calculateGrantModel() {
-      const sliderHours = document.getElementById('grantInternalHours');
-      const sliderCost = document.getElementById('grantHourlyCost');
-      const sliderExternal = document.getElementById('grantExternalSpend');
-
-      if (!sliderHours || !sliderCost || !sliderExternal) return;
-
-      const hours = parseFloat(sliderHours.value);
-      const actualCost = parseFloat(sliderCost.value);
-      const externalSpend = parseFloat(sliderExternal.value);
-
-      const statutoryCap = 530; // 530 NOK / hr statutory cap
-      const annualProjectCeiling = 25000000; // 25M NOK ceiling
-
-      const grossLabor = hours * actualCost;
-      const eligibleRate = Math.min(actualCost, statutoryCap);
-      const eligibleLabor = hours * eligibleRate;
-      const disallowedLabor = grossLabor - eligibleLabor;
-
-      const rawBasis = eligibleLabor + externalSpend;
-      const finalBasis = Math.min(rawBasis, annualProjectCeiling);
-      const taxCredit = finalBasis * 0.19; // 19% SkatteFUNN rate
-
-      // Update Displays
-      const lblGrantHours = document.getElementById('lblGrantHours');
-      const lblGrantCost = document.getElementById('lblGrantCost');
-      const lblGrantExternal = document.getElementById('lblGrantExternal');
-
-      if (lblGrantHours) lblGrantHours.textContent = `${hours.toLocaleString('en-US')} hrs`;
-      if (lblGrantCost) lblGrantCost.textContent = `${actualCost} NOK / hr`;
-      if (lblGrantExternal) lblGrantExternal.textContent = `${(externalSpend / 1e6).toFixed(2)}M NOK`;
-
-      const resGrossLabor = document.getElementById('resGrossLabor');
-      const resDisallowedLabor = document.getElementById('resDisallowedLabor');
-      const resEligibleLabor = document.getElementById('resEligibleLabor');
-      const resTotalBasis = document.getElementById('resTotalBasis');
-      const resNetCredit = document.getElementById('resNetCredit');
-      const valTaxCredit = document.getElementById('valTaxCredit');
-
-      if (resGrossLabor) resGrossLabor.textContent = `${Math.round(grossLabor).toLocaleString('en-US')} NOK`;
-      if (resDisallowedLabor) resDisallowedLabor.textContent = `-${Math.round(disallowedLabor).toLocaleString('en-US')} NOK`;
-      if (resEligibleLabor) resEligibleLabor.textContent = `${Math.round(eligibleLabor).toLocaleString('en-US')} NOK`;
-      if (resTotalBasis) resTotalBasis.textContent = `${Math.round(finalBasis).toLocaleString('en-US')} NOK`;
-      if (resNetCredit) resNetCredit.textContent = `${Math.round(taxCredit).toLocaleString('en-US')} NOK`;
-      if (valTaxCredit) valTaxCredit.textContent = Math.round(taxCredit).toLocaleString('en-US');
-    }
-
-    function updateAuditReadiness() {
-      const checkboxes = document.querySelectorAll('#viewGrants input[type="checkbox"]');
-      let checkedCount = 0;
-      checkboxes.forEach(cb => { if (cb.checked) checkedCount++; });
-
-      const pct = Math.round((checkedCount / checkboxes.length) * 100);
-      const scoreVal = document.getElementById('auditScoreVal');
-      if (scoreVal) {
-        scoreVal.textContent = `${pct}% — ${pct === 100 ? 'Ready for CPA Signoff' : 'Action Required'}`;
-        scoreVal.style.color = pct === 100 ? 'var(--tertiary)' : 'var(--error)';
-      }
-    }
-
-    function exportAuditDossier() {
-      const summary = `ELKEM ASA TECHNOLOGY — SKATTEFUNN RF-1053B DOSSIER\nGenerated: ${new Date().toISOString()}\nController: Frank Ellingsen\nStatutory Rate Cap: 530 NOK/hr\nAnnual Cap Basis: 25,000,000 NOK\nEstimated 19% Tax Credit: ${document.getElementById('resNetCredit')?.textContent || '4,104,950 NOK'}\nAudit Status: ISA 805 / ISAE 3000 Verified.`;
-      
-      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === 'function') {
-        window.notebookAppApi.triggerFileDownload({
-          content: summary,
-          contentType: 'text/plain',
-          encoding: 'utf-8',
-          filename: 'Elkem_SkatteFUNN_RF1053B_Audit_Dossier.txt'
+        const traces = [];
+        const categories = [...new Set(ganttData.map(d => d.status))];
+
+        categories.forEach(cat => {
+            const items = ganttData.filter(d => d.status === cat);
+            traces.push({
+                name: cat,
+                x: items.map(d => d.end),
+                y: items.map(d => d.task),
+                base: items.map(d => d.start),
+                type: 'bar',
+                orientation: 'h',
+                marker: { color: colorMap[cat] || '#002B49' },
+                hovertext: items.map(d => d.details)
+            });
         });
-      } else {
-        const blob = new Blob([summary], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Elkem_SkatteFUNN_RF1053B_Audit_Dossier.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-    }
 
-    /* -------------------------------------------------------------
-       State Persistence via notebookAppApi Shim
-       ------------------------------------------------------------- */
-    async function saveState() {
-      if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === 'function') {
-        try {
-          await window.notebookAppApi.setAppState(appState);
-        } catch (e) {
-          // silently handle
-        }
-      }
-    }
+        const layout = {
+            title: {
+                text: 'Elkem Technology — Master Schedule & Multi-Level Gantt Chart',
+                font: { size: 16, color: '#002B49' }
+            },
+            barmode: 'stack',
+            xaxis: { type: 'date', title: 'Tidslinje (2024 - 2025)' },
+            yaxis: { autorange: 'reversed' },
+            margin: { l: 280, r: 20, t: 40, b: 40 },
+            showlegend: true
+        };
 
-    async function loadPersistedState() {
-      if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === 'function') {
-        try {
-          const loaded = await window.notebookAppApi.getAppState();
-          if (loaded && typeof loaded === 'object') {
-            appState = Object.assign(appState, loaded);
-          }
-        } catch (e) {
-          // silently handle
-        }
-      }
-    }
-
-    /* -------------------------------------------------------------
-       Application Initialization
-       ------------------------------------------------------------- */
-    async function initWorkstation() {
-      await loadPersistedState();
-
-      // Setup icons
-      if (window.lucide) {
-        window.lucide.createIcons();
-      }
-
-      // Populate Table
-      populateIpmrTable();
-
-      // Render Active View & Control Account
-      selectControlAccount(appState.selectedAccount || 'CA-2045');
-      updateIfrsModel();
-      calculateGrantModel();
-      renderAuditChain();
-
-      // Apply initial view
-      if (appState.activeView && appState.activeView !== 'evm') {
-        switchView(appState.activeView);
-      }
-
-      // If tollbooth was already approved in persisted state
-      if (appState.tollboothApproved) {
-        const badge = document.getElementById('gateBadge');
-        const card = document.getElementById('activeTollboothCard');
-        const btnApprove = document.getElementById('btnApproveTollbooth');
-        if (badge) {
-          badge.className = 'gate-badge approved';
-          badge.innerHTML = `<i data-lucide="check" style="width:13px; height:13px;"></i> Approved &amp; Signed`;
-        }
-        if (card) card.style.borderColor = 'var(--tertiary)';
-        if (btnApprove) btnApprove.textContent = 'Committed to ERP';
-      }
-
-      // Notify host app ready
-      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === 'function') {
-        window.notebookAppApi.notifyAppReady();
-      }
-    }
-
-    // Launch on DOM ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initWorkstation);
-    } else {
-      initWorkstation();
-    }
-  </script>
+        Plotly.newPlot('gantt-chart', traces, layout);
+    </script>
 </body>
 </html>
