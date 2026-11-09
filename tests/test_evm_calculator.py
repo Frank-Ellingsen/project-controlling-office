@@ -54,6 +54,16 @@ class TestEVMCalculator(unittest.TestCase):
         expected_composite = round(3800000.0 + (6500000.0 / (cpi * spi)), 2)
         self.assertEqual(res_cpi.eac_composite, expected_composite)
 
+    def test_eac_methods_accept_case_insensitive_strings(self):
+        res_budgeted = EVMCalculator.calculate(self.standard_input, default_eac_method="budgeted")
+        self.assertEqual(res_budgeted.eac_budgeted, 10300000.0)
+
+        res_composite = EVMCalculator.calculate(self.standard_input, default_eac_method="COMPOSITE")
+        self.assertIsNotNone(res_composite.eac_composite)
+
+        with self.assertRaisesRegex(ValueError, "Unsupported EAC method"):
+            EVMCalculator.calculate(self.standard_input, default_eac_method="unknown")
+
     def test_ifrs_15_revenue_recognition(self):
         res = EVMCalculator.calculate(self.standard_input)
         

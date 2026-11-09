@@ -115,9 +115,27 @@ class EVMCalculator:
     Deterministic EVM & IFRS 15 Engine.
     Fully unit-testable and ISO/EIA-748 compliant.
     """
+
+    @staticmethod
+    def normalize_eac_method(default_eac_method: Optional[EACType | str] = EACType.CPI_BASED) -> EACType:
+        """Accept both EACType enums and string values from REST/CLI callers."""
+        if default_eac_method is None:
+            return EACType.CPI_BASED
+        if isinstance(default_eac_method, EACType):
+            return default_eac_method
+        if isinstance(default_eac_method, str):
+            normalized = default_eac_method.strip().lower()
+            for method in EACType:
+                if method.value == normalized:
+                    return method
+            allowed = ", ".join(method.value for method in EACType)
+            raise ValueError(f"Unsupported EAC method '{default_eac_method}'. Expected one of: {allowed}.")
+        raise TypeError("default_eac_method must be an EACType or string.")
     
     @staticmethod
-    def calculate(inp: EVMInput, default_eac_method: EACType = EACType.CPI_BASED) -> EVMResult:
+    def calculate(inp: EVMInput, default_eac_method: EACType | str = EACType.CPI_BASED) -> EVMResult:
+        default_eac_method = EVMCalculator.normalize_eac_method(default_eac_method)
+
         # 1. Input Validation
         numeric_inputs = {
             "BAC": inp.bac,
