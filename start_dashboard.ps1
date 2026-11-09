@@ -1,4 +1,4 @@
-﻿# Elkem Technology Controller Hub - PowerShell Launcher
+# Elkem Technology Controller Hub - PowerShell Launcher
 Write-Host "==============================================================" -ForegroundColor Cyan
 Write-Host "  Elkem Technology Controller Hub - Starting Services" -ForegroundColor Cyan
 Write-Host "==============================================================" -ForegroundColor Cyan
@@ -10,3 +10,4 @@ Write-Host "[2/2] Åpner Streamlit Dashbord i nettleseren..." -ForegroundColor G
 Start-Process "http://localhost:8501"
 Write-Host ""
 Write-Host "Elkem Controller Hub kjører nå på http://localhost:8501!" -ForegroundColor Green
+
