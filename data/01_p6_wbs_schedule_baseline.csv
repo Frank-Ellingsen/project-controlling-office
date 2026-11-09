@@ -1,0 +1,6 @@
+WBS_Code,WBS_Name,Planned_Start,Planned_Finish,Actual_Start,Actual_Finish,Progress_Pct,BAC_NOK,CAM,Grant_Ref
+CA-4010.1,Process Engineering & HAZOP Safety,2026-01-01,2026-03-31,2026-01-05,2026-04-10,100.0,4500000,Dr. Håkon Olsen,Enova / SkatteFUNN
+CA-4010.2.1,Reactor Vessel & H2 Injection System Procurement,2026-02-15,2026-08-31,2026-02-20,,85.0,12000000,Knut Arnesen,Enova Demo Grant
+CA-4010.2.2,Slag Sensors & Optical Pyrometers Fabrication,2026-03-01,2026-07-15,2026-03-05,2026-07-20,100.0,3500000,Svein Viken,SkatteFUNN (#314502)
+CA-4010.3,Pilot Assembly & Electrical Integration (Fiskå),2026-07-01,2026-10-31,2026-07-15,,75.0,6000000,Janne Bergan,Enova Demo Grant
+CA-4010.4,Hot Commissioning & Off-Gas Sampling,2026-10-01,2026-12-31,2026-10-15,,25.0,4000000,Dr. Håkon Olsen,SkatteFUNN (#314502)

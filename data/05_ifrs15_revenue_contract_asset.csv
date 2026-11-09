@@ -1,0 +1,9 @@
+Metric,Amount_NOK,Description
+Total Contract Value,36000000.0,Fastpriskontrakt med industrikonsortium
+Budget at Completion (BAC),30000000.0,Samlet godkjent prosjektbudsjett
+Earned Value (BCWP YTD),27900000.0,Opptjent verdi per 31.10.2026
+Actual Cost (ACWP YTD),30300000.0,Faktiske påløpte kostnader per 31.10.2026
+Percentage of Completion (PoC %),93.0,(EV / BAC) * 100
+Cumulative Recognized Revenue,33480000.0,Contract Value * PoC %
+Total Invoiced to Date,22000000.0,Milestone 1 + Milestone 2 fakturert
+Net Contract Asset (GL 1380),11480000.0,Ufakturert opptjent inntekt i balansen
