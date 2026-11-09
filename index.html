@@ -83,14 +83,6 @@
             font-weight: 700;
             color: var(--elkem-navy);
         }
-        .cta-streamlit-banner {
-            background: #FFF3CD;
-            border: 1px solid #FFEEBA;
-            border-left: 5px solid #FFC107;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
         /* Chatbot Popup Widget */
         #chat-widget-button {
             position: fixed;
@@ -184,7 +176,7 @@
             <div class="d-flex align-items-center">
                 <span class="badge badge-domain me-3"><i class="fa-solid fa-location-dot me-1"></i>Fiskå R&D & Pilot Plant</span>
                 <span class="badge bg-success-subtle text-success border border-success me-2 streamlit-live-badge"><i class="fa-solid fa-circle text-success me-1"></i>Server Online</span>
-                <a href="http://localhost:8501" target="_blank" class="btn btn-sm btn-danger fw-bold"><i class="fa-solid fa-rocket me-1"></i>Åpne Streamlit Dashbord</a>
+                <a href="http://localhost:8501" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-danger fw-bold streamlit-link"><i class="fa-solid fa-rocket me-1"></i>Åpne Streamlit Dashbord</a>
             </div>
         </div>
     </nav>
@@ -198,7 +190,7 @@
                     <p class="lead mb-0">Integrert styringsrammeverk for EIA-748 EVM, IFRS 15, offentlige tilskudd (Enova/NFR/SkatteFUNN), Risikomatrise og Prosjektevaluator.</p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <a href="http://localhost:8501" target="_blank" class="btn btn-light btn-lg fw-bold text-dark"><i class="fa-solid fa-gauge-high me-2 text-danger"></i>Gå til Interaktiv App (localhost:8501)</a>
+                    <a href="http://localhost:8501" target="_blank" rel="noopener noreferrer" class="btn btn-light btn-lg fw-bold text-dark streamlit-link"><i class="fa-solid fa-gauge-high me-2 text-danger"></i>Gå til Interaktiv App (localhost:8501)</a>
                 </div>
             </div>
         </div>
@@ -206,15 +198,6 @@
 
     <div class="container mb-5">
         
-        <!-- STREAMLIT LINK BANNER -->
-        <div class="cta-streamlit-banner d-flex justify-content-between align-items-center">
-            <div>
-                <h5 class="fw-bold mb-1"><i class="fa-solid fa-circle-info text-warning me-2"></i>Lokal Streamlit-applikasjon tilgjengelig</h5>
-                <p class="mb-0 text-muted">Kjør <code>python -m streamlit run app.py</code> i PowerShell, eller dobbeltklikk <code>start_dashboard.bat</code> for å åpne den fulle prosjektstyringsappen på <code>localhost:8501</code> med live DuckDB-integrasjon.</p>
-            </div>
-            <a href="http://localhost:8501" target="_blank" class="btn btn-warning fw-bold px-4"><i class="fa-solid fa-up-right-from-square me-2"></i>Åpne App (8501)</a>
-        </div>
-
         <!-- PORTEFØLJE METRIKKER -->
         <div class="row mb-4">
             <div class="col-md-25 col-6 mb-2">
@@ -680,9 +663,17 @@
             }, 600);
         }
 
-        // Live status sjekk for Streamlit-server (localhost:8501)
+        // Dynamisk tilpasning av vert (127.0.0.1 / localhost) og live status sjekk for Streamlit
+        const targetHost = (window.location.hostname === '127.0.0.1') ? '127.0.0.1' : 'localhost';
+        const streamlitUrl = 'http://' + targetHost + ':8501';
+
+        // Oppdater lenker med optimal vert og fulle tilgangsrettigheter
+        document.querySelectorAll('.streamlit-link').forEach(link => {
+            link.href = streamlitUrl;
+        });
+
         function checkStreamlitStatus() {
-            fetch('http://localhost:8501', { mode: 'no-cors' })
+            fetch(streamlitUrl, { mode: 'no-cors' })
                 .then(() => {
                     const badges = document.querySelectorAll('.streamlit-live-badge');
                     badges.forEach(b => {
