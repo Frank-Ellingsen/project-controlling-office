@@ -1,0 +1,9 @@
+Framework_Domain,Metric_Label,Value_NOK,Accounting_Notes
+IFRS 15 Revenue,Total Fixed Contract Value,48000000.0,Fastpriskontrakt med konsortium
+IFRS 15 Revenue,Percentage of Completion (PoC %),76.67,(EV / BAC) * 100 per M10
+IFRS 15 Revenue,Cumulative Recognized Revenue,36800000.0,Contract Value * PoC %
+IFRS 15 Revenue,Total Invoiced to Date,23360000.0,Milepæl 1 + 2 Fakturert
+IFRS 15 Revenue,Net Contract Asset (Konto 1380),13440000.0,Ufakturert opptjent inntekt i balansen
+SkatteFUNN Grant,Approved YTD Eligible Cost,14200000.0,Etter 530 kr/t capping for seniorforskere
+SkatteFUNN Grant,SkatteFUNN Tax Credit (19%),2698000.0,Direkte skattefradrag / kontantutbetaling
+Enova Grant,Enova Grant Disbursed YTD,9600000.0,40% dekning godkjent v/ Stage-Gate 3

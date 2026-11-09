@@ -1,0 +1,7 @@
+Kostnadselement,Belop_tNOK,Stotteberettiget,Eligible_Belop_tNOK,Begrunnelse
+FoU-lønn,3000,Ja,3000,Interne FoU-timer (under max 530 kr/t)
+Engineering,1200,Ja,1200,Eksterne FoU-tjenester for prosessutvikling
+Testmaterialer,800,Ja,800,Direkte henførbare testmaterialer
+Pilotutstyr,3900,Må vurderes,0,Krev avklaring om avskrivning vs direkte kost
+Project management,900,50% Eligible,450,Kun faglig FoU-ledelse er støtteberettiget
+Finansieringskostnad,100,Nei,0,Finansielle poster dekkes ikke

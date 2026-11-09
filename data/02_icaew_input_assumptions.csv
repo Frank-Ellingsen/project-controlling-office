@@ -1,0 +1,11 @@
+Category,Parameter_Name,Value,Unit,Source_Reference,ICAEW_Rule_Compliance
+General Parameters,Project_ID,CA-5020,Text,Elkem Technology Charter,Principle #7 (Documented)
+General Parameters,Project_Name,Carbon-Neutral Smelter Scaling & Automation,Text,Fiskå Pilot Plant Plan,Principle #6 (Audience Clear)
+General Parameters,Baseline_BAC_NOK,40000000.0,NOK,Approved Budget M00,Principle #14 (No Hardcoding)
+General Parameters,Fixed_Contract_Value_NOK,48000000.0,NOK,Consortium Agreement,Principle #14 (No Hardcoding)
+SkatteFUNN Statutory,SkatteFUNN_Hourly_Cap_NOK,530.0,NOK/hr,Forskrift § 16-40-6,Principle #10 (Separated Input)
+SkatteFUNN Statutory,SkatteFUNN_Max_Hours_Per_Year,1850.0,Hours/yr,Forskrift § 16-40-6,Principle #10 (Separated Input)
+SkatteFUNN Statutory,SkatteFUNN_Tax_Credit_Rate,0.19,%,Skatteloven § 16-40,Principle #14 (No Hardcoding)
+Public Grant Enova,Enova_Grant_Coverage_Pct,0.4,%,Enova Tilbudsbrev 2026,Principle #10 (Separated Input)
+Public Grant Enova,Enova_Max_Grant_NOK,16000000.0,NOK,Enova Grant Ceiling,Principle #14 (No Hardcoding)
+IFRS Accounting,IAS38_Development_Start_Month,2026-03,YYYY-MM,Gate 2 Technical Audit,Principle #11 (Consistent)

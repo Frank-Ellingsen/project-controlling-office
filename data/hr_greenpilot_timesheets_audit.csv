@@ -1,0 +1,6 @@
+Ansatt,Timer,WBS,Status,Handling
+Engineer A,120,GP-300,Godkjent,Godkjennes for prosjektregnskap & tilskudd
+Engineer B,95,GP-300,Mangler godkjenning,Holdes tilbake inntil linjeleder har signert
+Researcher C,140,GP-100,Godkjent,Godkjennes 100% som FoU-tid
+Researcher D,80,Uspesifisert,Ingen WBS,Korrigeres / Avvises (manglende WBS-kode)
+Project Manager,110,GP-700,Delvis eligible,"50% tilordnes FoU-tilskudd, 50% som adm/IK1"

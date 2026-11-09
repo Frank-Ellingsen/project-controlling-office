@@ -1,0 +1,7 @@
+Control_ID,COSO_Principle,Control_Description,Target_Tolerance,Current_Status,Alert_Severity,Audit_Hash_SHA256
+CTL-001,Principle 8: Fraud & Rate Overrun,SkatteFUNN Hourly Rate Ceiling Check (530 kr/t),Max 530 NOK/hr,PASSED (Capped in ERP),Green,0xa1b2c3d4e5f601
+CTL-002,Principle 10: Control Activities,FAST Corkscrew Balance Integrity (Opening + Additions = Closing),Variance == 0.00 NOK,PASSED (0.00 Variance),Green,0xa1b2c3d4e5f602
+CTL-003,Principle 12: Policy Execution,IAS 38 Research vs Development Gate Check (M01-M02 Expensed),100% Expensed before Gate 2,PASSED (Research Expensed),Green,0xa1b2c3d4e5f603
+CTL-004,Principle 13: Quality Information,EVM CPI Performance Threshold Warning (CPI < 0.95),CPI >= 0.95,WARNING (CPI = 0.9189),Yellow,0xa1b2c3d4e5f604
+CTL-005,Principle 14: Internal Communication,IFRS 15 Contract Asset Reconciliation (Konto 1380 vs Invoiced),Reconciled with Sales Ledger,PASSED (Net Asset 13.44 MNOK),Green,0xa1b2c3d4e5f605
+CTL-006,Principle 17: Deficiency Reporting,Revisor ISA 805 Audit Trail Sign-off Verification,Signed Timelists & WBS Mapping,READY FOR AUDIT,Green,0xa1b2c3d4e5f606

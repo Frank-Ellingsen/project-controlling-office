@@ -1,0 +1,14 @@
+Metrikk,Verdi,Enhet,Beskrivelse
+BAC (Totalbudsjett),20000.0,tNOK,Original godkjent baseline
+PV (Planned Value),12000.0,tNOK,Planlagt utført verdi per 31.08
+EV (Earned Value),10000.0,tNOK,Faktisk opptjent verdi per 31.08
+AC (Adjusted Actual Cost),11380.0,tNOK,ERP Actuals + Accruals / Justeringer
+CV (Cost Variance),-1380.0,tNOK,EV - AC (Kostnadsoverskridelse per 31.08)
+SV (Schedule Variance),-2000.0,tNOK,EV - PV (Fremdriftsetterslep i budsjettkroner)
+CPI (Cost Performance Index),0.879,Indeks,EV / AC (Under 1.0 = Kostnadsugunstig)
+SPI (Schedule Performance Index),0.833,Indeks,EV / PV (Under 1.0 = Etter plan)
+Bottom-up EAC (Prosjektleder),21230.0,tNOK,Adjusted AC + Bottom-up ETC
+VAC (Variance at Completion),-1230.0,tNOK,BAC - Bottom-up EAC (-1.23 MNOK overskridelse)
+EAC Scenario A (CPI-trend),22760.0,tNOK,BAC / CPI
+EAC Scenario B (Future work at plan),21380.0,tNOK,AC + (BAC - EV)
+EAC Scenario C (CPI x SPI trend),25040.0,tNOK,AC + (BAC - EV) / (CPI * SPI)

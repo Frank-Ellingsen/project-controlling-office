@@ -1,0 +1,15 @@
+Sheet_Class,Sheet_Name,Line_Item_ID,Line_Item_Label,Unit,FAST_Type,Formula_Rule,Precedents
+Foundation,01_Inputs,INP-001,Project BAC Target,NOK,Input,Hardcoded Constant,None
+Foundation,01_Inputs,INP-002,Contract Value (IFRS 15),NOK,Input,Hardcoded Constant,None
+Foundation,02_Timing_Flags,FLG-001,Operative Period Flag (M01-M12),Flag (0/1),Flag,"IF(Date>=Start AND Date<=End, 1, 0)",INP-001
+Workings,03_WBS_Costs,WBS-1.1,Process Design & HAZOP,NOK,Calculation Block,Hours * Rate,"INP-001, FLG-001"
+Workings,03_WBS_Costs,WBS-1.2,Furnace Reactor & Sensors,NOK,Calculation Block,PO_Commitments + Accruals,INP-001
+Workings,03_WBS_Costs,WBS-1.3,Hot Pilot Commissioning,NOK,Calculation Block,Actuals + ETC,"WBS-1.1, WBS-1.2"
+Workings,04_Corkscrew_AuC,CRK-001,Capital Work-in-Progress Opening Balance,NOK,Corkscrew,Prior Closing Balance,CRK-004
+Workings,04_Corkscrew_AuC,CRK-002,Additions (Eligible IAS 38 CAPEX),NOK,Flow,SUM(Eligible_Development_Costs),"WBS-1.2, WBS-1.3"
+Workings,04_Corkscrew_AuC,CRK-003,Settlement / Transfer to Fixed Assets,NOK,Flow,-1 * Flag_Completion * Total_Balance,"CRK-001, CRK-002"
+Workings,04_Corkscrew_AuC,CRK-004,Capital Work-in-Progress Closing Balance,NOK,Balance,CRK-001 + CRK-002 + CRK-003,"CRK-001, CRK-002, CRK-003"
+Presentation,05_Financial_Statements,REP-001,IFRS 15 Revenue (PoC %),NOK,Result,Contract_Value * (EV / BAC),"INP-002, EVM-003"
+Presentation,05_Financial_Statements,REP-002,Net Contract Asset (Konto 1380),NOK,Result,Cumulative_Revenue - Invoiced_To_Date,"REP-001, INP-003"
+Control,06_Control_Checks,CHK-001,Master Balance Tie-Out Check,Boolean,Check,"IF(Assets - Liabilities - Equity == 0, 'OK', 'ERROR')","REP-002, CRK-004"
+Control,06_Control_Checks,CHK-002,SkatteFUNN Rate Cap Alert (530 kr/t),Alert,Alert,"IF(Hourly_Rate > 530, 'CAPPED', 'OK')",INP-004

@@ -1,0 +1,6 @@
+PO,WBS,Leverandor,PO_Verdi_tNOK,Fakturert_tNOK,Aapen_PO_tNOK,Accrual_Status
+PO101,GP-300,Engineering AS,800,500,300,Accrual +180 tNOK for utført arbeid august
+PO102,GP-400,PilotTech GmbH,4500,3500,1000,GRNI +700 tNOK mottatt & godkjent komponent
+PO103,GP-500,Install AS,1200,0,1200,Ingen accrual (arbeid ikke startet)
+PO104,GP-600,Lab Services AS,600,200,400,Ingen accrual utover fakturert
+PO105,GP-700,Consultant AS,400,250,150,Korrigert -50 tNOK feilført fra annet prosjekt
