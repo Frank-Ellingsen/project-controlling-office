@@ -183,6 +183,7 @@
             <a class="navbar-brand" href="#"><i class="fa-solid fa-building-columns me-2"></i>Elkem ASA Technology Controller Hub</a>
             <div class="d-flex align-items-center">
                 <span class="badge badge-domain me-3"><i class="fa-solid fa-location-dot me-1"></i>Fiskå R&D & Pilot Plant</span>
+                <span class="badge bg-success-subtle text-success border border-success me-2 streamlit-live-badge"><i class="fa-solid fa-circle text-success me-1"></i>Server Online</span>
                 <a href="http://localhost:8501" target="_blank" class="btn btn-sm btn-danger fw-bold"><i class="fa-solid fa-rocket me-1"></i>Åpne Streamlit Dashbord</a>
             </div>
         </div>
@@ -209,7 +210,7 @@
         <div class="cta-streamlit-banner d-flex justify-content-between align-items-center">
             <div>
                 <h5 class="fw-bold mb-1"><i class="fa-solid fa-circle-info text-warning me-2"></i>Lokal Streamlit-applikasjon tilgjengelig</h5>
-                <p class="mb-0 text-muted">Kjør <code>conda activate wf1; streamlit run app.py</code> i PowerShell for å åpne den fulle interaktive prosjektstyringsappen med live DuckDB-integrasjon.</p>
+                <p class="mb-0 text-muted">Kjør <code>python -m streamlit run app.py</code> i PowerShell, eller dobbeltklikk <code>start_dashboard.bat</code> for å åpne den fulle prosjektstyringsappen på <code>localhost:8501</code> med live DuckDB-integrasjon.</p>
             </div>
             <a href="http://localhost:8501" target="_blank" class="btn btn-warning fw-bold px-4"><i class="fa-solid fa-up-right-from-square me-2"></i>Åpne App (8501)</a>
         </div>
@@ -678,6 +679,28 @@
                 chatBody.scrollTop = chatBody.scrollHeight;
             }, 600);
         }
+
+        // Live status sjekk for Streamlit-server (localhost:8501)
+        function checkStreamlitStatus() {
+            fetch('http://localhost:8501', { mode: 'no-cors' })
+                .then(() => {
+                    const badges = document.querySelectorAll('.streamlit-live-badge');
+                    badges.forEach(b => {
+                        b.innerHTML = '<i class="fa-solid fa-circle text-success me-1"></i>Server Online';
+                        b.className = 'badge bg-success-subtle text-success border border-success me-2 streamlit-live-badge';
+                    });
+                })
+                .catch(() => {
+                    const badges = document.querySelectorAll('.streamlit-live-badge');
+                    badges.forEach(b => {
+                        b.innerHTML = '<i class="fa-solid fa-circle-exclamation text-warning me-1"></i>Start Server (8501)';
+                        b.className = 'badge bg-warning-subtle text-dark border border-warning me-2 streamlit-live-badge';
+                        b.title = 'Kjør start_dashboard.bat eller: python -m streamlit run app.py';
+                    });
+                });
+        }
+        checkStreamlitStatus();
+        setInterval(checkStreamlitStatus, 10000);
     </script>
 </body>
 </html>
